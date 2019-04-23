@@ -110,7 +110,7 @@ ctdm.eps should contain weighted js-distances between samples for each subtype o
 ```
 
 Comment 4, kind of.
-Distribution of distances per cell type, supposed to be inter-patient for a specific fraction, but we don't have that so we can try healthy vs eps instead. Maybe we could also just try intra sample, just need to split resulting df.
+Distribution of distances per cell type, supposed to be inter-patient for a specific fraction, but we don't have that so we can try healthy vs eps instead or something
 ```{r}
 min_cells=0
 InterPatDF <- function(cell.type, min.cells=0, between.conditions=TRUE) {
