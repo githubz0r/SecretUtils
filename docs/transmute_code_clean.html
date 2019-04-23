@@ -522,10 +522,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree5afe500ff6ab794d13830ccff6a7a2e2752c5ae2targetblank5afe500a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/5afe500ff6ab794d13830ccff6a7a2e2752c5ae2" target="_blank">5afe500</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreeb474b230e58eaf34c25b305adb03c3b7ed99506ctargetblankb474b23a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/b474b230e58eaf34c25b305adb03c3b7ed99506c" target="_blank">b474b23</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree5afe500ff6ab794d13830ccff6a7a2e2752c5ae2targetblank5afe500a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreeb474b230e58eaf34c25b305adb03c3b7ed99506ctargetblankb474b23a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -589,6 +589,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/7b4b3184e8fc688dee45f5ef768240b744dbd93a/docs/transmute_code_clean.html" target="_blank">7b4b318</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -695,6 +712,43 @@ typef &lt;- as.factor(ann2)</code></pre>
   type.palette &lt;- setNames(rainbow(length(levels(typefc))),levels(typefc))
   pie(1:length(type.palette),labels=names(type.palette),col=type.palette)</code></pre>
 <p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
+Past versions of unnamed-chunk-2-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/7b4b3184e8fc688dee45f5ef768240b744dbd93a/docs/figure/transmute_code_clean.Rmd/unnamed-chunk-2-1.png" target="_blank">7b4b318</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>  # correct fraction names, return a factor
   get.fractions &lt;- function(x,correct=T) {
     xn &lt;- names(x);
@@ -753,6 +807,43 @@ This warning is displayed once per session.</code></pre>
   p &lt;- ggplot(na.omit(df),aes(x=typefc,y=value,dodge=fraction,fill=fraction))+geom_boxplot(notch=FALSE,outlier.shape=NA) +scale_fill_manual(values=fraction.palette) +  geom_point(position = position_jitterdodge(jitter.width=0.1),color=adjustcolor(1,alpha=0.3),aes(pch=fraction),size=0.8)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab(&quot;&quot;) +ylab(&quot;fraction of total cells&quot;)+ theme(legend.position=&quot;top&quot;)
   p # value &lt;- fraction of subtype for a patient-tissue-type combination</code></pre>
 <p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/7b4b3184e8fc688dee45f5ef768240b744dbd93a/docs/figure/transmute_code_clean.Rmd/unnamed-chunk-3-1.png" target="_blank">7b4b318</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>  #pdf(file=&#39;fraction.all.pdf&#39;,width=12,height=6)
   #print(p)
   #dev.off()</code></pre>
@@ -799,6 +890,43 @@ This warning is displayed once per session.</code></pre>
   ts.sample.tsne.nc &lt;- ggplot(df,aes(x,y,color=patient,shape=fraction,size=log10(ncells))) + geom_point() + theme_bw() + xlab(&quot;&quot;) + ylab(&quot;&quot;) + theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) + guides(color=guide_legend(ncol=2));
   ts.sample.tsne.nc # why are we plotting tsne of js distances?</code></pre>
 <p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/7b4b3184e8fc688dee45f5ef768240b744dbd93a/docs/figure/transmute_code_clean.Rmd/unnamed-chunk-4-1.png" target="_blank">7b4b318</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Comment 2 Should be tumor corrected in cell below but let’s disregard the correction</p>
 <pre class="r"><code>  ctdm &lt;- ctdm.nc
   x &lt;- abind(lapply(ctdm,function(x) { # line 1409, keep ctdm in cleaned rmd because we need it
@@ -826,6 +954,43 @@ This warning is displayed once per session.</code></pre>
   ts.sample.tsne &lt;- ggplot(df,aes(x,y,color=patient,shape=fraction,size=log10(ncells))) + geom_point() + theme_bw() + xlab(&quot;&quot;) + ylab(&quot;&quot;) + theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) + guides(color=guide_legend(ncol=2));
   ts.sample.tsne</code></pre>
 <p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/7b4b3184e8fc688dee45f5ef768240b744dbd93a/docs/figure/transmute_code_clean.Rmd/unnamed-chunk-5-1.png" target="_blank">7b4b318</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>distance magnitude comparisons</p>
 <pre class="r"><code>  # distance magnitude comparisons
   # first, on combined distance matrix
@@ -879,6 +1044,43 @@ This warning is displayed once per session.</code></pre>
   ts.within.fraction &lt;- ggplot(na.omit(df2),aes(x=type,y=value))+geom_boxplot(notch=TRUE,outlier.shape=NA,aes(fill=type))+scale_fill_manual(values=fraction.palette)+geom_jitter(position=position_jitter(0.2),color=adjustcolor(&#39;black&#39;,alpha=0.2))+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +  guides(fill=FALSE) + xlab(&#39;&#39;) + ylab(&#39;inter-patient expression distance&#39;)
   ts.within.fraction</code></pre>
 <p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
+Past versions of unnamed-chunk-6-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/7b4b3184e8fc688dee45f5ef768240b744dbd93a/docs/figure/transmute_code_clean.Rmd/unnamed-chunk-6-1.png" target="_blank">7b4b318</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Comment 4 inter-patient distances per cell type</p>
 <pre class="r"><code>  # same thing, but per cell type
   min.cells &lt;- 10
@@ -957,6 +1159,43 @@ notch went outside hinges. Try setting notch=FALSE.
 notch went outside hinges. Try setting notch=FALSE.
 notch went outside hinges. Try setting notch=FALSE.</code></pre>
 <p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/7b4b3184e8fc688dee45f5ef768240b744dbd93a/docs/figure/transmute_code_clean.Rmd/unnamed-chunk-7-1.png" target="_blank">7b4b318</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Between fractions</p>
 <pre class="r"><code># now comapre distances between fractions
   # with correction
@@ -983,6 +1222,43 @@ notch went outside hinges. Try setting notch=FALSE.</code></pre>
   ts.fractions &lt;- ggplot(na.omit(df2),aes(x=as.factor(type),y=value))+geom_boxplot(notch=F,outlier.shape=NA)+geom_jitter(position=position_jitter(0.2),aes(color=patient1))+ theme(axis.text.x = element_text(angle = 90, hjust = 1)) + xlab(&quot;&quot;) +ylab(&quot;expression distance&quot;)
   ts.fractions</code></pre>
 <p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
+Past versions of unnamed-chunk-8-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-8-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/7b4b3184e8fc688dee45f5ef768240b744dbd93a/docs/figure/transmute_code_clean.Rmd/unnamed-chunk-8-1.png" target="_blank">7b4b318</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Comment 3 Expression shift magnitude thingy</p>
 <pre class="r"><code>  # for a given comparison, look at the magnitude of the differences observed for different cell types
   comp &lt;- c(&quot;Noninvolved&quot;,&quot;Involved&quot;)
@@ -1017,6 +1293,43 @@ notch went outside hinges. Try setting notch=FALSE.</code></pre>
   ts.tumor &lt;- ggplot(na.omit(df),aes(x=as.factor(cell),y=value))+geom_boxplot(notch=FALSE,outlier.shape=NA)+geom_jitter(position=position_jitter(0.1),aes(color=patient),show.legend=FALSE,alpha=0.5)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab(&quot;&quot;) +ylab(&quot;within-patient expression distance&quot;)
   ts.tumor</code></pre>
 <p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
+Past versions of unnamed-chunk-9-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-9-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/7b4b3184e8fc688dee45f5ef768240b744dbd93a/docs/figure/transmute_code_clean.Rmd/unnamed-chunk-9-1.png" target="_blank">7b4b318</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
