@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>transmute_peters_code</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">SecretUtils</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/githubz0r/SecretUtils">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">transmute_peters_code</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-04-23
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>SecretUtils/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.3.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190415code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190415)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190415code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190415)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree5afe500ff6ab794d13830ccff6a7a2e2752c5ae2targetblank5afe500a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/5afe500ff6ab794d13830ccff6a7a2e2752c5ae2" target="_blank">5afe500</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree5afe500ff6ab794d13830ccff6a7a2e2752c5ae2targetblank5afe500a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .Rbuildignore
+    Untracked:  DESCRIPTION
+    Untracked:  NAMESPACE
+    Untracked:  R/hello.R
+    Untracked:  analysis/all.panels.pdf
+    Untracked:  analysis/cell_type_total_tSNE.w.pdf
+    Untracked:  analysis/fraction.all.pdf
+    Untracked:  analysis/subtype_distances.Rmd
+    Untracked:  analysis/subtype_distances2.Rmd
+    Untracked:  analysis/subtype_distances4.Rmd
+    Untracked:  analysis/transmute_peters_code.Rmd
+    Untracked:  man/
+
+Unstaged changes:
+    Modified:   analysis/subtype_distances3.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/5afe500ff6ab794d13830ccff6a7a2e2752c5ae2/analysis/transmute_code_clean.Rmd" target="_blank">5afe500</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-23
+</td>
+<td>
+new package
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>load packages and data</p>
+<pre class="r"><code>library(conos)</code></pre>
+<pre><code>Loading required package: Matrix</code></pre>
+<pre><code>Loading required package: igraph</code></pre>
+<pre><code>
+Attaching package: &#39;igraph&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    decompose, spectrum</code></pre>
+<pre><code>The following object is masked from &#39;package:base&#39;:
+
+    union</code></pre>
+<pre class="r"><code>library(parallel)
+library(ggplot2)
+library(Matrix)
+library(data.table)
+library(pagoda2)
+library(cowplot)</code></pre>
+<pre><code>
+Attaching package: &#39;cowplot&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:ggplot2&#39;:
+
+    ggsave</code></pre>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>
+Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:data.table&#39;:
+
+    between, first, last</code></pre>
+<pre><code>The following objects are masked from &#39;package:igraph&#39;:
+
+    as_data_frame, groups, union</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    filter, lag</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(abind)
+library(tidyr)</code></pre>
+<pre><code>
+Attaching package: &#39;tidyr&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:igraph&#39;:
+
+    crossing</code></pre>
+<pre><code>The following object is masked from &#39;package:Matrix&#39;:
+
+    expand</code></pre>
+<pre class="r"><code>require(Rtsne)</code></pre>
+<pre><code>Loading required package: Rtsne</code></pre>
+<pre class="r"><code># load data
+scon &lt;- readRDS(&quot;/d0-mendel/home/meisl/Workplace/BMME/a.data/Selected_Joint_embdding/conA.rds&quot;)
+scon &lt;- Conos$new(scon)
+
+# load annotations
+ann2 &lt;- readRDS(&#39;/d0-mendel/home/meisl/Workplace/BMME/a.data/Selected_Joint_embdding/cellAno/BMME_cell_ano_0130.rds&#39;)
+typef &lt;- as.factor(ann2)</code></pre>
+<p>Initiate the analysis, how much of this is important? We start with some annotation changing and palette thingies</p>
+<pre class="r"><code>  fraction.palette &lt;- c(Benign=&#39;#064196&#39;,Noninvolved=&#39;#2a9606&#39;,Involved=&#39;#969606&#39;,Tumor=&#39;#960d06&#39;)
+
+  to.coarse.ann &lt;- function(ann) {
+    ca &lt;- setNames(as.character(ann),names(ann))
+    ca[grep(&quot;^CTL&quot;,ca)] &lt;- &quot;CD8+ T&quot;
+    ca[grep(&quot;T regs&quot;,ca)] &lt;- &quot;Regulatory T&quot;
+    ca[grep(&quot;TAM-|Macro&quot;,ca)] &lt;- &quot;Macrophage&quot;
+    ca[grep(&quot;Mono-&quot;,ca)] &lt;- &quot;Monocytes&quot;
+    ca[grep(&quot;mmature B&quot;,ca)] &lt;- &quot;Immature B&quot;
+    ca[grep(&quot;Memory T&quot;,ca)] &lt;- &quot;Memory T&quot;
+    ca[grep(&quot;Monocyte prog&quot;,ca)] &lt;- &quot;Monocyte prog&quot;
+    ca[grep(&quot;Mature B cells&quot;,ca)] &lt;- &quot;Mature B&quot;
+    ca[grep(&quot;Helper T&quot;,ca)] &lt;- &quot;Helper T&quot;
+    ca[grep(&quot;memBcell&quot;,ca)] &lt;- &quot;Memory B&quot;
+    ca[grep(&quot;PDC&quot;,ca)] &lt;- &quot;pDC&quot;
+    ca &lt;- gsub(&quot; cell.?$&quot;,&quot;&quot;,ca)
+    return(as.factor(ca))
+  }
+  
+  typefc &lt;- to.coarse.ann(typef) # here we define typefc, we had to re-arrange the code; it&#39;s annot transformed a bit
+  
+  type.palette &lt;- setNames(rainbow(length(levels(typefc))),levels(typefc))
+  pie(1:length(type.palette),labels=names(type.palette),col=type.palette)</code></pre>
+<p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>  # correct fraction names, return a factor
+  get.fractions &lt;- function(x,correct=T) {
+    xn &lt;- names(x);
+    xf &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,as.character(x));
+    xf &lt;- gsub(&quot;Whole&quot;,&quot;Benign&quot;,xf);
+    xf &lt;- factor(xf,levels=c(&#39;Benign&#39;,&#39;Noninvolved&#39;,&#39;Involved&#39;,&#39;Tumor&#39;))
+    if(!is.null(xn)) names(xf) &lt;- xn;
+    xf
+  }
+  get.patients &lt;- function(x) { gsub(&quot;-.*&quot;,&quot;&quot;,x) }
+
+  samplef &lt;- lapply(scon$samples,function(x) rownames(x$counts))
+  samplef &lt;- as.factor(setNames(rep(names(samplef),unlist(lapply(samplef,length))),unlist(samplef)))
+  fractionf &lt;- get.fractions(samplef)
+
+
+  samplef &lt;- samplef[names(typef)] # categories but with sample info
+  fractionf &lt;- fractionf[names(typef)] # categories</code></pre>
+<p>Comment 5 fractional changes</p>
+<pre class="r"><code>  # how about fractional changes?
+  xt &lt;- table(typefc,samplef)
+  xf &lt;- t(t(xt)/colSums(xt))
+  df &lt;- melt(xf) # melt is basically gather
+  df$patient &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,df$samplef); df$fraction &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,df$samplef);
+  df$samplef &lt;- NULL # to remove the sample-tissue-type col
+
+  # probably should jsut compare between cancer fractions and Bening controls
+  df &lt;- melt(xf)
+  df$patient &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,df$samplef); df$fraction &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,df$samplef);
+  df$fraction &lt;- get.fractions(df$samplef)
+  df &lt;- df %&gt;% arrange(typefc,fraction) # 21 subtypes 32 patient/tissue-cat -&gt; 672 vals
+
+  head(df)</code></pre>
+<pre><code>  typefc    samplef     value patient fraction
+1 CD8+ T BMM2-Whole 0.1955025    BMM2   Benign
+2 CD8+ T BMM3-Whole 0.1927711    BMM3   Benign
+3 CD8+ T BMM4-Whole 0.1713909    BMM4   Benign
+4 CD8+ T BMM5-Whole 0.1651975    BMM5   Benign
+5 CD8+ T BMM6-Whole 0.2103935    BMM6   Benign
+6 CD8+ T BMM8-Whole 0.1492205    BMM8   Benign</code></pre>
+<pre class="r"><code>  x &lt;- as_tibble(df) %&gt;% group_by(typefc,fraction) %&gt;% summarise_at(vars(value),funs(mean(.,na.rm=T))) %&gt;% ungroup() %&gt;% spread(fraction,value) %&gt;% mutate(diff=Tumor-Benign) %&gt;% arrange(desc(diff)) %&gt;% as.data.frame()</code></pre>
+<pre><code>Warning: funs() is soft deprecated as of dplyr 0.8.0
+please use list() instead
+
+# Before:
+funs(name = f(.)
+
+# After: 
+list(name = ~f(.))
+This warning is displayed once per session.</code></pre>
+<pre class="r"><code># ^ fraction of cell types in different tissue categories, overall i.e. only 21 rows, used only for subnames it seems
+  # sort cell types
+  df$typefc &lt;- factor(df$typefc,levels=as.character(x$typefc)) # turning typefc into factor, necessary?
+
+  # full plot (for the supp)
+  p &lt;- ggplot(na.omit(df),aes(x=typefc,y=value,dodge=fraction,fill=fraction))+geom_boxplot(notch=FALSE,outlier.shape=NA) +scale_fill_manual(values=fraction.palette) +  geom_point(position = position_jitterdodge(jitter.width=0.1),color=adjustcolor(1,alpha=0.3),aes(pch=fraction),size=0.8)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab(&quot;&quot;) +ylab(&quot;fraction of total cells&quot;)+ theme(legend.position=&quot;top&quot;)
+  p # value &lt;- fraction of subtype for a patient-tissue-type combination</code></pre>
+<p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>  #pdf(file=&#39;fraction.all.pdf&#39;,width=12,height=6)
+  #print(p)
+  #dev.off()</code></pre>
+<p>Weighted distance matrix</p>
+<pre class="r"><code>  sn &lt;- function(x) setNames(x, x)
+  cm &lt;- scon$getClusterCountMatrices(groups=typefc)
+  cct &lt;- table(typefc,samplef)
+
+  cmpt &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,names(cm)) # names of patients
+  cmfr &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,names(cm)) # tissue type vector
+
+  # without tumor signature correction
+  ctdm.nc &lt;- mclapply(setNames(colnames(cm[[1]]), colnames(cm[[1]])),function(ct) {
+    tcm &lt;- do.call(rbind,lapply(cm,function(x) x[,ct]))
+    tcm &lt;- t(tcm/pmax(1,rowSums(tcm)))
+    tcd &lt;- pagoda2:::jsDist(tcm); dimnames(tcd) &lt;- list(colnames(tcm),colnames(tcm));
+    # calculate how many cells there are
+    attr(tcd,&#39;cc&#39;) &lt;- cct[ct,colnames(tcm)]
+    tcd
+  },mc.cores=1)
+
+  x &lt;- abind(lapply(ctdm.nc,function(x) {
+    nc &lt;- attr(x,&#39;cc&#39;);
+    #wm &lt;- (outer(nc,nc,FUN=&#39;pmin&#39;))
+    wm &lt;- sqrt(outer(nc,nc,FUN=&#39;pmin&#39;))
+    return( x*wm )
+  }),along=3)
+  y &lt;- abind(lapply(ctdm.nc,function(x) {
+    nc &lt;- attr(x,&#39;cc&#39;);
+    sqrt(outer(nc,nc,FUN=&#39;pmin&#39;))
+  }),along=3)
+  xd.nc &lt;- apply(x,c(1,2),sum)/apply(y,c(1,2),sum) # some kind of js distances I guess
+  
+  require(Rtsne)
+  xde &lt;- Rtsne(xd.nc,is_distance=TRUE, perplexity=3,max_iter=1e3)$Y
+  df &lt;- data.frame(xde); rownames(df) &lt;- rownames(xd.nc); colnames(df) &lt;- c(&quot;x&quot;,&quot;y&quot;);
+  df$fraction &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,rownames(df))
+  df$patient &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,rownames(df))
+  df$ncells &lt;- colSums(cct)[rownames(df)]
+
+  df$patient &lt;- gsub(&quot;BMM.*&quot;,&quot;Benign&quot;,df$patient) 
+  df$patient &lt;- gsub(&quot;^[A-Z]$&quot;,&quot;Normal&quot;,df$patient) # don&#39;t seem to work
+
+  ts.sample.tsne.nc &lt;- ggplot(df,aes(x,y,color=patient,shape=fraction,size=log10(ncells))) + geom_point() + theme_bw() + xlab(&quot;&quot;) + ylab(&quot;&quot;) + theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) + guides(color=guide_legend(ncol=2));
+  ts.sample.tsne.nc # why are we plotting tsne of js distances?</code></pre>
+<p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Comment 2 Should be tumor corrected in cell below but let’s disregard the correction</p>
+<pre class="r"><code>  ctdm &lt;- ctdm.nc
+  x &lt;- abind(lapply(ctdm,function(x) { # line 1409, keep ctdm in cleaned rmd because we need it
+    nc &lt;- attr(x,&#39;cc&#39;);
+    #wm &lt;- (outer(nc,nc,FUN=&#39;pmin&#39;))
+    wm &lt;- sqrt(outer(nc,nc,FUN=&#39;pmin&#39;))
+    return( x*wm )
+  }),along=3)
+  y &lt;- abind(lapply(ctdm,function(x) {
+    nc &lt;- attr(x,&#39;cc&#39;);
+    sqrt(outer(nc,nc,FUN=&#39;pmin&#39;))
+  }),along=3)
+
+  xd &lt;- apply(x,c(1,2),sum)/apply(y,c(1,2),sum) # first weighting by min count then dividing by all the values to &#39;re-normalize&#39; I guess
+  
+  xde &lt;- Rtsne(xd,is_distance=TRUE, perplexity=3,max_iter=1e3)$Y
+  df &lt;- data.frame(xde); rownames(df) &lt;- rownames(xd); colnames(df) &lt;- c(&quot;x&quot;,&quot;y&quot;);
+  df$fraction &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,rownames(df))
+  df$patient &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,rownames(df))
+  df$ncells &lt;- colSums(cct)[rownames(df)]
+  
+  df$patient &lt;- gsub(&quot;BMM.*&quot;,&quot;Benign&quot;,df$patient)
+  df$patient &lt;- gsub(&quot;^[A-Z]$&quot;,&quot;Normal&quot;,df$patient)
+
+  ts.sample.tsne &lt;- ggplot(df,aes(x,y,color=patient,shape=fraction,size=log10(ncells))) + geom_point() + theme_bw() + xlab(&quot;&quot;) + ylab(&quot;&quot;) + theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) + guides(color=guide_legend(ncol=2));
+  ts.sample.tsne</code></pre>
+<p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>distance magnitude comparisons</p>
+<pre class="r"><code>  # distance magnitude comparisons
+  # first, on combined distance matrix
+
+  x &lt;- xd.nc; x[upper.tri(x)] &lt;- NA; diag(x) &lt;- NA;
+  df2 &lt;- na.omit(melt(x)) # getting distance values
+
+  df2$patient1 &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,df2$Var1)
+  df2$patient2 &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,df2$Var2)
+  df2$fraction1 &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,df2$Var1)
+  df2$fraction2 &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,df2$Var2)
+
+  df2$samePatient &lt;- df2$patient1==df2$patient2;
+  df2$sameFraction &lt;- df2$fraction1==df2$fraction2;
+
+  df2$withTumor &lt;- df2$fraction1==&#39;Tumor&#39; | df2$fraction2==&#39;Tumor&#39;
+  df2$withInvolved &lt;- df2$fraction1==&#39;Involved&#39; | df2$fraction2==&#39;Involved&#39;
+  df2$withNoninvolved &lt;- df2$fraction1==&#39;Noninvolved&#39; | df2$fraction2==&#39;Noninvolved&#39;
+  
+  df2$type &lt;- NA
+  df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Whole&#39;] &lt;- &#39;Benign&#39;
+  df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Involved&#39;] &lt;- &#39;Involved&#39;
+  df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Noninvolved&#39;] &lt;- &#39;Noninvolved&#39;
+  df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Tumor&#39;] &lt;- &#39;Tumor&#39;
+  df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Healthy&#39;] &lt;- &#39;Healthy&#39;
+  df2$type &lt;- factor(df2$type,levels=c(&#39;Benign&#39;,&#39;Noninvolved&#39;,&#39;Involved&#39;,&#39;Tumor&#39;))
+
+  head(na.omit(df2))</code></pre>
+<pre><code>             Var1           Var2      value patient1 patient2 fraction1
+2  BMET2-Involved BMET1-Involved 0.05901736    BMET2    BMET1  Involved
+3  BMET8-Involved BMET1-Involved 0.04925274    BMET8    BMET1  Involved
+4 BMET10-Involved BMET1-Involved 0.09375818   BMET10    BMET1  Involved
+5  BMET3-Involved BMET1-Involved 0.04976584    BMET3    BMET1  Involved
+6  BMET6-Involved BMET1-Involved 0.07358906    BMET6    BMET1  Involved
+7 BMET11-Involved BMET1-Involved 0.06296323   BMET11    BMET1  Involved
+  fraction2 samePatient sameFraction withTumor withInvolved
+2  Involved       FALSE         TRUE     FALSE         TRUE
+3  Involved       FALSE         TRUE     FALSE         TRUE
+4  Involved       FALSE         TRUE     FALSE         TRUE
+5  Involved       FALSE         TRUE     FALSE         TRUE
+6  Involved       FALSE         TRUE     FALSE         TRUE
+7  Involved       FALSE         TRUE     FALSE         TRUE
+  withNoninvolved     type
+2           FALSE Involved
+3           FALSE Involved
+4           FALSE Involved
+5           FALSE Involved
+6           FALSE Involved
+7           FALSE Involved</code></pre>
+<pre class="r"><code>  df2 &lt;- df2[df2$sameFraction==TRUE,]
+  ts.within.fraction &lt;- ggplot(na.omit(df2),aes(x=type,y=value))+geom_boxplot(notch=TRUE,outlier.shape=NA,aes(fill=type))+scale_fill_manual(values=fraction.palette)+geom_jitter(position=position_jitter(0.2),color=adjustcolor(&#39;black&#39;,alpha=0.2))+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +  guides(fill=FALSE) + xlab(&#39;&#39;) + ylab(&#39;inter-patient expression distance&#39;)
+  ts.within.fraction</code></pre>
+<p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Comment 4 inter-patient distances per cell type</p>
+<pre class="r"><code>  # same thing, but per cell type
+  min.cells &lt;- 10
+  xl &lt;- do.call(rbind,lapply(names(ctdm.nc),function(xn) {
+    x &lt;- ctdm.nc[[xn]] # jsdists for subtype xn
+    nc &lt;- attr(x,&#39;cc&#39;); # count of cells
+    wm &lt;- outer(nc,nc,FUN=&#39;pmin&#39;) # min cells for the comparison
+
+    x[upper.tri(x)] &lt;- NA; diag(x) &lt;- NA;
+    wm[upper.tri(wm)] &lt;- NA; diag(wm) &lt;- NA;
+    df2 &lt;- melt(x);
+    df2$ncells &lt;- melt(wm)$value
+    df2 &lt;- na.omit(df2)
+    df2 &lt;- df2[df2$ncells&gt;=min.cells,];
+
+    df2$patient1 &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,df2$Var1)
+    df2$patient2 &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,df2$Var2)
+    df2$fraction1 &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,df2$Var1)
+    df2$fraction2 &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,df2$Var2)
+
+    df2$samePatient &lt;- df2$patient1==df2$patient2;
+    df2$sameFraction &lt;- df2$fraction1==df2$fraction2;
+
+    df2$withTumor &lt;- df2$fraction1==&#39;Tumor&#39; | df2$fraction2==&#39;Tumor&#39;
+    df2$withInvolved &lt;- df2$fraction1==&#39;Involved&#39; | df2$fraction2==&#39;Involved&#39;
+    df2$withNoninvolved &lt;- df2$fraction1==&#39;Noninvolved&#39; | df2$fraction2==&#39;Noninvolved&#39;
+
+    df2$type &lt;- NA
+    df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Whole&#39;] &lt;- &#39;Benign&#39;
+    df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Involved&#39;] &lt;- &#39;Involved&#39;
+    df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Noninvolved&#39;] &lt;- &#39;Noninvolved&#39;
+    df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Tumor&#39;] &lt;- &#39;Tumor&#39;
+    df2$type[df2$sameFraction &amp; df2$fraction1==&#39;Healthy&#39;] &lt;- &#39;Healthy&#39;
+    df2$type &lt;- factor(df2$type,levels=c(&#39;Benign&#39;,&#39;Noninvolved&#39;,&#39;Involved&#39;,&#39;Tumor&#39;))
+    df2 &lt;- df2[df2$sameFraction==TRUE,]
+    df2$cell &lt;- xn;
+    df2
+    
+  }))
+  
+    # leave only cell types with all fractions
+  vt &lt;- tapply(xl$fraction1,as.factor(xl$cell),function(x) length(unique(x)));
+  xl &lt;- xl[xl$cell %in% names(vt)[vt&gt;3],]
+  ts.within.fraction.all &lt;- ggplot(na.omit(xl),aes(x=cell,y=value,dodge=type))+geom_boxplot(notch=TRUE,outlier.shape=NA,aes(fill=type)) +scale_fill_manual(values=fraction.palette) +  geom_point(position = position_jitterdodge(jitter.width=0.1),color=adjustcolor(1,alpha=0.3),aes(pch=type),size=0.8)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab(&quot;&quot;) +ylab(&quot;inter-patient expression distance&quot;)+ theme(legend.position=&quot;top&quot;)
+  ts.within.fraction.all</code></pre>
+<pre><code>notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.</code></pre>
+<p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Between fractions</p>
+<pre class="r"><code># now comapre distances between fractions
+  # with correction
+  x &lt;- xd; x[upper.tri(x)] &lt;- NA; diag(x) &lt;- NA;
+  df2 &lt;- na.omit(melt(x))
+
+  df2$patient1 &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,df2$Var1)
+  df2$patient2 &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,df2$Var2)
+  df2$fraction1 &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,df2$Var1)
+  df2$fraction2 &lt;- gsub(&quot;.*-&quot;,&quot;&quot;,df2$Var2)
+
+  df2$samePatient &lt;- df2$patient1==df2$patient2;
+  df2$sameFraction &lt;- df2$fraction1==df2$fraction2;
+
+  df2$withTumor &lt;- df2$fraction1==&#39;Tumor&#39; | df2$fraction2==&#39;Tumor&#39;
+  df2$withInvolved &lt;- df2$fraction1==&#39;Involved&#39; | df2$fraction2==&#39;Involved&#39;
+  df2$withNoninvolved &lt;- df2$fraction1==&#39;Noninvolved&#39; | df2$fraction2==&#39;Noninvolved&#39;
+
+  df2$type &lt;- NA
+  df2$type[df2$samePatient &amp; df2$withInvolved &amp; df2$withNoninvolved] &lt;- &#39;Involved vs. Noninvolved&#39;
+  df2$type[df2$samePatient &amp; df2$withInvolved &amp; df2$withTumor] &lt;- &#39;Involved vs. Tumor&#39;
+  df2$type[df2$samePatient &amp; df2$withNoninvolved &amp; df2$withTumor] &lt;- &#39;Noninvolved vs. Tumor&#39;
+
+  ts.fractions &lt;- ggplot(na.omit(df2),aes(x=as.factor(type),y=value))+geom_boxplot(notch=F,outlier.shape=NA)+geom_jitter(position=position_jitter(0.2),aes(color=patient1))+ theme(axis.text.x = element_text(angle = 90, hjust = 1)) + xlab(&quot;&quot;) +ylab(&quot;expression distance&quot;)
+  ts.fractions</code></pre>
+<p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Comment 3 Expression shift magnitude thingy</p>
+<pre class="r"><code>  # for a given comparison, look at the magnitude of the differences observed for different cell types
+  comp &lt;- c(&quot;Noninvolved&quot;,&quot;Involved&quot;)
+  comp &lt;- c(&quot;Noninvolved&quot;,&quot;Tumor&quot;)
+  comp &lt;- c(&quot;Involved&quot;,&quot;Tumor&quot;)
+  comp &lt;- c(&quot;nvolved&quot;,&quot;Tumor&quot;)
+  min.cells &lt;- 10
+  x &lt;- lapply(ctdm,function(xm) {
+    nc &lt;- attr(xm,&#39;cc&#39;);
+    wm &lt;- outer(nc,nc,FUN=&#39;pmin&#39;)
+    frm &lt;- outer(grepl(comp[1],colnames(xm)),grepl(comp[2],rownames(xm)))==1; # appropriate fractions
+    sp &lt;- outer(gsub(&quot;-.*&quot;,&quot;&quot;,colnames(xm)),gsub(&quot;-.*&quot;,&quot;&quot;,rownames(xm)),FUN=&#39;==&#39;); # same patient
+    # restrict
+    xm[!sp] &lt;- NA;
+    xm[!frm] &lt;- NA;
+    xm[wm&lt;min.cells] &lt;- NA;
+    if(!any(!is.na(xm))) return(NULL);
+    xmd &lt;- na.omit(melt(xm))
+    wm[is.na(xm)] &lt;- NA;
+    xmd$n &lt;- na.omit(melt(wm))$value
+    return(xmd);
+  })
+
+  x &lt;- x[!unlist(lapply(x,is.null))]
+  df &lt;- do.call(rbind,lapply(sn(names(x)),function(n) { z &lt;- x[[n]]; z$cell &lt;- n; z }))
+  df$patient &lt;- gsub(&quot;-.*&quot;,&quot;&quot;,df$Var1)
+  
+    # sort cell types
+  df$cell &lt;- factor(df$cell,levels=names(sort(tapply(df$value,as.factor(df$cell),median))))
+
+  ts.tumor &lt;- ggplot(na.omit(df),aes(x=as.factor(cell),y=value))+geom_boxplot(notch=FALSE,outlier.shape=NA)+geom_jitter(position=position_jitter(0.1),aes(color=patient))+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab(&quot;&quot;) +ylab(&quot;expression distance&quot;)+ theme(legend.position=&quot;top&quot;)
+  ts.tumor &lt;- ggplot(na.omit(df),aes(x=as.factor(cell),y=value))+geom_boxplot(notch=FALSE,outlier.shape=NA)+geom_jitter(position=position_jitter(0.1),aes(color=patient),show.legend=FALSE,alpha=0.5)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab(&quot;&quot;) +ylab(&quot;within-patient expression distance&quot;)
+  ts.tumor</code></pre>
+<p><img src="figure/transmute_code_clean.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.3 (2019-03-11)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.2 LTS
+
+Matrix products: default
+BLAS: /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3
+LAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3.10.3
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] Rtsne_0.14        tidyr_0.8.3       abind_1.4-5      
+ [4] dplyr_0.8.0.1     cowplot_0.9.4     pagoda2_0.1.0    
+ [7] data.table_1.12.2 ggplot2_3.1.1     conos_1.0.0      
+[10] igraph_1.2.4      Matrix_1.2-17    
+
+loaded via a namespace (and not attached):
+ [1] viridis_0.5.1       viridisLite_0.3.0   shiny_1.3.1        
+ [4] assertthat_0.2.1    triebeard_0.3.0     urltools_1.7.3     
+ [7] stats4_3.5.3        yaml_2.2.0          robustbase_0.93-4  
+[10] pillar_1.3.1        backports_1.1.4     lattice_0.20-38    
+[13] glue_1.3.1          digest_0.6.18       promises_1.0.1     
+[16] colorspace_1.4-1    htmltools_0.3.6     httpuv_1.5.1       
+[19] plyr_1.8.4          pkgconfig_2.0.2     purrr_0.3.2        
+[22] xtable_1.8-4        mvtnorm_1.0-10      scales_1.0.0       
+[25] brew_1.0-6          whisker_0.3-2       later_0.8.0        
+[28] git2r_0.25.2        tibble_2.1.1        withr_2.1.2        
+[31] nnet_7.3-12         lazyeval_0.2.2      magrittr_1.5       
+[34] crayon_1.3.4        mime_0.6            mclust_5.4.3       
+[37] evaluate_0.13       fs_1.2.7            MASS_7.3-51.3      
+[40] class_7.3-15        Rook_1.1-1          tools_3.5.3        
+[43] trimcluster_0.1-2.1 stringr_1.4.0       kernlab_0.9-27     
+[46] munsell_0.5.0       cluster_2.0.8       irlba_2.3.3        
+[49] fpc_2.1-11.1        compiler_3.5.3      rlang_0.3.4        
+[52] grid_3.5.3          rjson_0.2.20        labeling_0.3       
+[55] base64enc_0.1-3     rmarkdown_1.12      gtable_0.3.0       
+[58] flexmix_2.3-15      reshape2_1.4.3      R6_2.4.0           
+[61] gridExtra_2.3       knitr_1.22          prabclus_2.2-7     
+[64] workflowr_1.3.0     rprojroot_1.3-2     dendextend_1.10.0  
+[67] modeltools_0.2-22   stringi_1.4.3       Rcpp_1.0.1         
+[70] DEoptimR_1.0-8      tidyselect_0.2.5    xfun_0.6           
+[73] diptest_0.75-7     </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
