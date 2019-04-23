@@ -1,0 +1,334 @@
+---
+title: "transmute_peters_code"
+output: workflowr::wflow_html
+---
+load packages and data
+```{r}
+library(conos)
+library(parallel)
+library(ggplot2)
+library(Matrix)
+library(data.table)
+library(pagoda2)
+library(cowplot)
+library(dplyr)
+library(abind)
+library(tidyr)
+require(Rtsne)
+
+# load data
+scon <- readRDS("/d0-mendel/home/meisl/Workplace/BMME/a.data/Selected_Joint_embdding/conA.rds")
+scon <- Conos$new(scon)
+
+# load annotations
+ann2 <- readRDS('/d0-mendel/home/meisl/Workplace/BMME/a.data/Selected_Joint_embdding/cellAno/BMME_cell_ano_0130.rds')
+typef <- as.factor(ann2)
+
+```
+
+Initiate the analysis, how much of this is important?
+We start with some annotation changing and palette thingies
+```{r}
+  fraction.palette <- c(Benign='#064196',Noninvolved='#2a9606',Involved='#969606',Tumor='#960d06')
+
+  to.coarse.ann <- function(ann) {
+    ca <- setNames(as.character(ann),names(ann))
+    ca[grep("^CTL",ca)] <- "CD8+ T"
+    ca[grep("T regs",ca)] <- "Regulatory T"
+    ca[grep("TAM-|Macro",ca)] <- "Macrophage"
+    ca[grep("Mono-",ca)] <- "Monocytes"
+    ca[grep("mmature B",ca)] <- "Immature B"
+    ca[grep("Memory T",ca)] <- "Memory T"
+    ca[grep("Monocyte prog",ca)] <- "Monocyte prog"
+    ca[grep("Mature B cells",ca)] <- "Mature B"
+    ca[grep("Helper T",ca)] <- "Helper T"
+    ca[grep("memBcell",ca)] <- "Memory B"
+    ca[grep("PDC",ca)] <- "pDC"
+    ca <- gsub(" cell.?$","",ca)
+    return(as.factor(ca))
+  }
+  
+  typefc <- to.coarse.ann(typef) # here we define typefc, we had to re-arrange the code; it's annot transformed a bit
+  
+  type.palette <- setNames(rainbow(length(levels(typefc))),levels(typefc))
+  pie(1:length(type.palette),labels=names(type.palette),col=type.palette)
+
+  # correct fraction names, return a factor
+  get.fractions <- function(x,correct=T) {
+    xn <- names(x);
+    xf <- gsub(".*-","",as.character(x));
+    xf <- gsub("Whole","Benign",xf);
+    xf <- factor(xf,levels=c('Benign','Noninvolved','Involved','Tumor'))
+    if(!is.null(xn)) names(xf) <- xn;
+    xf
+  }
+  get.patients <- function(x) { gsub("-.*","",x) }
+
+  samplef <- lapply(scon$samples,function(x) rownames(x$counts))
+  samplef <- as.factor(setNames(rep(names(samplef),unlist(lapply(samplef,length))),unlist(samplef)))
+  fractionf <- get.fractions(samplef)
+
+
+  samplef <- samplef[names(typef)] # categories but with sample info
+  fractionf <- fractionf[names(typef)] # categories
+```
+
+Comment 5
+fractional changes
+```{r}
+  # how about fractional changes?
+  xt <- table(typefc,samplef)
+  xf <- t(t(xt)/colSums(xt))
+  df <- melt(xf) # melt is basically gather
+  df$patient <- gsub("-.*","",df$samplef); df$fraction <- gsub(".*-","",df$samplef);
+  df$samplef <- NULL # to remove the sample-tissue-type col
+
+  # probably should jsut compare between cancer fractions and Bening controls
+  df <- melt(xf)
+  df$patient <- gsub("-.*","",df$samplef); df$fraction <- gsub(".*-","",df$samplef);
+  df$fraction <- get.fractions(df$samplef)
+  df <- df %>% arrange(typefc,fraction) # 21 subtypes 32 patient/tissue-cat -> 672 vals
+
+  head(df)
+  
+  x <- as_tibble(df) %>% group_by(typefc,fraction) %>% summarise_at(vars(value),funs(mean(.,na.rm=T))) %>% ungroup() %>% spread(fraction,value) %>% mutate(diff=Tumor-Benign) %>% arrange(desc(diff)) %>% as.data.frame()
+# ^ fraction of cell types in different tissue categories, overall i.e. only 21 rows, used only for subnames it seems
+  # sort cell types
+  df$typefc <- factor(df$typefc,levels=as.character(x$typefc)) # turning typefc into factor, necessary?
+
+  # full plot (for the supp)
+  p <- ggplot(na.omit(df),aes(x=typefc,y=value,dodge=fraction,fill=fraction))+geom_boxplot(notch=FALSE,outlier.shape=NA) +scale_fill_manual(values=fraction.palette) +  geom_point(position = position_jitterdodge(jitter.width=0.1),color=adjustcolor(1,alpha=0.3),aes(pch=fraction),size=0.8)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab("") +ylab("fraction of total cells")+ theme(legend.position="top")
+  p # value <- fraction of subtype for a patient-tissue-type combination
+
+  #pdf(file='fraction.all.pdf',width=12,height=6)
+  #print(p)
+  #dev.off()
+```
+
+
+
+Weighted distance matrix
+```{r}
+  sn <- function(x) setNames(x, x)
+  cm <- scon$getClusterCountMatrices(groups=typefc)
+  cct <- table(typefc,samplef)
+
+  cmpt <- gsub("-.*","",names(cm)) # names of patients
+  cmfr <- gsub(".*-","",names(cm)) # tissue type vector
+
+  # without tumor signature correction
+  ctdm.nc <- mclapply(setNames(colnames(cm[[1]]), colnames(cm[[1]])),function(ct) {
+    tcm <- do.call(rbind,lapply(cm,function(x) x[,ct]))
+    tcm <- t(tcm/pmax(1,rowSums(tcm)))
+    tcd <- pagoda2:::jsDist(tcm); dimnames(tcd) <- list(colnames(tcm),colnames(tcm));
+    # calculate how many cells there are
+    attr(tcd,'cc') <- cct[ct,colnames(tcm)]
+    tcd
+  },mc.cores=1)
+
+  x <- abind(lapply(ctdm.nc,function(x) {
+    nc <- attr(x,'cc');
+    #wm <- (outer(nc,nc,FUN='pmin'))
+    wm <- sqrt(outer(nc,nc,FUN='pmin'))
+    return( x*wm )
+  }),along=3)
+  y <- abind(lapply(ctdm.nc,function(x) {
+    nc <- attr(x,'cc');
+    sqrt(outer(nc,nc,FUN='pmin'))
+  }),along=3)
+  xd.nc <- apply(x,c(1,2),sum)/apply(y,c(1,2),sum) # some kind of js distances I guess
+  
+  require(Rtsne)
+  xde <- Rtsne(xd.nc,is_distance=TRUE, perplexity=3,max_iter=1e3)$Y
+  df <- data.frame(xde); rownames(df) <- rownames(xd.nc); colnames(df) <- c("x","y");
+  df$fraction <- gsub(".*-","",rownames(df))
+  df$patient <- gsub("-.*","",rownames(df))
+  df$ncells <- colSums(cct)[rownames(df)]
+
+  df$patient <- gsub("BMM.*","Benign",df$patient) 
+  df$patient <- gsub("^[A-Z]$","Normal",df$patient) # don't seem to work
+
+  ts.sample.tsne.nc <- ggplot(df,aes(x,y,color=patient,shape=fraction,size=log10(ncells))) + geom_point() + theme_bw() + xlab("") + ylab("") + theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) + guides(color=guide_legend(ncol=2));
+  ts.sample.tsne.nc # why are we plotting tsne of js distances?
+```
+
+Comment 2
+Should be tumor corrected in cell below but let's disregard the correction
+```{r}
+  ctdm <- ctdm.nc
+  x <- abind(lapply(ctdm,function(x) { # line 1409, keep ctdm in cleaned rmd because we need it
+    nc <- attr(x,'cc');
+    #wm <- (outer(nc,nc,FUN='pmin'))
+    wm <- sqrt(outer(nc,nc,FUN='pmin'))
+    return( x*wm )
+  }),along=3)
+  y <- abind(lapply(ctdm,function(x) {
+    nc <- attr(x,'cc');
+    sqrt(outer(nc,nc,FUN='pmin'))
+  }),along=3)
+
+  xd <- apply(x,c(1,2),sum)/apply(y,c(1,2),sum) # first weighting by min count then dividing by all the values to 're-normalize' I guess
+  
+  xde <- Rtsne(xd,is_distance=TRUE, perplexity=3,max_iter=1e3)$Y
+  df <- data.frame(xde); rownames(df) <- rownames(xd); colnames(df) <- c("x","y");
+  df$fraction <- gsub(".*-","",rownames(df))
+  df$patient <- gsub("-.*","",rownames(df))
+  df$ncells <- colSums(cct)[rownames(df)]
+  
+  df$patient <- gsub("BMM.*","Benign",df$patient)
+  df$patient <- gsub("^[A-Z]$","Normal",df$patient)
+
+  ts.sample.tsne <- ggplot(df,aes(x,y,color=patient,shape=fraction,size=log10(ncells))) + geom_point() + theme_bw() + xlab("") + ylab("") + theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) + guides(color=guide_legend(ncol=2));
+  ts.sample.tsne
+
+```
+
+
+distance magnitude comparisons
+```{r}
+  # distance magnitude comparisons
+  # first, on combined distance matrix
+
+  x <- xd.nc; x[upper.tri(x)] <- NA; diag(x) <- NA;
+  df2 <- na.omit(melt(x)) # getting distance values
+
+  df2$patient1 <- gsub("-.*","",df2$Var1)
+  df2$patient2 <- gsub("-.*","",df2$Var2)
+  df2$fraction1 <- gsub(".*-","",df2$Var1)
+  df2$fraction2 <- gsub(".*-","",df2$Var2)
+
+  df2$samePatient <- df2$patient1==df2$patient2;
+  df2$sameFraction <- df2$fraction1==df2$fraction2;
+
+  df2$withTumor <- df2$fraction1=='Tumor' | df2$fraction2=='Tumor'
+  df2$withInvolved <- df2$fraction1=='Involved' | df2$fraction2=='Involved'
+  df2$withNoninvolved <- df2$fraction1=='Noninvolved' | df2$fraction2=='Noninvolved'
+  
+  df2$type <- NA
+  df2$type[df2$sameFraction & df2$fraction1=='Whole'] <- 'Benign'
+  df2$type[df2$sameFraction & df2$fraction1=='Involved'] <- 'Involved'
+  df2$type[df2$sameFraction & df2$fraction1=='Noninvolved'] <- 'Noninvolved'
+  df2$type[df2$sameFraction & df2$fraction1=='Tumor'] <- 'Tumor'
+  df2$type[df2$sameFraction & df2$fraction1=='Healthy'] <- 'Healthy'
+  df2$type <- factor(df2$type,levels=c('Benign','Noninvolved','Involved','Tumor'))
+
+  head(na.omit(df2))
+  df2 <- df2[df2$sameFraction==TRUE,]
+  ts.within.fraction <- ggplot(na.omit(df2),aes(x=type,y=value))+geom_boxplot(notch=TRUE,outlier.shape=NA,aes(fill=type))+scale_fill_manual(values=fraction.palette)+geom_jitter(position=position_jitter(0.2),color=adjustcolor('black',alpha=0.2))+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +  guides(fill=FALSE) + xlab('') + ylab('inter-patient expression distance')
+  ts.within.fraction
+```
+
+Comment 4
+inter-patient distances per cell type
+```{r}
+  # same thing, but per cell type
+  min.cells <- 10
+  xl <- do.call(rbind,lapply(names(ctdm.nc),function(xn) {
+    x <- ctdm.nc[[xn]] # jsdists for subtype xn
+    nc <- attr(x,'cc'); # count of cells
+    wm <- outer(nc,nc,FUN='pmin') # min cells for the comparison
+
+    x[upper.tri(x)] <- NA; diag(x) <- NA;
+    wm[upper.tri(wm)] <- NA; diag(wm) <- NA;
+    df2 <- melt(x);
+    df2$ncells <- melt(wm)$value
+    df2 <- na.omit(df2)
+    df2 <- df2[df2$ncells>=min.cells,];
+
+    df2$patient1 <- gsub("-.*","",df2$Var1)
+    df2$patient2 <- gsub("-.*","",df2$Var2)
+    df2$fraction1 <- gsub(".*-","",df2$Var1)
+    df2$fraction2 <- gsub(".*-","",df2$Var2)
+
+    df2$samePatient <- df2$patient1==df2$patient2;
+    df2$sameFraction <- df2$fraction1==df2$fraction2;
+
+    df2$withTumor <- df2$fraction1=='Tumor' | df2$fraction2=='Tumor'
+    df2$withInvolved <- df2$fraction1=='Involved' | df2$fraction2=='Involved'
+    df2$withNoninvolved <- df2$fraction1=='Noninvolved' | df2$fraction2=='Noninvolved'
+
+    df2$type <- NA
+    df2$type[df2$sameFraction & df2$fraction1=='Whole'] <- 'Benign'
+    df2$type[df2$sameFraction & df2$fraction1=='Involved'] <- 'Involved'
+    df2$type[df2$sameFraction & df2$fraction1=='Noninvolved'] <- 'Noninvolved'
+    df2$type[df2$sameFraction & df2$fraction1=='Tumor'] <- 'Tumor'
+    df2$type[df2$sameFraction & df2$fraction1=='Healthy'] <- 'Healthy'
+    df2$type <- factor(df2$type,levels=c('Benign','Noninvolved','Involved','Tumor'))
+    df2 <- df2[df2$sameFraction==TRUE,]
+    df2$cell <- xn;
+    df2
+    
+  }))
+  
+    # leave only cell types with all fractions
+  vt <- tapply(xl$fraction1,as.factor(xl$cell),function(x) length(unique(x)));
+  xl <- xl[xl$cell %in% names(vt)[vt>3],]
+  ts.within.fraction.all <- ggplot(na.omit(xl),aes(x=cell,y=value,dodge=type))+geom_boxplot(notch=TRUE,outlier.shape=NA,aes(fill=type)) +scale_fill_manual(values=fraction.palette) +  geom_point(position = position_jitterdodge(jitter.width=0.1),color=adjustcolor(1,alpha=0.3),aes(pch=type),size=0.8)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
+  ts.within.fraction.all
+```
+
+Between fractions
+```{r}
+# now comapre distances between fractions
+  # with correction
+  x <- xd; x[upper.tri(x)] <- NA; diag(x) <- NA;
+  df2 <- na.omit(melt(x))
+
+  df2$patient1 <- gsub("-.*","",df2$Var1)
+  df2$patient2 <- gsub("-.*","",df2$Var2)
+  df2$fraction1 <- gsub(".*-","",df2$Var1)
+  df2$fraction2 <- gsub(".*-","",df2$Var2)
+
+  df2$samePatient <- df2$patient1==df2$patient2;
+  df2$sameFraction <- df2$fraction1==df2$fraction2;
+
+  df2$withTumor <- df2$fraction1=='Tumor' | df2$fraction2=='Tumor'
+  df2$withInvolved <- df2$fraction1=='Involved' | df2$fraction2=='Involved'
+  df2$withNoninvolved <- df2$fraction1=='Noninvolved' | df2$fraction2=='Noninvolved'
+
+  df2$type <- NA
+  df2$type[df2$samePatient & df2$withInvolved & df2$withNoninvolved] <- 'Involved vs. Noninvolved'
+  df2$type[df2$samePatient & df2$withInvolved & df2$withTumor] <- 'Involved vs. Tumor'
+  df2$type[df2$samePatient & df2$withNoninvolved & df2$withTumor] <- 'Noninvolved vs. Tumor'
+
+  ts.fractions <- ggplot(na.omit(df2),aes(x=as.factor(type),y=value))+geom_boxplot(notch=F,outlier.shape=NA)+geom_jitter(position=position_jitter(0.2),aes(color=patient1))+ theme(axis.text.x = element_text(angle = 90, hjust = 1)) + xlab("") +ylab("expression distance")
+  ts.fractions
+```
+
+Comment 3
+Expression shift magnitude thingy
+```{r}
+  # for a given comparison, look at the magnitude of the differences observed for different cell types
+  comp <- c("Noninvolved","Involved")
+  comp <- c("Noninvolved","Tumor")
+  comp <- c("Involved","Tumor")
+  comp <- c("nvolved","Tumor")
+  min.cells <- 10
+  x <- lapply(ctdm,function(xm) {
+    nc <- attr(xm,'cc');
+    wm <- outer(nc,nc,FUN='pmin')
+    frm <- outer(grepl(comp[1],colnames(xm)),grepl(comp[2],rownames(xm)))==1; # appropriate fractions
+    sp <- outer(gsub("-.*","",colnames(xm)),gsub("-.*","",rownames(xm)),FUN='=='); # same patient
+    # restrict
+    xm[!sp] <- NA;
+    xm[!frm] <- NA;
+    xm[wm<min.cells] <- NA;
+    if(!any(!is.na(xm))) return(NULL);
+    xmd <- na.omit(melt(xm))
+    wm[is.na(xm)] <- NA;
+    xmd$n <- na.omit(melt(wm))$value
+    return(xmd);
+  })
+
+  x <- x[!unlist(lapply(x,is.null))]
+  df <- do.call(rbind,lapply(sn(names(x)),function(n) { z <- x[[n]]; z$cell <- n; z }))
+  df$patient <- gsub("-.*","",df$Var1)
+  
+    # sort cell types
+  df$cell <- factor(df$cell,levels=names(sort(tapply(df$value,as.factor(df$cell),median))))
+
+  ts.tumor <- ggplot(na.omit(df),aes(x=as.factor(cell),y=value))+geom_boxplot(notch=FALSE,outlier.shape=NA)+geom_jitter(position=position_jitter(0.1),aes(color=patient))+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab("") +ylab("expression distance")+ theme(legend.position="top")
+  ts.tumor <- ggplot(na.omit(df),aes(x=as.factor(cell),y=value))+geom_boxplot(notch=FALSE,outlier.shape=NA)+geom_jitter(position=position_jitter(0.1),aes(color=patient),show.legend=FALSE,alpha=0.5)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab("") +ylab("within-patient expression distance")
+  ts.tumor
+```
+
