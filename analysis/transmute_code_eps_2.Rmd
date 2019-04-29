@@ -1,0 +1,72 @@
+---
+title: "transmute_code_eps_2"
+author: "githubz0r"
+date: "2019-04-29"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: inline
+---
+
+## Introduction
+
+load packages and data
+```{r}
+library(conos)
+library(parallel)
+library(ggplot2)
+library(Matrix)
+library(data.table)
+library(pagoda2)
+library(cowplot)
+library(dplyr)
+library(abind)
+library(tidyr)
+require(Rtsne)
+source('/home/larsc/SecretUtils/R/asdf.R')
+source('/home/larsc/SecretUtils/R/peter_code_utils.R')
+
+con <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
+con <- Conos$new(con)
+annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
+fraction_palette_eps <- c(epilepsy='hotpink', healthy='seagreen') 
+
+```
+
+'Fractional' changes.
+```{r}
+test_dfe <- FractionalChanges(annot, 1, 2 ,3)
+
+p <- ggplot(na.omit(test_dfe),aes(x=subtype,y=freq,dodge=condition,fill=condition))+geom_boxplot(notch=FALSE,outlier.shape=NA) +scale_fill_manual(values=fraction_palette_eps) +  geom_point(position = position_jitterdodge(jitter.width=0.1),color=adjustcolor(1,alpha=0.3),aes(pch=condition),size=0.8)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab("") +ylab("fraction of total cells")+ theme(legend.position="top")
+p
+```
+
+Distance matrix tsne plot
+```{r}
+annot2 <- annot %>% mutate(cellid=rownames(annot))
+
+ctdm_and_cct <- Makectdm(con, annot2, 1, 2, 4)
+ctdm <- ctdm_and_cct[[1]]
+cct <- ctdm_and_cct[[2]] # returning this one too because we need it for the other part, a bit messy
+
+xd <- WeighDistances(ctdm)
+xde <- Rtsne(xd,is_distance=TRUE, perplexity=2,max_iter=1e3)$Y
+df <- data.frame(xde); rownames(df) <- rownames(xd); colnames(df) <- c("x","y");
+df$fraction <- NA
+df[grep('c_',df %>% rownames),]$fraction <- 'healthy' # not exactly sure how to best generalize this
+df[grep('ep_',df %>% rownames),]$fraction <- 'epilepsy' # since we don't separate patient and sample in our own annotation
+
+df$patient <- rownames(df)
+df$ncells <- colSums(cct)[rownames(df)]
+
+ggplot(df,aes(x,y,color=patient,shape=fraction,size=log10(ncells))) + geom_point() + theme_bw() + xlab("") + ylab("") + theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) + guides(color=guide_legend(ncol=2))
+
+```
+
+Distribution distances per cell type (using ctdm so must be unweighted)
+```{r}
+min_cells=0
+
+xl <- MakeXl(ctdm, min_cells)
+ggplot(na.omit(xl),aes(x=cell,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
+```
+

@@ -276,3 +276,5 @@ FractionalChanges <- function(annotation, patient.col, subtype.col, condition.co
   freq.df <- freq.df %>% mutate(freq=count, count=NULL)
   return(freq.df)
 }
+
+
