@@ -112,7 +112,7 @@ SplitCells <- function(annotation, samp.col, sub.col) {
   samp.split <- sub.split %>% lapply(function(x){split(x, x[, samp.col], drop=T)})
 }
 
-SelectCellProbs <- function(annotation, rbound.panel, cellid.col, nr.cell, genes, pseudo.count){
+SelectCellProbs <- function(annotation, rbound.panel, cellid.col, nr.cell, genes, pseudo.count, norm.var=FALSE){
   if (nr.cell > dim(annotation)[1]) {
     inds <- sample(1:dim(annotation)[1], nr.cell, replace=TRUE)
   } else {
@@ -120,6 +120,11 @@ SelectCellProbs <- function(annotation, rbound.panel, cellid.col, nr.cell, genes
   }
   annot.sampled <- annotation[inds,]
   exps <- rbound.panel[annot.sampled[, cellid.col], genes]
+  if (norm.var) {
+    sds <- apply(exps, 2, sd)
+    sds <- sds+1e-8
+    exps <- sweep(exps, 2, sds, '/')
+  }
   probs <- exps/Matrix::rowSums(exps)
   probs <- probs+pseudo.count
   probs <- probs/Matrix::rowSums(probs)
@@ -143,27 +148,27 @@ SelectCellProbsAggregated <- function(annotation, genes, rbound.panel, cellid.co
   return(prob.dist)
 }
 
-IndividualCellProbs <- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes, pseudo.count=0){
+IndividualCellProbs <- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes, pseudo.count=0, norm.var=FALSE){
   sub.split <- split(annotation, annotation[, sub.col], drop=T)
-  cell.distributions <- sub.split %>% lapply(fuck::SelectCellProbs, rbound.panel, cellid.col, nr.cell, genes, pseudo.count)
+  cell.distributions <- sub.split %>% lapply(SelectCellProbs, rbound.panel, cellid.col, nr.cell, genes, pseudo.count, norm.var)
 }
 
 
 GetSampProbs <- function(list.of.samp, rbound.panel, genes, cellid.col, pseudo.count){
   exps.list <- list.of.samp %>% lapply(function(x){rbound.panel[x[,cellid.col], genes]})
-  exps.list <- exps.list %>% lapply(fuck::GetColMeans)
-  exps.list <- exps.list %>% lapply(function(x){x+pseudo.count})
+  exps.list <- exps.list %>% lapply(GetColMeans)
+  exps.list <- exps.list %>% lapply(function(x){x+pseudo.count}) # missing the first 'normalization' step
   probs.list <- exps.list %>% lapply(function(vector){return(vector/sum(vector))})
 }
 
 GetAllProbs <- function(annotation, rbound.panel, samp.col, sub.col, cellid.col, genes, pseudo.count){
-  first.split <- fuck::SplitCells(annotation, samp.col, sub.col)
+  first.split <- SplitCells(annotation, samp.col, sub.col)
   prob.dist <- first.split %>% lapply(GetSampProbs, rbound.panel, genes, cellid.col, pseudo.count)
 }
 
 GetSubMatrices <- function(list.of.cats, rbound.panel, genes, cellid.col) {
   exps.list <- list.of.cats %>% lapply(function(x){rbound.panel[x[,cellid.col], genes]})
-}
+} # used for kolmogorov smirnov
 
 ObtainProbabilities <- function(annotation.list, rbound.panel, samp.col, sub.col, cellid.col, genes, pseudo.count=0){
   #rbound.panel <- RbindPanel(con.object)
@@ -188,8 +193,8 @@ KLD <- function(P,Q) {
 
 JensenShannon <- function(P,Q){
   M <- (P+Q)/2
-  kbl.pm <- KLD(P,M)
-  kbl.qm <- KLD(Q,M)
+  kbl.pm <- sum(P*log(P/M))
+  kbl.qm <- sum(Q*log(Q/M))
   return((kbl.pm+kbl.qm)/2)
 }
 
@@ -244,4 +249,30 @@ IndividualCellProbsAgg <- function(annotation, rbound.panel, cellid.col, sub.col
   sub.split <- split(annotation, annotation[, sub.col], drop=T)
   cell.distributions <- mapply(SelectCellProbsAggregated, sub.split, genes.list, MoreArgs=list(rbound.panel, cellid.col, nr.cell, pseudo.count), SIMPLIFY=F)
   return(cell.distributions)
+}
+
+FractionalChanges <- function(annotation, patient.col, subtype.col, condition.col){
+  sub.split <- split(annotation, annotation[, subtype.col])
+  sub.split <- sub.split %>% lapply(function(x){x <- mutate(x, pat.cond = paste(x[, patient.col], x[, condition.col], sep='-'))})
+  CountPatConds <- function(annotation) {
+    patcond.col <- dim(annotation)[2]
+    combs.df <- table(annotation[, patcond.col]) %>% as.data.frame
+    colnames(combs.df)[1] <- 'pat.cond'
+    colnames(combs.df)[2] <- 'count'
+    combs.df <- combs.df %>% mutate(patient = gsub("-.*","", pat.cond))
+    combs.df <- combs.df %>% mutate(condition = gsub(".*-","", pat.cond))
+    combs.df <- combs.df %>% mutate(subtype = annotation[, subtype.col][1:nrow(combs.df)])
+  }
+  sub.split.counts <- sub.split %>% lapply(CountPatConds)
+  sub.split.df <- do.call(rbind, sub.split.counts)
+  rownames(sub.split.df) <- NULL
+  patconds.split <- split(sub.split.df, sub.split.df$pat.cond)
+  NormalizeCounts <- function(x){
+    x$count <- x$count/sum(x$count)
+    return(x)
+  }
+  patconds.split <- patconds.split %>% lapply(NormalizeCounts)
+  freq.df <- do.call(rbind, patconds.split)
+  freq.df <- freq.df %>% mutate(freq=count, count=NULL)
+  return(freq.df)
 }
