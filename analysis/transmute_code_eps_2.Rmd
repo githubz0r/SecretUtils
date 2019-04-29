@@ -3,9 +3,13 @@ title: "transmute_code_eps_2"
 author: "githubz0r"
 date: "2019-04-29"
 output: workflowr::wflow_html
-editor_options:
-  chunk_output_type: inline
 ---
+
+```{r}
+#editor_options:
+  #chunk_output_type: inline
+```
+
 
 load packages and data
 ```{r}
