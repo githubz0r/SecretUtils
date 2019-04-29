@@ -7,8 +7,6 @@ editor_options:
   chunk_output_type: inline
 ---
 
-## Introduction
-
 load packages and data
 ```{r}
 library(conos)
