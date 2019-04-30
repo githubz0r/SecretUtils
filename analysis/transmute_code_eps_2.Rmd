@@ -36,39 +36,21 @@ fraction_palette_eps <- c(epilepsy='hotpink', healthy='seagreen')
 
 'Fractional' changes.
 ```{r}
-test_dfe <- FractionalChanges(annot, 1, 2 ,3)
-
-p <- ggplot(na.omit(test_dfe),aes(x=subtype,y=freq,dodge=condition,fill=condition))+geom_boxplot(notch=FALSE,outlier.shape=NA) +scale_fill_manual(values=fraction_palette_eps) +  geom_point(position = position_jitterdodge(jitter.width=0.1),color=adjustcolor(1,alpha=0.3),aes(pch=condition),size=0.8)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab("") +ylab("fraction of total cells")+ theme(legend.position="top")
-p
+FractionalPlot(annot, 1, 2 ,3, fraction.palette=fraction_palette_eps)
 ```
 
 Distance matrix tsne plot
 ```{r}
 annot2 <- annot %>% mutate(cellid=rownames(annot))
 
-ctdm_and_cct <- Makectdm(con, annot2, 1, 2, 4)
-ctdm <- ctdm_and_cct[[1]]
-cct <- ctdm_and_cct[[2]] # returning this one too because we need it for the other part, a bit messy
+ctdm<- Makectdm(con, annot2, 1, 2, 4)
 
-xd <- WeighDistances(ctdm)
-xde <- Rtsne(xd,is_distance=TRUE, perplexity=2,max_iter=1e3)$Y
-df <- data.frame(xde); rownames(df) <- rownames(xd); colnames(df) <- c("x","y");
-df$fraction <- NA
-df[grep('c_',df %>% rownames),]$fraction <- 'healthy' # not exactly sure how to best generalize this
-df[grep('ep_',df %>% rownames),]$fraction <- 'epilepsy' # since we don't separate patient and sample in our own annotation
-
-df$patient <- rownames(df)
-df$ncells <- colSums(cct)[rownames(df)]
-
-ggplot(df,aes(x,y,color=patient,shape=fraction,size=log10(ncells))) + geom_point() + theme_bw() + xlab("") + ylab("") + theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) + guides(color=guide_legend(ncol=2))
-
+PlotDistanceMatRed(ctdm, annot2, 1, 2, 1, 4, 3, perplexity=2, max_iter=1e3)
 ```
 
 Distribution distances per cell type (using ctdm so must be unweighted)
 ```{r}
 min_cells=0
-
-xl <- MakeXl(ctdm, min_cells)
-ggplot(na.omit(xl),aes(x=cell,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
+PlotCellTypeDists(ctdm, min_cells)
 ```
 

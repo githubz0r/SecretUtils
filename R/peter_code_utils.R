@@ -1,4 +1,4 @@
-FractionalChanges <- function(annotation, patient.col, subtype.col, condition.col){
+FractionalPlot <- function(annotation, patient.col, subtype.col, condition.col, fraction.palette=NULL){
   sub.split <- split(annotation, annotation[, subtype.col])
   sub.split <- sub.split %>% lapply(function(x){x <- mutate(x, pat.cond = paste(x[, patient.col], x[, condition.col], sep='-'))})
   CountPatConds <- function(annotation) {
@@ -21,7 +21,16 @@ FractionalChanges <- function(annotation, patient.col, subtype.col, condition.co
   patconds.split <- patconds.split %>% lapply(NormalizeCounts)
   freq.df <- do.call(rbind, patconds.split)
   freq.df <- freq.df %>% mutate(freq=count, count=NULL)
-  return(freq.df)
+
+  p <- ggplot(na.omit(freq.df),aes(x=subtype,y=freq,dodge=condition,fill=condition))+
+    geom_boxplot(notch=FALSE,outlier.shape=NA) +
+    geom_point(position = position_jitterdodge(jitter.width=0.1),color=adjustcolor(1,alpha=0.3),aes(pch=condition),size=0.8) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab("") +ylab("fraction of total cells")+ theme(legend.position="top")
+  if (fraction.palette %>% is.null==FALSE) {
+    p <- p+scale_fill_manual(values=fraction.palette)
+  }
+  return(p)
 }
 
 Makectdm <- function(con.object, annotation, sample.col, subtype.col, cellid.col) {
@@ -40,10 +49,14 @@ Makectdm <- function(con.object, annotation, sample.col, subtype.col, cellid.col
     tcd
   },mc.cores=1)
 
-  return(list(ctdm, CCT))
+  return(ctdm)
 }
 
-WeighDistances <- function(ctdm.object) {
+PlotDistanceMatRed <- function(ctdm.object, annotation, sample.col, subtype.col, patient.col,
+                               cellid.col, condition.col, perplexity=30, max_iter=1e3) {
+  type.factor <- setNames(annotation[, subtype.col], annotation[, cellid.col]) %>% as.factor
+  sample.factor <- setNames(annotation[, sample.col], annotation[, cellid.col]) %>% as.factor
+  CCT <- table(type.factor, sample.factor)
   x <- abind(lapply(ctdm.object,function(x) {
     nc <- attr(x,'cc');
     wm <- sqrt(outer(nc,nc,FUN='pmin'))
@@ -54,10 +67,27 @@ WeighDistances <- function(ctdm.object) {
     sqrt(outer(nc,nc,FUN='pmin'))
   }),along=3)
   XD <- apply(x,c(1,2),sum)/apply(y,c(1,2),sum)
-  return(XD)
+
+  sample.split <- split(annotation, annotation[, sample.col])
+  sample.conds <- sample.split %>% lapply(function(x){x[, condition.col][1]})
+  sample.pats <- sample.split %>% lapply(function(x){x[, patient.col][1]})
+
+  XDE <- Rtsne::Rtsne(XD,is_distance=TRUE, perplexity=perplexity,max_iter=max_iter)$Y
+  df <- data.frame(XDE); colnames(df) <- c("x","y")
+  df <- df %>% mutate(samples=rownames(XD))
+  df <- df[order(df$samples),]
+  sample.conds <- sample.conds[order(sample.conds %>% names)]
+  df <- df %>% mutate(condition=unlist(sample.conds), patient=unlist(sample.pats))
+  df <- df %>% mutate(ncells=colSums(CCT)[df$samples])
+
+  p <- ggplot(df,aes(x,y,color=patient,shape=condition,size=log10(ncells))) + geom_point() +
+    theme_bw() + xlab("") + ylab("") +
+    theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) +
+    guides(color=guide_legend(ncol=2))
+  return(p)
 }
 
-MakeXl <- function(ctdm.object, min.cells, between.conditions=TRUE) {
+PlotCellTypeDists <- function(ctdm.object, min.cells, between.conditions=TRUE) {
   InterPatDF <- function(cell.type, min.cells=0, between.conditions) {
     x <- ctdm.object[[cell.type]] # jsdists for subtype xn
     nc <- attr(x,'cc'); # count of cells
@@ -83,7 +113,10 @@ MakeXl <- function(ctdm.object, min.cells, between.conditions=TRUE) {
     df2$cell <- cell.type
     df2
   }
-  xl <- do.call(rbind,lapply(names(ctdm.object), InterPatDF, min_cells, between.conditions=TRUE))
+  xl <- do.call(rbind,lapply(names(ctdm.object), InterPatDF, min.cells, between.conditions=TRUE))
   xl$comparison <- paste(xl$patient1, xl$patient2, sep='.')
-  return(xl)
+  p <- ggplot(na.omit(xl),aes(x=cell,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
+  return(p)
 }
