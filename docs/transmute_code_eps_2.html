@@ -447,7 +447,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-04-29
+<strong>Last updated:</strong> 2019-04-30
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -526,10 +526,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree6065b04743ea256451d0a35b732235261fe7f24ctargetblank6065b04a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/6065b04743ea256451d0a35b732235261fe7f24c" target="_blank">6065b04</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree53665fd24cc4540236c383f388203dc43edde080targetblank53665fda"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/53665fd24cc4540236c383f388203dc43edde080" target="_blank">53665fd</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree6065b04743ea256451d0a35b732235261fe7f24ctargetblank6065b04a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree53665fd24cc4540236c383f388203dc43edde080targetblank53665fda" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -595,6 +595,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/53665fd24cc4540236c383f388203dc43edde080/analysis/transmute_code_eps_2.Rmd" target="_blank">53665fd</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-30
+</td>
+<td>
+stupid html file
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/2d49ad487654b82e647f7f379d983b5da58e829f/docs/transmute_code_eps_2.html" target="_blank">2d49ad4</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-29
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -747,10 +781,7 @@ con &lt;- Conos$new(con)
 annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))
 fraction_palette_eps &lt;- c(epilepsy=&#39;hotpink&#39;, healthy=&#39;seagreen&#39;) </code></pre>
 <p>‘Fractional’ changes.</p>
-<pre class="r"><code>test_dfe &lt;- FractionalChanges(annot, 1, 2 ,3)
-
-p &lt;- ggplot(na.omit(test_dfe),aes(x=subtype,y=freq,dodge=condition,fill=condition))+geom_boxplot(notch=FALSE,outlier.shape=NA) +scale_fill_manual(values=fraction_palette_eps) +  geom_point(position = position_jitterdodge(jitter.width=0.1),color=adjustcolor(1,alpha=0.3),aes(pch=condition),size=0.8)+ theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab(&quot;&quot;) +ylab(&quot;fraction of total cells&quot;)+ theme(legend.position=&quot;top&quot;)
-p</code></pre>
+<pre class="r"><code>FractionalPlot(annot, 1, 2 ,3, fraction.palette=fraction_palette_eps)</code></pre>
 <p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
@@ -774,6 +805,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/2d49ad487654b82e647f7f379d983b5da58e829f/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-3-1.png" target="_blank">2d49ad4</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-29
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/githubz0r/SecretUtils/blob/026c755180bc29fa869abd576add8154b387de3f/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-3-1.png" target="_blank">026c755</a>
@@ -803,21 +845,9 @@ githubz0r
 <p>Distance matrix tsne plot</p>
 <pre class="r"><code>annot2 &lt;- annot %&gt;% mutate(cellid=rownames(annot))
 
-ctdm_and_cct &lt;- Makectdm(con, annot2, 1, 2, 4)
-ctdm &lt;- ctdm_and_cct[[1]]
-cct &lt;- ctdm_and_cct[[2]] # returning this one too because we need it for the other part, a bit messy
+ctdm&lt;- Makectdm(con, annot2, 1, 2, 4)
 
-xd &lt;- WeighDistances(ctdm)
-xde &lt;- Rtsne(xd,is_distance=TRUE, perplexity=2,max_iter=1e3)$Y
-df &lt;- data.frame(xde); rownames(df) &lt;- rownames(xd); colnames(df) &lt;- c(&quot;x&quot;,&quot;y&quot;);
-df$fraction &lt;- NA
-df[grep(&#39;c_&#39;,df %&gt;% rownames),]$fraction &lt;- &#39;healthy&#39; # not exactly sure how to best generalize this
-df[grep(&#39;ep_&#39;,df %&gt;% rownames),]$fraction &lt;- &#39;epilepsy&#39; # since we don&#39;t separate patient and sample in our own annotation
-
-df$patient &lt;- rownames(df)
-df$ncells &lt;- colSums(cct)[rownames(df)]
-
-ggplot(df,aes(x,y,color=patient,shape=fraction,size=log10(ncells))) + geom_point() + theme_bw() + xlab(&quot;&quot;) + ylab(&quot;&quot;) + theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) + guides(color=guide_legend(ncol=2))</code></pre>
+PlotDistanceMatRed(ctdm, annot2, 1, 2, 1, 4, 3, perplexity=2, max_iter=1e3)</code></pre>
 <p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
@@ -843,6 +873,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/2d49ad487654b82e647f7f379d983b5da58e829f/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-4-1.png" target="_blank">2d49ad4</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-29
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/githubz0r/SecretUtils/blob/91d36c07dfb4c1460fed1dd62455124d027ad543/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-4-1.png" target="_blank">91d36c0</a>
 </td>
 <td>
@@ -858,10 +899,45 @@ githubz0r
 </div>
 <p>Distribution distances per cell type (using ctdm so must be unweighted)</p>
 <pre class="r"><code>min_cells=0
-
-xl &lt;- MakeXl(ctdm, min_cells)
-ggplot(na.omit(xl),aes(x=cell,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5))  +xlab(&quot;&quot;) +ylab(&quot;inter-patient expression distance&quot;)+ theme(legend.position=&quot;top&quot;)</code></pre>
+PlotCellTypeDists(ctdm, min_cells)</code></pre>
 <p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/2d49ad487654b82e647f7f379d983b5da58e829f/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-5-1.png" target="_blank">2d49ad4</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
