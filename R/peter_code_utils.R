@@ -1,4 +1,8 @@
-FractionalPlot <- function(annotation, patient.col, subtype.col, condition.col, fraction.palette=NULL){
+FractionalPlot <- function(patient.vec, subtype.vec, condition.vec, fraction.palette=NULL){
+  annotation <- bind_cols(list(patient.vec, subtype.vec, condition.vec)) %>% as.data.frame
+  patient.col <- 1
+  subtype.col <- 2
+  condition.col <- 3
   sub.split <- split(annotation, annotation[, subtype.col])
   sub.split <- sub.split %>% lapply(function(x){x <- mutate(x, pat.cond = paste(x[, patient.col], x[, condition.col], sep='-'))})
   CountPatConds <- function(annotation) {
@@ -33,72 +37,129 @@ FractionalPlot <- function(annotation, patient.col, subtype.col, condition.col, 
   return(p)
 }
 
-Makectdm <- function(con.object, annotation, sample.col, subtype.col, cellid.col) {
-  type.factor <- setNames(annotation[, subtype.col], annotation[, cellid.col]) %>% as.factor
-  sample.factor <- setNames(annotation[, sample.col], annotation[, cellid.col]) %>% as.factor
-
+Makesubdistmat <- function(con.object, sample.vec, subtype.vec, cellid.vec) {
+  type.factor <- setNames(subtype.vec, cellid.vec) %>% as.factor
+  sample.factor <- setNames(sample.vec, cellid.vec) %>% as.factor
   CM <- con.object$getClusterCountMatrices(groups=type.factor)
-  CCT <- table(type.factor, sample.factor)
+  type.factor.count <- table(type.factor, sample.factor)
 
-  ctdm <- mclapply(setNames(colnames(CM[[1]]), colnames(CM[[1]])),function(ct) {
+  sub.dist.mat <- mclapply(setNames(colnames(CM[[1]]), colnames(CM[[1]])),function(ct) {
     tcm <- do.call(rbind,lapply(CM,function(x) x[,ct]))
     tcm <- t(tcm/pmax(1,rowSums(tcm)))
     tcd <- pagoda2:::jsDist(tcm); dimnames(tcd) <- list(colnames(tcm),colnames(tcm)); # calls a c function
     # calculate how many cells there are
-    attr(tcd,'cc') <- CCT[ct,colnames(tcm)]
+    attr(tcd,'cc') <- type.factor.count[ct,colnames(tcm)]
     tcd
   },mc.cores=1)
 
-  return(ctdm)
+  return(sub.dist.mat)
 }
 
-PlotDistanceMatRed <- function(ctdm.object, annotation, sample.col, subtype.col, patient.col,
-                               cellid.col, condition.col, perplexity=30, max_iter=1e3) {
-  type.factor <- setNames(annotation[, subtype.col], annotation[, cellid.col]) %>% as.factor
-  sample.factor <- setNames(annotation[, sample.col], annotation[, cellid.col]) %>% as.factor
-  CCT <- table(type.factor, sample.factor)
-  x <- abind(lapply(ctdm.object,function(x) {
-    nc <- attr(x,'cc');
+PlotDistanceMatRed <- function(sub.dist.mat.object, sample.vec, subtype.vec, patient.vec,
+                               cellid.vec, condition.vec, perplexity, max_iter=1e3, get.mat=FALSE) {
+  annotation <- bind_cols(list(sample.vec, subtype.vec, patient.vec, cellid.vec, condition.vec)) %>% as.data.frame
+  type.factor <- setNames(subtype.vec, cellid.vec) %>% as.factor
+  samp.factor <- setNames(sample.vec, cellid.vec) %>% as.factor
+
+  type.factor.count <- table(type.factor, samp.factor)
+  x <- abind(lapply(sub.dist.mat.object,function(x) {
+    nc <- attr(x,'cc')
     wm <- sqrt(outer(nc,nc,FUN='pmin'))
     return( x*wm )
   }),along=3)
-  y <- abind(lapply(ctdm.object,function(x) {
-    nc <- attr(x,'cc');
+  y <- abind(lapply(sub.dist.mat.object,function(x) {
+    nc <- attr(x,'cc')
     sqrt(outer(nc,nc,FUN='pmin'))
   }),along=3)
-  XD <- apply(x,c(1,2),sum)/apply(y,c(1,2),sum)
+  agg.dist.mat <- apply(x,c(1,2),sum)/apply(y,c(1,2),sum)
 
-  sample.split <- split(annotation, annotation[, sample.col])
+  sample.split <- split(annotation, sample.vec)
+  condition.col <- 5
+  patient.col <- 3
   sample.conds <- sample.split %>% lapply(function(x){x[, condition.col][1]})
   sample.pats <- sample.split %>% lapply(function(x){x[, patient.col][1]})
 
-  XDE <- Rtsne::Rtsne(XD,is_distance=TRUE, perplexity=perplexity,max_iter=max_iter)$Y
-  df <- data.frame(XDE); colnames(df) <- c("x","y")
-  df <- df %>% mutate(samples=rownames(XD))
+  agg.dist.mat.tsne <- Rtsne::Rtsne(agg.dist.mat,is_distance=TRUE, perplexity=perplexity,max_iter=max_iter)$Y
+  df <- data.frame(agg.dist.mat.tsne); colnames(df) <- c("x","y")
+  df <- df %>% mutate(samples=rownames(agg.dist.mat))
   df <- df[order(df$samples),]
   sample.conds <- sample.conds[order(sample.conds %>% names)]
   df <- df %>% mutate(condition=unlist(sample.conds), patient=unlist(sample.pats))
-  df <- df %>% mutate(ncells=colSums(CCT)[df$samples])
+  df <- df %>% mutate(ncells=colSums(type.factor.count)[df$samples])
 
   p <- ggplot(df,aes(x,y,color=patient,shape=condition,size=log10(ncells))) + geom_point() +
-    theme_bw() + xlab("") + ylab("") +
-    theme(axis.title=element_blank(),  axis.text=element_blank(), axis.ticks=element_blank()) +
-    guides(color=guide_legend(ncol=2))
-  return(p)
+    theme_bw() +xlab('tsne 1') + ylab('tsne 2') + guides(color=guide_legend(ncol=2))
+  if (get.mat){
+    return(agg.dist.mat)
+  } else {
+    return(p)
+  }
 }
 
-PlotCellTypeDists <- function(ctdm.object, min.cells, between.conditions=TRUE) {
+ConditionDistanceDensity <- function(sub.dist.mat.object, sample.vec, subtype.vec, patient.vec,
+                               cellid.vec, condition.vec, notch=FALSE, fraction.palette=NULL, plot=TRUE) {
+  type.factor <- setNames(subtype.vec, cellid.vec) %>% as.factor
+  samp.factor <- setNames(sample.vec, cellid.vec) %>% as.factor
+
+  type.sample.count <- table(type.factor, samp.factor)
+  x <- abind(lapply(sub.dist.mat.object, function(x) {
+    nc <- attr(x,'cc')
+    wm <- sqrt(outer(nc,nc,FUN='pmin'))
+    return( x*wm )
+  }),along=3)
+  y <- abind(lapply(sub.dist.mat.object, function(x) {
+    nc <- attr(x,'cc')
+    sqrt(outer(nc,nc,FUN='pmin'))
+  }),along=3)
+  agg.dist.mat <- apply(x,c(1,2),sum)/apply(y,c(1,2),sum)
+  x <- agg.dist.mat; x[upper.tri(x)] <- NA; diag(x) <- NA
+  df.jsd <- na.omit(melt(x))
+
+  annotation <- bind_cols(list(sample.vec, patient.vec, condition.vec)) %>% as.data.frame
+  sample.split <- split(annotation, sample.vec)
+  GetPat <- function(x){
+    samp.sub <- annotation[annotation[, 1]==x, ]
+    pat <- samp.sub[, 2][1]
+  }
+  GetCond <- function(x){
+    samp.sub <- annotation[annotation[, 1]==x, ]
+    pat <- samp.sub[, 3][1]
+  }
+  df.jsd$patient1 <- df.jsd$Var1 %>% lapply(GetPat) %>% unlist
+  df.jsd$patient2 <- df.jsd$Var2 %>% lapply(GetPat) %>% unlist
+  df.jsd$condition1 <- df.jsd$Var1 %>% lapply(GetCond) %>% unlist
+  df.jsd$condition2 <- df.jsd$Var2 %>% lapply(GetCond) %>% unlist
+
+  df.jsd$samePatient <- df.jsd$patient1==df.jsd$patient2
+  df.jsd$sameCondition <- df.jsd$condition1==df.jsd$condition2
+  df.jsd <- df.jsd[df.jsd$sameCondition==TRUE,]
+
+  ts.within.fraction <- ggplot(na.omit(df.jsd),aes(x=condition1,y=value))+geom_boxplot(notch=notch,outlier.shape=NA,aes(fill=condition1))+
+    geom_jitter(position=position_jitter(0.2), color=adjustcolor('black', alpha=0.2)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    guides(fill=FALSE) + xlab('') + ylab('inter-patient expression distance')
+  if(fraction.palette %>% is.null()==FALSE) {
+    ts.within.fraction <- ts.within.fraction + scale_fill_manual(values=fraction.palette)
+  }
+  if(plot){
+    return(ts.within.fraction)
+  } else {
+    return(df.jsd)
+  }
+}
+
+PlotCellTypeDists <- function(sub.dist.mat.object, min.cells, between.conditions=TRUE) {
   InterPatDF <- function(cell.type, min.cells=0, between.conditions) {
-    x <- ctdm.object[[cell.type]] # jsdists for subtype xn
-    nc <- attr(x,'cc'); # count of cells
+    x <- sub.dist.mat.object[[cell.type]] # jsdists for subtype xn
+    nc <- attr(x,'cc') # count of cells
     wm <- outer(nc,nc,FUN='pmin') # min cells for the comparison
 
-    x[upper.tri(x)] <- NA; diag(x) <- NA;
-    wm[upper.tri(wm)] <- NA; diag(wm) <- NA;
-    df2 <- melt(x);
+    x[upper.tri(x)] <- NA; diag(x) <- NA
+    wm[upper.tri(wm)] <- NA; diag(wm) <- NA
+    df2 <- melt(x)
     df2$ncells <- melt(wm)$value
     df2 <- na.omit(df2)
-    df2 <- df2[df2$ncells>=min.cells,];
+    df2 <- df2[df2$ncells>=min.cells,]
 
     df2$patient1 <- df2$Var1
     df2$patient2 <- df2$Var2
@@ -113,7 +174,7 @@ PlotCellTypeDists <- function(ctdm.object, min.cells, between.conditions=TRUE) {
     df2$cell <- cell.type
     df2
   }
-  xl <- do.call(rbind,lapply(names(ctdm.object), InterPatDF, min.cells, between.conditions=TRUE))
+  xl <- do.call(rbind,lapply(names(sub.dist.mat.object), InterPatDF, min.cells, between.conditions=TRUE))
   xl$comparison <- paste(xl$patient1, xl$patient2, sep='.')
   p <- ggplot(na.omit(xl),aes(x=cell,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
     theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +

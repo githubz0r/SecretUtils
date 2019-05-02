@@ -36,21 +36,37 @@ fraction_palette_eps <- c(epilepsy='hotpink', healthy='seagreen')
 
 'Fractional' changes.
 ```{r}
-FractionalPlot(annot, 1, 2 ,3, fraction.palette=fraction_palette_eps)
+FractionalPlot(annot$sample, annot$subtype, annot$condition, fraction.palette = fraction_palette_eps)
 ```
 
 Distance matrix tsne plot
 ```{r}
 annot2 <- annot %>% mutate(cellid=rownames(annot))
+source('/home/larsc/SecretUtils/R/peter_code_utils.R')
+sub_dist_mat <- Makesubdistmat(con, annot2$sample, annot2$subtype, annot2$cellid)
 
-ctdm<- Makectdm(con, annot2, 1, 2, 4)
-
-PlotDistanceMatRed(ctdm, annot2, 1, 2, 1, 4, 3, perplexity=2, max_iter=1e3)
+## some weird shit
+#testannot <- bind_cols(list(annot2$sample, annot2$subtype, annot2$cellid))
+#tf_test <- setNames(testannot[, 2], testannot[, 3]) %>% as.factor # does not work
+#tf_test <- setNames(testannot[[2]], testannot[[3]]) %>% as.factor
+## end weird shit
+PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4) # add labels
 ```
+
+Condition distance distribution
+```{r}
+ConditionDistanceDensity(sub_dist_mat, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
+                         notch=TRUE, fraction.palette = fraction_palette_eps)
+
+```
+
+
+
 
 Distribution distances per cell type (using ctdm so must be unweighted)
 ```{r}
 min_cells=0
-PlotCellTypeDists(ctdm, min_cells)
+PlotCellTypeDists(sub_dist_mat, min_cells)
 ```
 

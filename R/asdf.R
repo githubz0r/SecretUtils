@@ -168,7 +168,7 @@ GetAllProbs <- function(annotation, rbound.panel, samp.col, sub.col, cellid.col,
 
 GetSubMatrices <- function(list.of.cats, rbound.panel, genes, cellid.col) {
   exps.list <- list.of.cats %>% lapply(function(x){rbound.panel[x[,cellid.col], genes]})
-} # used for kolmogorov smirnov
+}
 
 ObtainProbabilities <- function(annotation.list, rbound.panel, samp.col, sub.col, cellid.col, genes, pseudo.count=0){
   #rbound.panel <- RbindPanel(con.object)
@@ -185,6 +185,13 @@ CalculateAllJSD <- function(list1, list2) {
   return(unlist(alldists))
 }
 
+CalculateAllBhat <- function(list1, list2) {
+  CalculateBhat <- function(x, a.list) {
+    a.list %>% lapply(Bhattacharyya,x)
+  }
+  alldists <- list1 %>% lapply(CalculateBhat, list2)
+  return(unlist(alldists))
+}
 
 KLD <- function(P,Q) {
   divergence <- sum(P*log(P/Q))
