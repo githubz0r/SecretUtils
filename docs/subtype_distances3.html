@@ -27,6 +27,8 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -395,7 +397,13 @@ div.tocify {
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/githubz0r/SecretUtils">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -430,7 +438,7 @@ div.section {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#report"> Report <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -439,7 +447,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-04-15
+<strong>Last updated:</strong> 2019-05-14
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -449,11 +457,11 @@ div.section {
 </p>
 <p>
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.2.0). The <em>Report</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.3.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
-<div id="report" class="tab-pane fade">
+<div id="checks" class="tab-pane fade">
 <div id="workflowr-checks" class="panel-group">
 <div class="panel panel-default">
 <div class="panel-heading">
@@ -518,16 +526,17 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongd65e02e"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> d65e02e </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree8155c179269aa541980cd2956374e5afb2ff0f9ctargetblank8155c17a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/8155c179269aa541980cd2956374e5afb2ff0f9c" target="_blank">8155c17</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongd65e02e" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree8155c179269aa541980cd2956374e5afb2ff0f9ctargetblank8155c17a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 </p>
 <pre><code>
 Ignored files:
+    Ignored:    .Rhistory
     Ignored:    .Rproj.user/
 
 Untracked files:
@@ -535,10 +544,21 @@ Untracked files:
     Untracked:  DESCRIPTION
     Untracked:  NAMESPACE
     Untracked:  R/hello.R
+    Untracked:  analysis/all.panels.pdf
+    Untracked:  analysis/cell_type_total_tSNE.w.pdf
+    Untracked:  analysis/fraction.all.pdf
     Untracked:  analysis/subtype_distances.Rmd
     Untracked:  analysis/subtype_distances2.Rmd
     Untracked:  analysis/subtype_distances4.Rmd
+    Untracked:  analysis/subtype_distances_redux.Rmd
+    Untracked:  analysis/subtype_distances_revenge.Rmd
+    Untracked:  analysis/test_output.Rmd
+    Untracked:  analysis/transmute_peters_code.Rmd
     Untracked:  man/
+
+Unstaged changes:
+    Modified:   analysis/transmute_code_eps.Rmd
+    Modified:   analysis/transmute_code_eps_2.Rmd
 
 </code></pre>
 <p>
@@ -582,7 +602,41 @@ Message
 Rmd
 </td>
 <td>
-d65e02e
+<a href="https://github.com/githubz0r/SecretUtils/blob/8155c179269aa541980cd2956374e5afb2ff0f9c/analysis/subtype_distances3.Rmd" target="_blank">8155c17</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-14
+</td>
+<td>
+some new plots
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/subtype_distances3.html" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/d65e02ec3242b1578d5d350e7f5834b4f7e889e9/analysis/subtype_distances3.Rmd" target="_blank">d65e02e</a>
 </td>
 <td>
 githubz0r
@@ -615,53 +669,41 @@ Attaching package: &#39;igraph&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:base&#39;:
 
     union</code></pre>
-<pre><code>Warning: replacing previous import &#39;dendextend::%&gt;%&#39; by &#39;igraph::%&gt;%&#39; when
-loading &#39;conos&#39;</code></pre>
-<pre><code>Warning: replacing previous import &#39;igraph::%&gt;%&#39; by &#39;dplyr::%&gt;%&#39; when
-loading &#39;conos&#39;</code></pre>
 <pre class="r"><code>library(pheatmap)
 #library(fuck)
-source(&#39;/home/larsc/fuck/R/asdf.R&#39;)
+source(&#39;/home/larsc/SecretUtils/R/asdf.R&#39;)
 require(pagoda2)</code></pre>
 <pre><code>Loading required package: pagoda2</code></pre>
-<pre><code>Loading required package: DBI</code></pre>
-<pre><code></code></pre>
-<pre><code>Warning: replacing previous import &#39;igraph::%&gt;%&#39; by &#39;magrittr::%&gt;%&#39; when
-loading &#39;pagoda2&#39;</code></pre>
-<pre><code>
-Attaching package: &#39;pagoda2&#39;</code></pre>
-<pre><code>The following objects are masked from &#39;package:conos&#39;:
-
-    buildWijMatrix, projectKNNs</code></pre>
 <pre class="r"><code>library(dplyr)</code></pre>
 <pre><code>
 Attaching package: &#39;dplyr&#39;</code></pre>
 <pre><code>The following objects are masked from &#39;package:igraph&#39;:
 
-    %&gt;%, as_data_frame, groups, union</code></pre>
+    as_data_frame, groups, union</code></pre>
 <pre><code>The following objects are masked from &#39;package:stats&#39;:
 
     filter, lag</code></pre>
 <pre><code>The following objects are masked from &#39;package:base&#39;:
 
     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(stringr)</code></pre>
-<pre><code>
-Attaching package: &#39;stringr&#39;</code></pre>
-<pre><code>The following object is masked from &#39;package:igraph&#39;:
-
-    %&gt;%</code></pre>
-<pre class="r"><code>library(tidyr)</code></pre>
+<pre class="r"><code>library(stringr)
+library(tidyr)</code></pre>
 <pre><code>
 Attaching package: &#39;tidyr&#39;</code></pre>
-<pre><code>The following objects are masked from &#39;package:igraph&#39;:
+<pre><code>The following object is masked from &#39;package:igraph&#39;:
 
-    %&gt;%, crossing</code></pre>
+    crossing</code></pre>
 <pre><code>The following object is masked from &#39;package:Matrix&#39;:
 
     expand</code></pre>
 <pre class="r"><code>library(ggplot2)
-con_object &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
+library(cowplot)</code></pre>
+<pre><code>
+Attaching package: &#39;cowplot&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:ggplot2&#39;:
+
+    ggsave</code></pre>
+<pre class="r"><code>con_object &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
 annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))</code></pre>
 <p>rowbind the adjusted expression values</p>
 <pre class="r"><code>rbound_panel &lt;- RbindPanel(con_object)</code></pre>
@@ -672,18 +714,90 @@ annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_
 <pre class="r"><code>con_object$plotGraph(color.by=&#39;sample&#39;,mark.groups=F,alpha=0.1,show.legend=T)</code></pre>
 <pre><code>Estimating embeddings.</code></pre>
 <p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-4-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>set cell annotation factor thingy</p>
 <pre class="r"><code>annot &lt;- annot %&gt;% mutate(cellids = rownames(annot)) # turn rownames into a col for convenience
 annot &lt;- annot %&gt;% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep=&#39;_&#39;))
 cellannot=setNames(annot[,5], annot[,4])</code></pre>
 <p>Let’s see the graph now</p>
-<pre class="r"><code>con_object$plotGraph(groups=cellannot, font.size=3)</code></pre>
-<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /> Damn, it looks awful.</p>
-<p>Let’s make the JS distance plots</p>
-<pre class="r"><code># get some genes
-od_genes = conos:::getOdGenesUniformly(con_object$samples, 100)
-
-# just for interest check how many subtypes for each sample
+<pre class="r"><code>con_object$plotGraph(groups=cellannot, font.size=3, shuffle.colors=T, show.legend=F)</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
+Past versions of unnamed-chunk-6-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-6-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Damn, it looks awful.</p>
+<p>Check which samples have which subtypes</p>
+<pre class="r"><code># just for interest check how many subtypes for each sample
 howmanysubs &lt;- function(x, annotation){
   annotsubset &lt;- annotation[annotation$sample==x,]
   return(unique(annotsubset$subtype)) #%&gt;% length)
@@ -694,10 +808,12 @@ samp_intersect &lt;- subs_of_samples %&gt;% Reduce(intersect,.)
 missing_subs &lt;- setdiff(subs_of_samples$epilepsy1, samp_intersect)
 missing_subs</code></pre>
 <pre><code>[1] &quot;L5_Htr2c&quot;   &quot;Pvalb_Nos1&quot;</code></pre>
-<pre class="r"><code># split annot in categories (disease, healthy)
+<p>Inter sample distance, aggregated</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 5000)
+# split annot in categories (disease, healthy)
 state_split &lt;- split(annot, annot$condition, drop=TRUE)
 # get probability distributions for subtype/sample categories
-all_probs &lt;- ObtainProbabilities(state_split, rbound_panel, 1, 2, 4, od_genes, pseudo.count=10^(-8))
+all_probs &lt;- ObtainProbabilities(state_split, rbound_panel, 1, 2, 4, od_genes, pseudo.count=10^(-6))
 # now get JS distances
 all_distances &lt;- Map(CalculateAllJSD, all_probs$healthy, all_probs$epilepsy)
 #all_dists_dfd &lt;- all_distances %&gt;% lapply(function(x){data.frame(comparison=names(x), value=x, row.names=NULL)})
@@ -712,12 +828,123 @@ ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) + geom_violin()+geom_p
 <pre><code>Warning: Removed 6 rows containing non-finite values (stat_ydensity).</code></pre>
 <pre><code>Warning: Removed 6 rows containing missing values (geom_point).</code></pre>
 <p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-8-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
+Past versions of unnamed-chunk-8-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-8-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-8-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>disannot&lt;-setNames(annot[,3], annot[,4])
 subannot&lt;-setNames(annot[,2], annot[,4])
 con_object$plotGraph(groups=subannot, alpha=0.1, font.size=3)</code></pre>
 <p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
+Past versions of unnamed-chunk-9-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-9-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-9-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>con_object$plotGraph(groups=disannot, alpha=0.1)</code></pre>
 <p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-1">
+Past versions of unnamed-chunk-10-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-10-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-10-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>let’s see overall JS dist.</p>
 <pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
 state_split &lt;- split(annot, annot$condition, drop=TRUE)
@@ -730,7 +957,179 @@ all_dists_gathered &lt;- gather(all_dists, key=subtype, value=js_distance)
 ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) +geom_bar(stat=&#39;identity&#39;, col=&#39;hotpink&#39;) +
   theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
 <p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>load my de genes &amp; get some genes, equal numbers for each subtype</p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-11-1">
+Past versions of unnamed-chunk-11-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-11-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-11-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Dependency on nr of cells or genes?</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+state_split &lt;- split(annot, annot$condition, drop=TRUE)
+condition_tables &lt;- state_split %&gt;% lapply(function(x){table(x$subtype)})
+condition_df &lt;- condition_tables %&gt;% as.data.frame
+condition_df &lt;- condition_df %&gt;% mutate(min_cells = mapply(min, epilepsy.Freq, healthy.Freq))
+subtype_split &lt;- state_split %&gt;% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs &lt;- subtype_split$healthy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=10^(-10))
+epilepsy_probs &lt;- subtype_split$epilepsy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=10^(-10))
+
+all_dists &lt;- Map(JensenShannon, healthy_probs, epilepsy_probs) %&gt;% as_tibble
+all_dists_gathered &lt;- gather(all_dists, key=subtype, value=js_distance) %&gt;% mutate(min_cells = condition_df$min_cells)
+ggplot(all_dists_gathered, aes(y=js_distance, x=min_cells, col=subtype)) +geom_point() +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+nr_cells &lt;- c(30, 60, seq(100, 1000, by=50))
+nr_cells2 &lt;- (seq(30,300,by=15))
+do_js_cells &lt;- function(nr.cell, subtype, pseudo.prob=1e-8) {
+  healthy_probs &lt;- subtype_split$healthy[[subtype]] %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  epilepsy_probs &lt;- subtype_split$epilepsy[[subtype]] %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  js.dist &lt;- JensenShannon( healthy_probs, epilepsy_probs)
+  return(js.dist)
+}
+
+get_all_jscells &lt;- function(subtype, cell.nr.vec, pseudo.prob=1e-8){
+  js_nrcell &lt;- cell.nr.vec %&gt;% lapply(do_js_cells, subtype)
+  jscell_df &lt;- bind_cols(value=unlist(js_nrcell), nr.cells=cell.nr.vec) %&gt;% mutate(subtype=subtype)
+  #return(ggplot(jscell_df, aes(y=value, x=nr.cells))+geom_point()+ggtitle(subtype))
+}
+
+all_jscells &lt;- annot$subtype %&gt;% unique %&gt;% lapply(get_all_jscells, nr_cells)
+
+do_plot &lt;- function(sub.df){
+  p &lt;- ggplot(sub.df, aes(x=nr.cells, y=value, col=subtype))+geom_line()+
+    theme(axis.text.x = element_text(angle = -90, hjust = 1))
+  return(p)
+}
+all_plots &lt;- all_jscells %&gt;% lapply(do_plot)
+subl1 &lt;- do.call(rbind, all_jscells[1:5])
+p &lt;- ggplot(all_jscells[[20]], aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+#plot_grid(plotlist=all_plots[1:4], nrow=2)
+p</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-13-1">
+Past versions of unnamed-chunk-13-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-13-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-13-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Number of genes?</p>
+<pre class="r"><code>nr_genes=seq(100, 5000, 250)
+do_js_genes &lt;- function(nr.genes, pseudo.prob=1e-8) {
+  od_genes = conos:::getOdGenesUniformly(con_object$samples, nr.genes)
+  healthy_probs &lt;- subtype_split$healthy$L2_Lamp5 %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=100, pseudo.count=pseudo.prob)
+  epilepsy_probs &lt;- subtype_split$epilepsy$L2_Lamp5 %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=100, pseudo.count=pseudo.prob)
+  js.dist &lt;- JensenShannon( healthy_probs, epilepsy_probs)
+  return(js.dist)
+}
+js_nrgenes &lt;- nr_genes %&gt;% lapply(do_js_genes)
+jsgenes_df &lt;- bind_cols(value=unlist(js_nrgenes), nr.genes=nr_genes)
+ggplot(jsgenes_df, aes(y=value, x=nr.genes))+geom_point()+ggtitle(&#39;JSD for L2_Lamp5, using x number of genes from each condition&#39;)</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-14-1">
+Past versions of unnamed-chunk-14-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-14-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-14-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>load my de genes &amp; get some DE genes, equal numbers for each subtype</p>
 <pre class="r"><code>de_genez &lt;- readRDS(file.path(&#39;/home/larsc/data/eps_10x_de_celltype.rds&#39;))
 
 GetTopGenes &lt;- function(de.result, nr, value=&#39;gene.names&#39;, filter.mito=TRUE){
@@ -743,13 +1142,106 @@ GetTopGenes &lt;- function(de.result, nr, value=&#39;gene.names&#39;, filter.mit
   return(res.sorted[[value]][1:nr])
 }
 
-top_genez &lt;- de_genez %&gt;% lapply(GetTopGenes, 100, filter.mito=FALSE)</code></pre>
+top_genez &lt;- de_genez %&gt;% lapply(GetTopGenes, 100, filter.mito=FALSE)
+
+# check how many DE genes for each
+countPadjes &lt;- function(de.result,threshold=0.1){
+  padjes &lt;- de.result$res$padj
+  sum(na.omit(padjes&lt;threshold))
+}
+padjes_count &lt;- de_genez %&gt;% lapply(countPadjes,threshold=0.3) %&gt;% as.data.frame %&gt;% gather(key=subtype, value=count)
+padjes_count %&gt;% ggplot(aes(x=subtype, y=count))+geom_bar(stat=&#39;identity&#39;)+theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-15-1">
+Past versions of unnamed-chunk-15-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-15-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-15-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>top_padjes &lt;- de_genez %&gt;% lapply(GetTopGenes, 1000, value=&#39;padj&#39;, filter.mito=FALSE)
+top_avg &lt;- top_padjes %&gt;% lapply(mean) %&gt;% as.data.frame %&gt;% gather(key=subtype, value=val)
+top_padjes %&gt;% as_tibble %&gt;% gather(key=subtype, value=val) %&gt;% ggplot(aes(x=subtype, y=val))+geom_boxplot()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-15-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>top_avg %&gt;% as_tibble %&gt;% gather(key=subtype, value=val) %&gt;% mutate(log_val=log(val)) %&gt;% 
+  ggplot(aes(x=subtype, y=log_val))+#geom_bar(stat=&#39;identity&#39;)+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))+ geom_point()</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-15-3.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Just curious what the distributions of padjes looks like</p>
-<pre class="r"><code>de_genes_df &lt;- de_genez %&gt;% lapply(GetTopGenes, 10000, value=&#39;padj&#39;, filter.mito=FALSE) %&gt;% as_tibble
+<pre class="r"><code>de_genes_df &lt;- de_genez %&gt;% lapply(GetTopGenes, 100, value=&#39;padj&#39;, filter.mito=FALSE) %&gt;% as_tibble
 de_genes_gather &lt;- gather(de_genes_df, key=subtype, value=padj)
 ggplot(de_genes_gather, aes(y=padj, x=subtype)) + geom_violin(aes(col=subtype))+
   theme(axis.text.x = element_text(angle = -90, hjust = 1))#+geom_jitter(aes(col=subtype), alpha = 0.3, size=0.5)</code></pre>
-<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-13-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-16-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-16-1">
+Past versions of unnamed-chunk-16-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-16-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-16-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>top 100 de genes for each subtype individually</p>
 <pre class="r"><code>ObtainDistributions &lt;- function(sub.annot, some.genes, rbound.panel, cellid.col, nr.cell, pseudo.count){
     return(SelectCellProbs(sub.annot, rbound.panel, cellid.col, nr.cell, some.genes, pseudo.count))
   } # just to rearrange the inputs for mapply
@@ -767,15 +1259,15 @@ ProbsToJSD &lt;- function(state.split, rbound.panel, cellid.col, sub.col, nr.cel
 } # specific for this data but saves some lines
 
 ### some sanity checking, do not mind it
-test_splits &lt;- state_split %&gt;% lapply(function(x){split(x, x[,2], drop=T)})
-min_cells_eps &lt;- test_splits$epilepsy %&gt;% lapply(function(x){dim(x)[1]}) %&gt;% unlist %&gt;% min
-min_cells_healthy &lt;- test_splits$healthy %&gt;% lapply(function(x){dim(x)[1]}) %&gt;% unlist %&gt;% min
-test_nos1_probs&lt;-test_splits$epilepsy$Id2_Nos1 %&gt;% SelectCellProbs(rbound_panel, 4, 101, top_genez$Id2_Nos1, 10^(-8))
-test_cell &lt;- names(test_nos1_probs)[1]
-test_mat &lt;- rbound_panel[test_cell, top_genez$Id2_Nos1]
-test_dist &lt;- test_mat/sum(test_mat)
-test_dist &lt;- test_dist +10^(-8)
-test_dist &lt;- test_dist/sum(test_dist)
+#test_splits &lt;- state_split %&gt;% lapply(function(x){split(x, x[,2], drop=T)})
+#min_cells_eps &lt;- test_splits$epilepsy %&gt;% lapply(function(x){dim(x)[1]}) %&gt;% unlist %&gt;% min
+#min_cells_healthy &lt;- test_splits$healthy %&gt;% lapply(function(x){dim(x)[1]}) %&gt;% unlist %&gt;% min
+#test_nos1_probs&lt;-test_splits$epilepsy$Id2_Nos1 %&gt;% SelectCellProbs(rbound_panel, 4, 101, top_genez$Id2_Nos1, 10^(-8))
+#test_cell &lt;- names(test_nos1_probs)[1]
+#test_mat &lt;- rbound_panel[test_cell, top_genez$Id2_Nos1]
+#test_dist &lt;- test_mat/sum(test_mat)
+#test_dist &lt;- test_dist +10^(-8)
+#test_dist &lt;- test_dist/sum(test_dist)
 #all.equal(test_dist, test_nos1_probs[[1]]) # tru
 ### end sanity check
 
@@ -784,10 +1276,47 @@ all_sc_dists_de &lt;- ProbsToJSD(state_split, rbound_panel, 4, 2, 100, top_genez
 all_scd_de_gathered &lt;- gather(all_sc_dists_de, key=subtype, value=JSD)
 ggplot(all_scd_de_gathered, aes(y=JSD, x=subtype)) + geom_violin(aes(col=subtype))+
   theme(axis.text.x = element_text(angle = -90, hjust = 1))#+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)</code></pre>
-<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-14-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-17-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-17-1">
+Past versions of unnamed-chunk-17-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-17-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-17-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Sam’s genes, not equal number of genes</p>
 <pre class="r"><code>de_genes &lt;- readRDS(&quot;/d0-mendel/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/de_multilevel_genes.rds&quot;)
-
+sam_de_count &lt;- de_genes %&gt;% lapply(length) %&gt;% as.data.frame
 #names(de_genez)==names(de_genes) # just checking
 CheckOverlap &lt;- function(x,y){ # is it completely off or wut
   y=y[1:100]
@@ -798,9 +1327,46 @@ all_sc_dists_de_sam &lt;- ProbsToJSD(state_split, rbound_panel, 4, 2, 100, de_ge
 all_scd_de_gathered_sam &lt;- gather(all_sc_dists_de_sam, key=subtype, value=JSD)
 ggplot(all_scd_de_gathered_sam, aes(y=JSD, x=subtype)) + geom_violin(aes(col=subtype))+
   theme(axis.text.x = element_text(angle = -90, hjust = 1))#+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)</code></pre>
-<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-15-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-18-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-18-1">
+Past versions of unnamed-chunk-18-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-18-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-18-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Constant number of OD genes, constant number of cells.</p>
-<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 100)
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
 healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes, 10^(-8))
 epscellprobs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes, 10^(-8))
 all_singlecell_dists &lt;- Map(CalculateAllJSD, healthcellprobs, epscellprobs)
@@ -808,7 +1374,84 @@ all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
 all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=jsd)
 ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
   theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)</code></pre>
-<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-16-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-19-1.png" width="960" style="display: block; margin: auto;" /> WHat if we use cor instead?</p>
+<p>Correlation (overall)</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 5000)
+top_genez &lt;- de_genez %&gt;% lapply(GetTopGenes, 5000, filter.mito=FALSE)
+
+state_split &lt;- split(annot, annot$condition, drop=TRUE)
+subtype_split &lt;- state_split %&gt;% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_avg &lt;- subtype_split$healthy %&gt;% GetSubMatrices(rbound_panel, od_genes, cellid.col = 4) %&gt;% lapply(GetColMeans)
+epilepsy_avg &lt;- subtype_split$epilepsy %&gt;% GetSubMatrices(rbound_panel, od_genes, cellid.col = 4) %&gt;% lapply(GetColMeans)
+
+#healthy_avg &lt;- subtype_split$healthy %&gt;% GetSubMatsList(rbound_panel, top_genez, cellid.col = 4) %&gt;% lapply(GetColMeans)
+#epilepsy_avg &lt;- subtype_split$epilepsy %&gt;% GetSubMatsList(rbound_panel, top_genez, cellid.col = 4) %&gt;% lapply(GetColMeans)
+
+all_dists &lt;- Map(cor, healthy_avg, epilepsy_avg) %&gt;% as_tibble
+all_dists_gathered &lt;- gather(all_dists, key=subtype, value=correlation)
+ggplot(all_dists_gathered, aes(y=correlation, x=subtype)) +geom_bar(stat=&#39;identity&#39;, col=&#39;hotpink&#39;) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-20-1">
+Past versions of unnamed-chunk-20-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-20-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/8b7729d3fa0eef6f0f1f93025190b5364a459717/docs/figure/subtype_distances3.Rmd/unnamed-chunk-20-1.png" target="_blank">8b7729d</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-04-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>ggplot(all_dists_gathered, aes(y=correlation, x=subtype)) +geom_point() +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))+ylim(0.75,1)</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-20-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>pairwise correlation</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+healthcellvecs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes, vec=T)
+epscellvecs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes, vec=T)
+all_singlecell_dists &lt;- Map(CalculateAllCor, healthcellvecs, epscellvecs)
+all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=correlation)
+ggplot(all_scd_gathered, aes(y=correlation, x=subtype)) + geom_boxplot()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-21-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Constant number of OD genes, constant number of cells, normalize variance.</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 100)
+healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes, 10^(-8), norm.var=T)
+epscellprobs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes, 10^(-8), norm.var=T)
+all_singlecell_dists &lt;- Map(CalculateAllJSD, healthcellprobs, epscellprobs)
+all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=jsd)
+ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-22-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>Instead of OD genes, union of most DE genes</p>
 <pre class="r"><code>top_genes_union &lt;- top_genez %&gt;% unlist %&gt;% unique
 healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, top_genes_union, 10^(-8))
@@ -818,46 +1461,161 @@ all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
 all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=jsd)
 ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
   theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
-<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-17-1.png" width="960" style="display: block; margin: auto;" /></p>
-<p>Now Aggregation of cells, each with their own top 100</p>
-<pre class="r"><code>IndividualCellProbsAgg &lt;- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes.list, pseudo.count=0){
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-23-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Now Aggregation of cells, same number of cells, 2000 od genes</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+od_genes_list &lt;- rep(list(od_genes), 20)
+
+IndividualCellProbsAgg &lt;- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes.list, pseudo.count=0){
   sub.split &lt;- split(annotation, annotation[, sub.col], drop=T)
   cell.distributions &lt;- mapply(SelectCellProbsAggregated, sub.split, genes.list, MoreArgs=list(rbound.panel, cellid.col, nr.cell, pseudo.count), SIMPLIFY=F)
   return(cell.distributions)
 }
-sub_probs_agg &lt;- state_split %&gt;% lapply(IndividualCellProbsAgg, rbound_panel, 4, 2, 100, top_genez, 10^(-8))
+sub_probs_agg &lt;- state_split %&gt;% lapply(IndividualCellProbsAgg, rbound_panel, 4, 2, 200, od_genes_list, 10^(-8))
 jsd_agg &lt;- Map(JensenShannon, sub_probs_agg$healthy, sub_probs_agg$epilepsy) %&gt;% as_tibble
 jsd_agg_gathered &lt;- gather(jsd_agg, key=subtype, value=js_distance_cell_agg)
 ggplot(jsd_agg_gathered, aes(y=js_distance_cell_agg, x=subtype)) +geom_bar(stat=&#39;identity&#39;, col=&#39;hotpink&#39;) +
   theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
-<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Sanity checking coz’ this weird</p>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-24-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Sanity checking coz’ this weird (using previous iteration of prev.cell with top_genez instead of od genes)</p>
 <pre class="r"><code># let&#39;s double check this bullshit (only meaningful if using 2224 cells so we sample all in eps lamp5)
-test_sub_split &lt;- state_split %&gt;% lapply(function(x){split(x, x[,2])})
-test_mat &lt;- rbound_panel[test_sub_split$epilepsy$L2_Lamp5[,4],top_genez$L2_Lamp5]
-test_probs &lt;- test_mat %&gt;% GetColMeans
-test_probs &lt;- test_probs/sum(test_probs)
-test_probs &lt;- test_probs+1e-8 # feels better to add pseudo-prob than pseudo-variance-normalized-count
-test_probs &lt;- test_probs/sum(test_probs)
-test_probs2 &lt;- sub_probs_agg$epilepsy$L2_Lamp5
-all.equal(test_probs, test_probs2) # so the cells x genes matrix into prob dist is correct</code></pre>
-<pre><code>[1] &quot;Mean relative difference: 0.1718898&quot;</code></pre>
-<pre class="r"><code># are cell names correct?
-test_cellnames &lt;- IndividualCellProbsList(state_split$epilepsy, rbound_panel, 4, 2, 2224, top_genez, pseudo.count=1e-8)
-sum(test_cellnames$L2_Lamp5 %&gt;% names %in% rownames(test_mat))==2224 # it&#39;s true, so function works</code></pre>
-<pre><code>[1] TRUE</code></pre>
+#test_sub_split &lt;- state_split %&gt;% lapply(function(x){split(x, x[,2])})
+#test_mat &lt;- rbound_panel[test_sub_split$epilepsy$L2_Lamp5[,4],top_genez$L2_Lamp5]
+#test_probs &lt;- test_mat %&gt;% GetColMeans
+#test_probs &lt;- test_probs/sum(test_probs)
+#test_probs &lt;- test_probs+1e-8 # feels better to add pseudo-prob than pseudo-variance-normalized-count
+#test_probs &lt;- test_probs/sum(test_probs)
+#test_probs2 &lt;- sub_probs_agg$epilepsy$L2_Lamp5
+#all.equal(test_probs, test_probs2) # so the cells x genes matrix into prob dist is correct
+
+# are cell names correct?
+#test_cellnames &lt;- IndividualCellProbsList(state_split$epilepsy, rbound_panel, 4, 2, 2224, top_genez, pseudo.count=1e-8)
+#sum(test_cellnames$L2_Lamp5 %&gt;% names %in% rownames(test_mat))==2224 # it&#39;s true, so function works</code></pre>
+<p>Bhattacharyya</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+state_split &lt;- split(annot, annot$condition, drop=TRUE)
+subtype_split &lt;- state_split %&gt;% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs &lt;- subtype_split$healthy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+epilepsy_probs &lt;- subtype_split$epilepsy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+
+Bhattacharyya &lt;- function(x,y){
+  -log(sum(sqrt(x*y)))
+}
+all_bhats &lt;- Map(Bhattacharyya, healthy_probs, epilepsy_probs) %&gt;% as_tibble
+all_bhats &lt;- gather(all_bhats, key=subtype, value=bhat_div)
+ggplot(all_bhats, aes(y=bhat_div, x=subtype)) +geom_bar(stat=&#39;identity&#39;, col=&#39;hotpink&#39;) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-26-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Cell by Cell Bhat, 100 each, 1000 od genes</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes)
+epscellprobs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes)
+all_singlecell_dists &lt;- Map(CalculateAllBhat, healthcellprobs, epscellprobs)
+all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=bhat)
+ggplot(all_scd_gathered, aes(y=bhat, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-27-1.png" width="960" style="display: block; margin: auto;" /></p>
 <p>Individual subtype joint graph plot</p>
-<pre class="r"><code>plotOneSubtype &lt;- function(con.object, annotation, subtype){
+<pre class="r"><code>plotOneSubtype &lt;- function(con.object, annotation, subtype, font.size=2, alpha=0.3, size=0.4){
   split.annot&lt;-split(annotation, annotation$subtype)
   sub.annot &lt;- split.annot[[subtype]]
   sub.annot &lt;- sub.annot %&gt;% mutate(sub.cond = paste(sub.annot$subtype, sub.annot$condition, sep=&#39;_&#39;))
   sub.groups &lt;- setNames(sub.annot$sub.cond, sub.annot$cellids)
-  con.object$plotGraph(groups=sub.groups, font.size=3, alpha=0.3, mark.groups=T)
+  con.object$plotGraph(groups=sub.groups, font.size=font.size, alpha=alpha, size=size, mark.groups=T, plot.na=F)
 }
-plotOneSubtype(con_object, annot, &#39;L2_Lamp5&#39;) # really should use repel, but I can&#39;t make it work</code></pre>
+#plotOneSubtype(con_object, annot, &#39;L2_Lamp5&#39;) # really should use repel, but I can&#39;t make it work
+all_types &lt;- annot$subtype %&gt;% unique
+all_types_plots &lt;- all_types %&gt;% lapply(function(x, con.obj, annotation){plotOneSubtype(con.obj, annotation, x)},
+                                        con_object, annot)</code></pre>
+<pre><code>Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`</code></pre>
+<pre class="r"><code>plot_grid(plotlist=all_types_plots, nrow=4)</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-28-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plotOneSubtype(con_object, annot, &#39;L4_Rorb&#39;, font.size=2, alpha=0.5, size=1.5)</code></pre>
 <pre><code>Warning: Factor `Group` contains implicit NA, consider using
 `forcats::fct_explicit_na`</code></pre>
-<img src="figure/subtype_distances3.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /> <br> <br>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-29-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>(annot$subtype==&#39;Pvalb_Nos1&#39; &amp; annot$condition==&#39;epilepsy&#39;) %&gt;% sum</code></pre>
+<pre><code>[1] 312</code></pre>
+<pre class="r"><code>(annot$subtype==&#39;Pvalb_Nos1&#39; &amp; annot$condition==&#39;healthy&#39;) %&gt;% sum</code></pre>
+<pre><code>[1] 31</code></pre>
+<pre class="r"><code># actually let me just count all of them
+subtype_cond_table &lt;- paste(annot$condition, annot$subtype) %&gt;% table
+# maybe should try enforcing equal numbers of cells</code></pre>
+<p>Samples</p>
+<pre class="r"><code>plotOneSubtypeSamples &lt;- function(con.object, annotation, subtype, font.size=2, alpha=0.3, size=0.4, show.legend=F){
+  split.annot&lt;-split(annotation, annotation$subtype)
+  sub.annot &lt;- split.annot[[subtype]]
+  sub.annot &lt;- sub.annot %&gt;% mutate(sub.cond = paste(sub.annot$subtype, sub.annot$sample, sep=&#39;_&#39;))
+  sub.groups &lt;- setNames(sub.annot$sub.cond, sub.annot$cellids)
+  con.object$plotGraph(groups=sub.groups, font.size=font.size, alpha=alpha, size=size, mark.groups=T, plot.na=F, show.legend=show.legend)
+}
+plotOneSubtypeSamples(con_object, annot, &#39;L2_Lamp5&#39;, font.size=c(2,4), show.legend=T)</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-30-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>all_types_plots_samples &lt;- all_types %&gt;% lapply(function(x, con.obj, annotation){
+  plotOneSubtypeSamples(con.obj, font.size=1.5, annotation, x)
+  }, con_object, annot)
+plot_grid(plotlist=all_types_plots_samples, nrow=4)</code></pre>
+<p><img src="figure/subtype_distances3.Rmd/unnamed-chunk-30-2.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
 <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
@@ -865,13 +1623,13 @@ plotOneSubtype(con_object, annot, &#39;L2_Lamp5&#39;) # really should use repel,
 </p>
 <div id="workflowr-sessioninfo" class="collapse">
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 3.4.1 (2017-06-30)
+<pre><code>R version 3.5.3 (2019-03-11)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 14.04.5 LTS
+Running under: Ubuntu 18.04.2 LTS
 
 Matrix products: default
-BLAS: /usr/lib/atlas-base/atlas/libblas.so.3.0
-LAPACK: /usr/lib/lapack/liblapack.so.3.0
+BLAS: /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3
+LAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3.10.3
 
 locale:
  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
@@ -885,40 +1643,36 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] ggplot2_3.1.0      tidyr_0.8.3        stringr_1.4.0     
- [4] dplyr_0.8.0.1      pagoda2_0.0.0.9003 RSQLite_1.0.0     
- [7] DBI_0.5-1          pheatmap_1.0.12    conos_0.0.0.9002  
-[10] igraph_1.1.0       Matrix_1.2-16     
+ [1] cowplot_0.9.4   ggplot2_3.1.1   tidyr_0.8.3     stringr_1.4.0  
+ [5] dplyr_0.8.0.1   pagoda2_0.1.0   pheatmap_1.0.12 conos_1.0.0    
+ [9] igraph_1.2.4    Matrix_1.2-17  
 
 loaded via a namespace (and not attached):
- [1] Biobase_2.30.0       viridis_0.5.1        viridisLite_0.3.0   
- [4] shiny_1.2.0          assertthat_0.2.1     triebeard_0.3.0     
- [7] urltools_1.7.2       stats4_3.4.1         ggrepel_0.8.0       
-[10] yaml_2.2.0           robustbase_0.93-3    pillar_1.3.1        
-[13] backports_1.1.3      lattice_0.20-35      glue_1.3.1          
-[16] digest_0.6.18        RColorBrewer_1.1-2   promises_1.0.1      
-[19] colorspace_1.4-0     htmltools_0.3.6      httpuv_1.4.5.1      
-[22] plyr_1.8.4           pkgconfig_2.0.2      dendsort_0.3.3      
-[25] purrr_0.3.2          xtable_1.8-3         GO.db_3.2.2         
-[28] mvtnorm_1.0-8        scales_1.0.0         brew_1.0-6          
-[31] whisker_0.3-2        later_0.8.0          git2r_0.24.0        
-[34] tibble_2.1.1         IRanges_2.4.8        withr_2.1.2         
-[37] nnet_7.3-12          BiocGenerics_0.16.1  lazyeval_0.2.1      
-[40] magrittr_1.5         crayon_1.3.4         mime_0.6            
-[43] mclust_5.4.2         evaluate_0.13        fs_1.2.6            
-[46] fuck_0.1.0           MASS_7.3-47          class_7.3-14        
-[49] Rook_1.1-1           tools_3.4.1          trimcluster_0.1-2.1 
-[52] S4Vectors_0.8.11     kernlab_0.9-27       munsell_0.5.0       
-[55] irlba_2.3.3          cluster_2.0.6        AnnotationDbi_1.32.3
-[58] fpc_2.1-11.1         pcaMethods_1.60.0    compiler_3.4.1      
-[61] rlang_0.3.4          grid_3.4.1           rstudioapi_0.9.0    
-[64] rjson_0.2.15         labeling_0.3         base64enc_0.1-3     
-[67] rmarkdown_1.12       gtable_0.2.0         flexmix_2.3-15      
-[70] R6_2.4.0             gridExtra_2.3        knitr_1.22          
-[73] prabclus_2.2-7       workflowr_1.2.0      rprojroot_1.3-2     
-[76] dendextend_1.9.0     modeltools_0.2-22    stringi_1.4.3       
-[79] parallel_3.4.1       Rcpp_1.0.1           DEoptimR_1.0-8      
-[82] tidyselect_0.2.5     xfun_0.5             diptest_0.75-7      </code></pre>
+ [1] viridis_0.5.1       viridisLite_0.3.0   shiny_1.3.1        
+ [4] assertthat_0.2.1    triebeard_0.3.0     urltools_1.7.3     
+ [7] stats4_3.5.3        ggrepel_0.8.0       yaml_2.2.0         
+[10] robustbase_0.93-4   pillar_1.3.1        backports_1.1.4    
+[13] lattice_0.20-38     glue_1.3.1          digest_0.6.18      
+[16] RColorBrewer_1.1-2  promises_1.0.1      colorspace_1.4-1   
+[19] htmltools_0.3.6     httpuv_1.5.1        plyr_1.8.4         
+[22] pkgconfig_2.0.2     purrr_0.3.2         xtable_1.8-4       
+[25] mvtnorm_1.0-10      scales_1.0.0        brew_1.0-6         
+[28] whisker_0.3-2       later_0.8.0         git2r_0.25.2       
+[31] tibble_2.1.1        withr_2.1.2         nnet_7.3-12        
+[34] lazyeval_0.2.2      magrittr_1.5        crayon_1.3.4       
+[37] mime_0.6            mclust_5.4.3        evaluate_0.13      
+[40] fs_1.2.7            MASS_7.3-51.3       class_7.3-15       
+[43] Rook_1.1-1          tools_3.5.3         trimcluster_0.1-2.1
+[46] kernlab_0.9-27      munsell_0.5.0       cluster_2.0.8      
+[49] irlba_2.3.3         fpc_2.1-11.1        compiler_3.5.3     
+[52] rlang_0.3.4         grid_3.5.3          rjson_0.2.20       
+[55] labeling_0.3        base64enc_0.1-3     rmarkdown_1.12     
+[58] gtable_0.3.0        flexmix_2.3-15      R6_2.4.0           
+[61] gridExtra_2.3       knitr_1.22          prabclus_2.2-7     
+[64] workflowr_1.3.0     rprojroot_1.3-2     dendextend_1.10.0  
+[67] modeltools_0.2-22   stringi_1.4.3       parallel_3.5.3     
+[70] Rcpp_1.0.1          DEoptimR_1.0-8      tidyselect_0.2.5   
+[73] xfun_0.6            diptest_0.75-7     </code></pre>
 </div>
 </div>
 
