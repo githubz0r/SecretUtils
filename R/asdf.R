@@ -112,7 +112,7 @@ SplitCells <- function(annotation, samp.col, sub.col) {
   samp.split <- sub.split %>% lapply(function(x){split(x, x[, samp.col], drop=T)})
 }
 
-SelectCellProbs <- function(annotation, rbound.panel, cellid.col, nr.cell, genes, pseudo.count, norm.var=FALSE){
+SelectCellProbs <- function(annotation, rbound.panel, cellid.col, nr.cell, genes, pseudo.count, norm.var=FALSE, vec=FALSE){
   if (nr.cell > dim(annotation)[1]) {
     inds <- sample(1:dim(annotation)[1], nr.cell, replace=TRUE)
   } else {
@@ -125,12 +125,18 @@ SelectCellProbs <- function(annotation, rbound.panel, cellid.col, nr.cell, genes
     sds <- sds+1e-8
     exps <- sweep(exps, 2, sds, '/')
   }
-  probs <- exps/Matrix::rowSums(exps)
-  probs <- probs+pseudo.count
-  probs <- probs/Matrix::rowSums(probs)
-  probs.list <- 1:nr.cell %>% lapply(function(i){return(probs[i,])})
-  names(probs.list) <- rownames(probs)
-  return(probs.list)
+  if (vec){
+    exps.list <- 1:nr.cell %>% lapply(function(i){return(exps[i,])})
+    names(exps.list) <- rownames(exps)
+    return(exps.list)
+  } else {
+    probs <- exps/Matrix::rowSums(exps)
+    probs <- probs+pseudo.count
+    probs <- probs/Matrix::rowSums(probs)
+    probs.list <- 1:nr.cell %>% lapply(function(i){return(probs[i,])})
+    names(probs.list) <- rownames(probs)
+    return(probs.list)
+  }
 }
 
 SelectCellProbsAggregated <- function(annotation, genes, rbound.panel, cellid.col, nr.cell, pseudo.count){
@@ -148,9 +154,11 @@ SelectCellProbsAggregated <- function(annotation, genes, rbound.panel, cellid.co
   return(prob.dist)
 }
 
-IndividualCellProbs <- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes, pseudo.count=0, norm.var=FALSE){
+IndividualCellProbs <- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes,
+                                pseudo.count=0, norm.var=FALSE, vec=FALSE){
   sub.split <- split(annotation, annotation[, sub.col], drop=T)
-  cell.distributions <- sub.split %>% lapply(SelectCellProbs, rbound.panel, cellid.col, nr.cell, genes, pseudo.count, norm.var)
+  cell.distributions <- sub.split %>% lapply(SelectCellProbs, rbound.panel, cellid.col,
+                                             nr.cell, genes, pseudo.count, norm.var, vec)
 }
 
 
@@ -182,6 +190,14 @@ CalculateJSD <- function(x, a.list) {
 
 CalculateAllJSD <- function(list1, list2) {
   alldists <- list1 %>% lapply(CalculateJSD, list2)
+  return(unlist(alldists))
+}
+
+CalculateAllCor <- function(list1, list2) {
+  CalculateCor <- function(x, a.list) {
+    a.list %>% lapply(cor,x)
+  }
+  alldists<- list1 %>% lapply(CalculateCor, list2)
   return(unlist(alldists))
 }
 
@@ -284,4 +300,51 @@ FractionalChanges <- function(annotation, patient.col, subtype.col, condition.co
   return(freq.df)
 }
 
+GetSubMatsList <- function(list.of.annots, rbound.panel, list.of.genes, cellid.col) {
+  GetMat <- function(sub.annot, genes, rbound.panel, cellid.col) {
+    cellids <- sub.annot[, cellid.col]
+    return(rbound.panel[cellids, genes])
+  }
+  exps.list <- mapply(GetMat, list.of.annots, list.of.genes, MoreArgs=list(rbound.panel, cellid.col))
+  return(exps.list)
+}
+
+CalculateJBLD <- function(cov1, cov2) {
+  JBLD <- log(det((cov1+cov2)/2)) -0.5*log(det(cov1%*%cov2))
+  return(JBLD)
+}
+
+AddPseudo <- function(matrix, pseudo.count=1e-4){
+  matrix <- as.matrix(matrix)
+  return(matrix+pseudo.count)
+}
+
+countzerocols <- function(mat){
+  mat <- as.matrix(mat)
+  shape <- mat[, apply(mat, 2, sum)==0] %>% dim
+  return(shape[2])
+}
+
+removezerocols <- function(mat) {
+  mat <- as.matrix(mat)
+  mat <- mat[, !apply(mat, 2, sum)==0]
+  return(mat)
+}
+
+CMD <- function(cor1, cor2) {
+  vec1 <- as.vector(cor1)
+  vec2 <- as.vector(cor2)
+  l2norm <- function(x){
+    return(sqrt(sum(x^2)))
+  }
+  cmd <- (vec1 %*% vec2)/(l2norm(vec1)*l2norm(vec2))
+  return(cmd)
+}
+
+ComputeCor <- function(mat1, mat2) { # makes sure both matrices have the same columns
+  commoncols <- intersect(colnames(mat1), colnames(mat2))
+  mat1 <- mat1[, commoncols]
+  mat2 <- mat2[, commoncols]
+  return(list(mat1, mat2) %>% lapply(cor))
+}
 

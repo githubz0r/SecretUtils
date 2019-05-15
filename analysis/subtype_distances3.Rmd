@@ -13,12 +13,13 @@ First we load packages and data (has been preproced with pagoda2 and graph built
 library(conos)
 library(pheatmap)
 #library(fuck)
-source('/home/larsc/fuck/R/asdf.R')
+source('/home/larsc/SecretUtils/R/asdf.R')
 require(pagoda2)
 library(dplyr)
 library(stringr)
 library(tidyr)
 library(ggplot2)
+library(cowplot)
 con_object <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
 annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
 ```
@@ -48,15 +49,12 @@ cellannot=setNames(annot[,5], annot[,4])
 
 Let's see the graph now
 ```{r}
-con_object$plotGraph(groups=cellannot, font.size=3)
+con_object$plotGraph(groups=cellannot, font.size=3, shuffle.colors=T, show.legend=F)
 ```
 Damn, it looks awful.
 
-Let's make the JS distance plots
+Check which samples have which subtypes
 ```{r}
-# get some genes
-od_genes = conos:::getOdGenesUniformly(con_object$samples, 100)
-
 # just for interest check how many subtypes for each sample
 howmanysubs <- function(x, annotation){
   annotsubset <- annotation[annotation$sample==x,]
@@ -69,12 +67,13 @@ missing_subs <- setdiff(subs_of_samples$epilepsy1, samp_intersect)
 missing_subs
 ```
 
-
+Inter sample distance, aggregated
 ```{r, fig.height=7, fig.width=10}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 5000)
 # split annot in categories (disease, healthy)
 state_split <- split(annot, annot$condition, drop=TRUE)
 # get probability distributions for subtype/sample categories
-all_probs <- ObtainProbabilities(state_split, rbound_panel, 1, 2, 4, od_genes, pseudo.count=10^(-8))
+all_probs <- ObtainProbabilities(state_split, rbound_panel, 1, 2, 4, od_genes, pseudo.count=10^(-6))
 # now get JS distances
 all_distances <- Map(CalculateAllJSD, all_probs$healthy, all_probs$epilepsy)
 #all_dists_dfd <- all_distances %>% lapply(function(x){data.frame(comparison=names(x), value=x, row.names=NULL)})
@@ -101,6 +100,7 @@ con_object$plotGraph(groups=disannot, alpha=0.1)
 ```
 
 
+
 let's see overall JS dist.
 ```{r}
 od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
@@ -116,7 +116,75 @@ ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) +geom_bar(stat='identi
 ```
 
 
-load my de genes & get some genes, equal numbers for each subtype
+Dependency on nr of cells or genes?
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+state_split <- split(annot, annot$condition, drop=TRUE)
+condition_tables <- state_split %>% lapply(function(x){table(x$subtype)})
+condition_df <- condition_tables %>% as.data.frame
+condition_df <- condition_df %>% mutate(min_cells = mapply(min, epilepsy.Freq, healthy.Freq))
+subtype_split <- state_split %>% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs <- subtype_split$healthy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=10^(-10))
+epilepsy_probs <- subtype_split$epilepsy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=10^(-10))
+
+all_dists <- Map(JensenShannon, healthy_probs, epilepsy_probs) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=js_distance) %>% mutate(min_cells = condition_df$min_cells)
+ggplot(all_dists_gathered, aes(y=js_distance, x=min_cells, col=subtype)) +geom_point() +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+nr_cells <- c(30, 60, seq(100, 1000, by=50))
+nr_cells2 <- (seq(30,300,by=15))
+do_js_cells <- function(nr.cell, subtype, pseudo.prob=1e-8) {
+  healthy_probs <- subtype_split$healthy[[subtype]] %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  epilepsy_probs <- subtype_split$epilepsy[[subtype]] %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  js.dist <- JensenShannon( healthy_probs, epilepsy_probs)
+  return(js.dist)
+}
+
+get_all_jscells <- function(subtype, cell.nr.vec, pseudo.prob=1e-8){
+  js_nrcell <- cell.nr.vec %>% lapply(do_js_cells, subtype)
+  jscell_df <- bind_cols(value=unlist(js_nrcell), nr.cells=cell.nr.vec) %>% mutate(subtype=subtype)
+  #return(ggplot(jscell_df, aes(y=value, x=nr.cells))+geom_point()+ggtitle(subtype))
+}
+
+all_jscells <- annot$subtype %>% unique %>% lapply(get_all_jscells, nr_cells)
+
+do_plot <- function(sub.df){
+  p <- ggplot(sub.df, aes(x=nr.cells, y=value, col=subtype))+geom_line()+
+    theme(axis.text.x = element_text(angle = -90, hjust = 1))
+  return(p)
+}
+all_plots <- all_jscells %>% lapply(do_plot)
+subl1 <- do.call(rbind, all_jscells[1:5])
+p <- ggplot(all_jscells[[20]], aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+#plot_grid(plotlist=all_plots[1:4], nrow=2)
+p
+
+```
+Number of genes?
+```{r}
+nr_genes=seq(100, 5000, 250)
+do_js_genes <- function(nr.genes, pseudo.prob=1e-8) {
+  od_genes = conos:::getOdGenesUniformly(con_object$samples, nr.genes)
+  healthy_probs <- subtype_split$healthy$L2_Lamp5 %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=100, pseudo.count=pseudo.prob)
+  epilepsy_probs <- subtype_split$epilepsy$L2_Lamp5 %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=100, pseudo.count=pseudo.prob)
+  js.dist <- JensenShannon( healthy_probs, epilepsy_probs)
+  return(js.dist)
+}
+js_nrgenes <- nr_genes %>% lapply(do_js_genes)
+jsgenes_df <- bind_cols(value=unlist(js_nrgenes), nr.genes=nr_genes)
+ggplot(jsgenes_df, aes(y=value, x=nr.genes))+geom_point()+ggtitle('JSD for L2_Lamp5, using x number of genes from each condition')
+```
+
+
+load my de genes & get some DE genes, equal numbers for each subtype
 ```{r}
 de_genez <- readRDS(file.path('/home/larsc/data/eps_10x_de_celltype.rds'))
 
@@ -131,17 +199,34 @@ GetTopGenes <- function(de.result, nr, value='gene.names', filter.mito=TRUE){
 }
 
 top_genez <- de_genez %>% lapply(GetTopGenes, 100, filter.mito=FALSE)
+
+# check how many DE genes for each
+countPadjes <- function(de.result,threshold=0.1){
+  padjes <- de.result$res$padj
+  sum(na.omit(padjes<threshold))
+}
+padjes_count <- de_genez %>% lapply(countPadjes,threshold=0.3) %>% as.data.frame %>% gather(key=subtype, value=count)
+padjes_count %>% ggplot(aes(x=subtype, y=count))+geom_bar(stat='identity')+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+
+top_padjes <- de_genez %>% lapply(GetTopGenes, 1000, value='padj', filter.mito=FALSE)
+top_avg <- top_padjes %>% lapply(mean) %>% as.data.frame %>% gather(key=subtype, value=val)
+top_padjes %>% as_tibble %>% gather(key=subtype, value=val) %>% ggplot(aes(x=subtype, y=val))+geom_boxplot()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+top_avg %>% as_tibble %>% gather(key=subtype, value=val) %>% mutate(log_val=log(val)) %>% 
+  ggplot(aes(x=subtype, y=log_val))+#geom_bar(stat='identity')+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))+ geom_point()
+
 ```
 
 Just curious what the distributions of padjes looks like
 ```{r, fig.height=7, fig.width=10}
-de_genes_df <- de_genez %>% lapply(GetTopGenes, 10000, value='padj', filter.mito=FALSE) %>% as_tibble
+de_genes_df <- de_genez %>% lapply(GetTopGenes, 100, value='padj', filter.mito=FALSE) %>% as_tibble
 de_genes_gather <- gather(de_genes_df, key=subtype, value=padj)
 ggplot(de_genes_gather, aes(y=padj, x=subtype)) + geom_violin(aes(col=subtype))+
   theme(axis.text.x = element_text(angle = -90, hjust = 1))#+geom_jitter(aes(col=subtype), alpha = 0.3, size=0.5)
 ```
 
-
+top 100 de genes for each subtype individually
 ```{r, fig.height=7, fig.width=10}
 ObtainDistributions <- function(sub.annot, some.genes, rbound.panel, cellid.col, nr.cell, pseudo.count){
     return(SelectCellProbs(sub.annot, rbound.panel, cellid.col, nr.cell, some.genes, pseudo.count))
@@ -160,15 +245,15 @@ ProbsToJSD <- function(state.split, rbound.panel, cellid.col, sub.col, nr.cell, 
 } # specific for this data but saves some lines
 
 ### some sanity checking, do not mind it
-test_splits <- state_split %>% lapply(function(x){split(x, x[,2], drop=T)})
-min_cells_eps <- test_splits$epilepsy %>% lapply(function(x){dim(x)[1]}) %>% unlist %>% min
-min_cells_healthy <- test_splits$healthy %>% lapply(function(x){dim(x)[1]}) %>% unlist %>% min
-test_nos1_probs<-test_splits$epilepsy$Id2_Nos1 %>% SelectCellProbs(rbound_panel, 4, 101, top_genez$Id2_Nos1, 10^(-8))
-test_cell <- names(test_nos1_probs)[1]
-test_mat <- rbound_panel[test_cell, top_genez$Id2_Nos1]
-test_dist <- test_mat/sum(test_mat)
-test_dist <- test_dist +10^(-8)
-test_dist <- test_dist/sum(test_dist)
+#test_splits <- state_split %>% lapply(function(x){split(x, x[,2], drop=T)})
+#min_cells_eps <- test_splits$epilepsy %>% lapply(function(x){dim(x)[1]}) %>% unlist %>% min
+#min_cells_healthy <- test_splits$healthy %>% lapply(function(x){dim(x)[1]}) %>% unlist %>% min
+#test_nos1_probs<-test_splits$epilepsy$Id2_Nos1 %>% SelectCellProbs(rbound_panel, 4, 101, top_genez$Id2_Nos1, 10^(-8))
+#test_cell <- names(test_nos1_probs)[1]
+#test_mat <- rbound_panel[test_cell, top_genez$Id2_Nos1]
+#test_dist <- test_mat/sum(test_mat)
+#test_dist <- test_dist +10^(-8)
+#test_dist <- test_dist/sum(test_dist)
 #all.equal(test_dist, test_nos1_probs[[1]]) # tru
 ### end sanity check
 
@@ -182,7 +267,7 @@ ggplot(all_scd_de_gathered, aes(y=JSD, x=subtype)) + geom_violin(aes(col=subtype
 Sam's genes, not equal number of genes
 ```{r, fig.height=7, fig.width=10}
 de_genes <- readRDS("/d0-mendel/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/de_multilevel_genes.rds")
-
+sam_de_count <- de_genes %>% lapply(length) %>% as.data.frame
 #names(de_genez)==names(de_genes) # just checking
 CheckOverlap <- function(x,y){ # is it completely off or wut
   y=y[1:100]
@@ -200,9 +285,57 @@ ggplot(all_scd_de_gathered_sam, aes(y=JSD, x=subtype)) + geom_violin(aes(col=sub
 Constant number of OD genes, constant number of cells.
 
 ```{r, fig.height=7, fig.width=10}
-od_genes = conos:::getOdGenesUniformly(con_object$samples, 100)
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
 healthcellprobs <- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes, 10^(-8))
 epscellprobs <- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes, 10^(-8))
+all_singlecell_dists <- Map(CalculateAllJSD, healthcellprobs, epscellprobs)
+all_sc_dists <- all_singlecell_dists %>% as_tibble
+all_scd_gathered <- gather(all_sc_dists, key=subtype, value=jsd)
+ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)
+```
+WHat if we use cor instead?
+
+Correlation (overall)
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 5000)
+top_genez <- de_genez %>% lapply(GetTopGenes, 5000, filter.mito=FALSE)
+
+state_split <- split(annot, annot$condition, drop=TRUE)
+subtype_split <- state_split %>% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_avg <- subtype_split$healthy %>% GetSubMatrices(rbound_panel, od_genes, cellid.col = 4) %>% lapply(GetColMeans)
+epilepsy_avg <- subtype_split$epilepsy %>% GetSubMatrices(rbound_panel, od_genes, cellid.col = 4) %>% lapply(GetColMeans)
+
+#healthy_avg <- subtype_split$healthy %>% GetSubMatsList(rbound_panel, top_genez, cellid.col = 4) %>% lapply(GetColMeans)
+#epilepsy_avg <- subtype_split$epilepsy %>% GetSubMatsList(rbound_panel, top_genez, cellid.col = 4) %>% lapply(GetColMeans)
+
+all_dists <- Map(cor, healthy_avg, epilepsy_avg) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=correlation)
+ggplot(all_dists_gathered, aes(y=correlation, x=subtype)) +geom_bar(stat='identity', col='hotpink') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+ggplot(all_dists_gathered, aes(y=correlation, x=subtype)) +geom_point() +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))+ylim(0.75,1)
+```
+
+pairwise correlation
+```{r, fig.height=7, fig.width=10}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+healthcellvecs <- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes, vec=T)
+epscellvecs <- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes, vec=T)
+all_singlecell_dists <- Map(CalculateAllCor, healthcellvecs, epscellvecs)
+all_sc_dists <- all_singlecell_dists %>% as_tibble
+all_scd_gathered <- gather(all_sc_dists, key=subtype, value=correlation)
+ggplot(all_scd_gathered, aes(y=correlation, x=subtype)) + geom_boxplot()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+
+
+Constant number of OD genes, constant number of cells, normalize variance.
+```{r, fig.height=7, fig.width=10}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 100)
+healthcellprobs <- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes, 10^(-8), norm.var=T)
+epscellprobs <- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes, 10^(-8), norm.var=T)
 all_singlecell_dists <- Map(CalculateAllJSD, healthcellprobs, epscellprobs)
 all_sc_dists <- all_singlecell_dists %>% as_tibble
 all_scd_gathered <- gather(all_sc_dists, key=subtype, value=jsd)
@@ -222,45 +355,111 @@ ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
   theme(axis.text.x = element_text(angle = -90, hjust = 1))
 ```
 
-Now Aggregation of cells, each with their own top 100
+Now Aggregation of cells, same number of cells, 2000 od genes
 ```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+od_genes_list <- rep(list(od_genes), 20)
+
 IndividualCellProbsAgg <- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes.list, pseudo.count=0){
   sub.split <- split(annotation, annotation[, sub.col], drop=T)
   cell.distributions <- mapply(SelectCellProbsAggregated, sub.split, genes.list, MoreArgs=list(rbound.panel, cellid.col, nr.cell, pseudo.count), SIMPLIFY=F)
   return(cell.distributions)
 }
-sub_probs_agg <- state_split %>% lapply(IndividualCellProbsAgg, rbound_panel, 4, 2, 100, top_genez, 10^(-8))
+sub_probs_agg <- state_split %>% lapply(IndividualCellProbsAgg, rbound_panel, 4, 2, 200, od_genes_list, 10^(-8))
 jsd_agg <- Map(JensenShannon, sub_probs_agg$healthy, sub_probs_agg$epilepsy) %>% as_tibble
 jsd_agg_gathered <- gather(jsd_agg, key=subtype, value=js_distance_cell_agg)
 ggplot(jsd_agg_gathered, aes(y=js_distance_cell_agg, x=subtype)) +geom_bar(stat='identity', col='hotpink') +
   theme(axis.text.x = element_text(angle = -90, hjust = 1))
 ```
 
-Sanity checking coz' this weird
+Sanity checking coz' this weird (using previous iteration of prev.cell with top_genez instead of od genes)
 ```{r}
 # let's double check this bullshit (only meaningful if using 2224 cells so we sample all in eps lamp5)
-test_sub_split <- state_split %>% lapply(function(x){split(x, x[,2])})
-test_mat <- rbound_panel[test_sub_split$epilepsy$L2_Lamp5[,4],top_genez$L2_Lamp5]
-test_probs <- test_mat %>% GetColMeans
-test_probs <- test_probs/sum(test_probs)
-test_probs <- test_probs+1e-8 # feels better to add pseudo-prob than pseudo-variance-normalized-count
-test_probs <- test_probs/sum(test_probs)
-test_probs2 <- sub_probs_agg$epilepsy$L2_Lamp5
-all.equal(test_probs, test_probs2) # so the cells x genes matrix into prob dist is correct
+#test_sub_split <- state_split %>% lapply(function(x){split(x, x[,2])})
+#test_mat <- rbound_panel[test_sub_split$epilepsy$L2_Lamp5[,4],top_genez$L2_Lamp5]
+#test_probs <- test_mat %>% GetColMeans
+#test_probs <- test_probs/sum(test_probs)
+#test_probs <- test_probs+1e-8 # feels better to add pseudo-prob than pseudo-variance-normalized-count
+#test_probs <- test_probs/sum(test_probs)
+#test_probs2 <- sub_probs_agg$epilepsy$L2_Lamp5
+#all.equal(test_probs, test_probs2) # so the cells x genes matrix into prob dist is correct
 
 # are cell names correct?
-test_cellnames <- IndividualCellProbsList(state_split$epilepsy, rbound_panel, 4, 2, 2224, top_genez, pseudo.count=1e-8)
-sum(test_cellnames$L2_Lamp5 %>% names %in% rownames(test_mat))==2224 # it's true, so function works
+#test_cellnames <- IndividualCellProbsList(state_split$epilepsy, rbound_panel, 4, 2, 2224, top_genez, pseudo.count=1e-8)
+#sum(test_cellnames$L2_Lamp5 %>% names %in% rownames(test_mat))==2224 # it's true, so function works
+```
+
+
+Bhattacharyya
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+state_split <- split(annot, annot$condition, drop=TRUE)
+subtype_split <- state_split %>% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs <- subtype_split$healthy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+epilepsy_probs <- subtype_split$epilepsy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+
+Bhattacharyya <- function(x,y){
+  -log(sum(sqrt(x*y)))
+}
+all_bhats <- Map(Bhattacharyya, healthy_probs, epilepsy_probs) %>% as_tibble
+all_bhats <- gather(all_bhats, key=subtype, value=bhat_div)
+ggplot(all_bhats, aes(y=bhat_div, x=subtype)) +geom_bar(stat='identity', col='hotpink') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+Cell by Cell Bhat, 100 each, 1000 od genes
+```{r, fig.height=7, fig.width=10}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+healthcellprobs <- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes)
+epscellprobs <- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes)
+all_singlecell_dists <- Map(CalculateAllBhat, healthcellprobs, epscellprobs)
+all_sc_dists <- all_singlecell_dists %>% as_tibble
+all_scd_gathered <- gather(all_sc_dists, key=subtype, value=bhat)
+ggplot(all_scd_gathered, aes(y=bhat, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)
 ```
 
 Individual subtype joint graph plot
 ```{r}
-plotOneSubtype <- function(con.object, annotation, subtype){
+plotOneSubtype <- function(con.object, annotation, subtype, font.size=2, alpha=0.3, size=0.4){
   split.annot<-split(annotation, annotation$subtype)
   sub.annot <- split.annot[[subtype]]
   sub.annot <- sub.annot %>% mutate(sub.cond = paste(sub.annot$subtype, sub.annot$condition, sep='_'))
   sub.groups <- setNames(sub.annot$sub.cond, sub.annot$cellids)
-  con.object$plotGraph(groups=sub.groups, font.size=3, alpha=0.3, mark.groups=T)
+  con.object$plotGraph(groups=sub.groups, font.size=font.size, alpha=alpha, size=size, mark.groups=T, plot.na=F)
 }
-plotOneSubtype(con_object, annot, 'L2_Lamp5') # really should use repel, but I can't make it work
+#plotOneSubtype(con_object, annot, 'L2_Lamp5') # really should use repel, but I can't make it work
+all_types <- annot$subtype %>% unique
+all_types_plots <- all_types %>% lapply(function(x, con.obj, annotation){plotOneSubtype(con.obj, annotation, x)},
+                                        con_object, annot)
+plot_grid(plotlist=all_types_plots, nrow=4)
+
 ```
+
+```{r}
+plotOneSubtype(con_object, annot, 'L4_Rorb', font.size=2, alpha=0.5, size=1.5)
+(annot$subtype=='Pvalb_Nos1' & annot$condition=='epilepsy') %>% sum
+(annot$subtype=='Pvalb_Nos1' & annot$condition=='healthy') %>% sum
+# actually let me just count all of them
+subtype_cond_table <- paste(annot$condition, annot$subtype) %>% table
+# maybe should try enforcing equal numbers of cells
+```
+
+Samples
+```{r, warning=FALSE}
+plotOneSubtypeSamples <- function(con.object, annotation, subtype, font.size=2, alpha=0.3, size=0.4, show.legend=F){
+  split.annot<-split(annotation, annotation$subtype)
+  sub.annot <- split.annot[[subtype]]
+  sub.annot <- sub.annot %>% mutate(sub.cond = paste(sub.annot$subtype, sub.annot$sample, sep='_'))
+  sub.groups <- setNames(sub.annot$sub.cond, sub.annot$cellids)
+  con.object$plotGraph(groups=sub.groups, font.size=font.size, alpha=alpha, size=size, mark.groups=T, plot.na=F, show.legend=show.legend)
+}
+plotOneSubtypeSamples(con_object, annot, 'L2_Lamp5', font.size=c(2,4), show.legend=T)
+all_types_plots_samples <- all_types %>% lapply(function(x, con.obj, annotation){
+  plotOneSubtypeSamples(con.obj, font.size=1.5, annotation, x)
+  }, con_object, annot)
+plot_grid(plotlist=all_types_plots_samples, nrow=4)
+```
+
+
+

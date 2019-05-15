@@ -1,4 +1,4 @@
-FractionalPlot <- function(patient.vec, subtype.vec, condition.vec, fraction.palette=NULL){
+FractionalPlot <- function(patient.vec, subtype.vec, condition.vec, fraction.palette=NULL, return.plot=TRUE){
   annotation <- bind_cols(list(patient.vec, subtype.vec, condition.vec)) %>% as.data.frame
   patient.col <- 1
   subtype.col <- 2
@@ -34,7 +34,11 @@ FractionalPlot <- function(patient.vec, subtype.vec, condition.vec, fraction.pal
   if (fraction.palette %>% is.null==FALSE) {
     p <- p+scale_fill_manual(values=fraction.palette)
   }
-  return(p)
+  if (return.plot==TRUE) {
+    return(p)
+  } else {
+    return(freq.df)
+  }
 }
 
 Makesubdistmat <- function(con.object, sample.vec, subtype.vec, cellid.vec) {
