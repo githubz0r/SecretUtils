@@ -447,7 +447,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-05-02
+<strong>Last updated:</strong> 2019-05-29
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -526,10 +526,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreea96c1ca2d7cd9e38b674efb3f9df7048f5226bb7targetblanka96c1caa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/a96c1ca2d7cd9e38b674efb3f9df7048f5226bb7" target="_blank">a96c1ca</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreee04108ccf48e08dcde1e171c2922ce6413c88830targetblanke04108ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/e04108ccf48e08dcde1e171c2922ce6413c88830" target="_blank">e04108c</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreea96c1ca2d7cd9e38b674efb3f9df7048f5226bb7targetblanka96c1caa" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreee04108ccf48e08dcde1e171c2922ce6413c88830targetblanke04108ca" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -543,14 +543,20 @@ Untracked files:
     Untracked:  .Rbuildignore
     Untracked:  DESCRIPTION
     Untracked:  NAMESPACE
+    Untracked:  R/graph_stuff.R
     Untracked:  R/hello.R
     Untracked:  analysis/all.panels.pdf
     Untracked:  analysis/cell_type_total_tSNE.w.pdf
     Untracked:  analysis/fraction.all.pdf
+    Untracked:  analysis/jensen_shannon_stuff.Rmd
+    Untracked:  analysis/make_scanpy_viktor.R
+    Untracked:  analysis/paga.Rmd
+    Untracked:  analysis/paga2.Rmd
     Untracked:  analysis/subtype_distances.Rmd
     Untracked:  analysis/subtype_distances2.Rmd
     Untracked:  analysis/subtype_distances4.Rmd
     Untracked:  analysis/subtype_distances_redux.Rmd
+    Untracked:  analysis/subtype_distances_revenge.Rmd
     Untracked:  analysis/test_output.Rmd
     Untracked:  analysis/transmute_peters_code.Rmd
     Untracked:  man/
@@ -596,6 +602,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/e04108ccf48e08dcde1e171c2922ce6413c88830/analysis/transmute_code_eps_2.Rmd" target="_blank">e04108c</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-29
+</td>
+<td>
+stupid html file
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/3d76016cdb31f43cb4298d14fac3f9c4e0755021/docs/transmute_code_eps_2.html" target="_blank">3d76016</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-02
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -877,18 +917,11 @@ githubz0r
 </table>
 </div>
 </div>
-<p>Distance matrix tsne plot</p>
-<pre class="r"><code>annot2 &lt;- annot %&gt;% mutate(cellid=rownames(annot))
-source(&#39;/home/larsc/SecretUtils/R/peter_code_utils.R&#39;)
-sub_dist_mat &lt;- Makesubdistmat(con, annot2$sample, annot2$subtype, annot2$cellid)
-
-## some weird shit
-#testannot &lt;- bind_cols(list(annot2$sample, annot2$subtype, annot2$cellid))
-#tf_test &lt;- setNames(testannot[, 2], testannot[, 3]) %&gt;% as.factor # does not work
-#tf_test &lt;- setNames(testannot[[2]], testannot[[3]]) %&gt;% as.factor
-## end weird shit
-PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
-                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4) # add labels</code></pre>
+<pre class="r"><code>freq_df &lt;- FractionalPlot(annot$sample, annot$subtype, annot$condition, return.plot=F) %&gt;% 
+  mutate(cond.sub=paste(condition, subtype, sep=&#39;_&#39;))
+ggplot(na.omit(freq_df),aes(x=subtype,y=freq, col=patient))+ 
+  geom_point() + theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab(&quot;&quot;) +ylab(&quot;fraction of total cells&quot;)+ theme(legend.position=&quot;right&quot;)</code></pre>
 <p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
@@ -912,6 +945,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/3d76016cdb31f43cb4298d14fac3f9c4e0755021/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-4-1.png" target="_blank">3d76016</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-02
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/githubz0r/SecretUtils/blob/9e5b3d6b9b11d1a748e0bc43a38df0fafe2ca17c/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-4-1.png" target="_blank">9e5b3d6</a>
@@ -949,11 +993,18 @@ githubz0r
 </table>
 </div>
 </div>
-<p>Condition distance distribution</p>
-<pre class="r"><code>ConditionDistanceDensity(sub_dist_mat, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
-                         notch=TRUE, fraction.palette = fraction_palette_eps)</code></pre>
-<pre><code>notch went outside hinges. Try setting notch=FALSE.
-notch went outside hinges. Try setting notch=FALSE.</code></pre>
+<p>Distance matrix tsne plot</p>
+<pre class="r"><code>annot2 &lt;- annot %&gt;% mutate(cellid=rownames(annot))
+source(&#39;/home/larsc/SecretUtils/R/peter_code_utils.R&#39;)
+sub_dist_mat &lt;- Makesubdistmat(con, annot2$sample, annot2$subtype, annot2$cellid)
+
+## some weird shit
+#testannot &lt;- bind_cols(list(annot2$sample, annot2$subtype, annot2$cellid))
+#tf_test &lt;- setNames(testannot[, 2], testannot[, 3]) %&gt;% as.factor # does not work
+#tf_test &lt;- setNames(testannot[[2]], testannot[[3]]) %&gt;% as.factor
+## end weird shit
+PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4) # add labels</code></pre>
 <p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
@@ -979,6 +1030,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/3d76016cdb31f43cb4298d14fac3f9c4e0755021/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-5-1.png" target="_blank">3d76016</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-02
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/githubz0r/SecretUtils/blob/2d49ad487654b82e647f7f379d983b5da58e829f/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-5-1.png" target="_blank">2d49ad4</a>
 </td>
 <td>
@@ -992,10 +1054,35 @@ githubz0r
 </table>
 </div>
 </div>
+<p>check the mat</p>
+<pre class="r"><code>PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4, get.mat=TRUE)</code></pre>
+<pre><code>           ep_p1      ep_p2      ep_p3       c_p1      c_p2       c_p3
+ep_p1 0.00000000 0.02949935 0.03381853 0.06628933 0.2335435 0.13937694
+ep_p2 0.02949935 0.00000000 0.02607767 0.05389090 0.1918274 0.11002414
+ep_p3 0.03381853 0.02607767 0.00000000 0.06561158 0.2089419 0.13402977
+c_p1  0.06628933 0.05389090 0.06561158 0.00000000 0.1713584 0.07000583
+c_p2  0.23354345 0.19182742 0.20894194 0.17135838 0.0000000 0.11904113
+c_p3  0.13937694 0.11002414 0.13402977 0.07000583 0.1190411 0.00000000
+c_p4  0.16022473 0.12936523 0.14413603 0.08160400 0.1190776 0.08271640
+           c_p4
+ep_p1 0.1602247
+ep_p2 0.1293652
+ep_p3 0.1441360
+c_p1  0.0816040
+c_p2  0.1190776
+c_p3  0.0827164
+c_p4  0.0000000</code></pre>
+<p>Condition distance distribution</p>
+<pre class="r"><code>ConditionDistanceDensity(sub_dist_mat, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
+                         notch=TRUE, fraction.palette = fraction_palette_eps)</code></pre>
+<pre><code>notch went outside hinges. Try setting notch=FALSE.
+notch went outside hinges. Try setting notch=FALSE.</code></pre>
+<p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Distribution distances per cell type (using ctdm so must be unweighted)</p>
 <pre class="r"><code>min_cells=0
 PlotCellTypeDists(sub_dist_mat, min_cells)</code></pre>
-<p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
