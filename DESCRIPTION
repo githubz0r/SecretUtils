@@ -1,0 +1,20 @@
+Package: SecretUtils
+Type: Package
+Title: Some utils for Conos
+Version: 0.1.0
+Author: lsr419
+Maintainer: lsr419 <lsr419@alumni.ku.dk>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Depends:
+    magrittr (>= 1.5),
+    igraph,
+    Matrix,
+    reshape2
+Imports:
+    dplyr (>= 0.8.0.1),
+    data.table,
+    Rtsne
