@@ -178,6 +178,20 @@ GetSubMatrices <- function(list.of.cats, rbound.panel, genes, cellid.col) {
   exps.list <- list.of.cats %>% lapply(function(x){rbound.panel[x[,cellid.col], genes]})
 }
 
+GetSubSampMats <- function(annotation, rbound.panel, samp.col, sub.col, cellid.col, genes, pseudo.count=0){
+  first.split <- SplitCells(annotation, samp.col, sub.col)
+  GetSampMats <- function(list.of.samp, rbound.panel, genes, cellid.col, pseudo.count){
+    exps.list <- list.of.samp %>% lapply(function(x){rbound.panel[x[,cellid.col], genes]})
+    exps.list <- exps.list %>% lapply(GetColMeans)
+  }
+  prob.dist <- first.split %>% lapply(GetSampMats, rbound.panel, genes, cellid.col, pseudo.count)
+}
+ObtainSubSampleMats <- function(annotation.list, rbound.panel, samp.col, sub.col, cellid.col, genes, pseudo.count=0){
+  prob.list <- annotation.list %>% lapply(GetSubSampMats, rbound.panel, samp.col, sub.col, cellid.col, genes, pseudo.count)
+  return(prob.list)
+}
+
+
 ObtainProbabilities <- function(annotation.list, rbound.panel, samp.col, sub.col, cellid.col, genes, pseudo.count=0){
   #rbound.panel <- RbindPanel(con.object)
   prob.list <- annotation.list %>% lapply(GetAllProbs, rbound.panel, samp.col, sub.col, cellid.col, genes, pseudo.count)
@@ -195,7 +209,7 @@ CalculateAllJSD <- function(list1, list2) {
 
 CalculateAllCor <- function(list1, list2) {
   CalculateCor <- function(x, a.list) {
-    a.list %>% lapply(cor,x)
+    a.list %>% lapply(function(y,x){1-cor(x,y)},x)
   }
   alldists<- list1 %>% lapply(CalculateCor, list2)
   return(unlist(alldists))

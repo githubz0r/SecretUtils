@@ -39,6 +39,14 @@ fraction_palette_eps <- c(epilepsy='hotpink', healthy='seagreen')
 FractionalPlot(annot$sample, annot$subtype, annot$condition, fraction.palette = fraction_palette_eps)
 ```
 
+```{r}
+freq_df <- FractionalPlot(annot$sample, annot$subtype, annot$condition, return.plot=F) %>% 
+  mutate(cond.sub=paste(condition, subtype, sep='_'))
+ggplot(na.omit(freq_df),aes(x=subtype,y=freq, col=patient))+ 
+  geom_point() + theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab("") +ylab("fraction of total cells")+ theme(legend.position="right")
+```
+
 Distance matrix tsne plot
 ```{r}
 annot2 <- annot %>% mutate(cellid=rownames(annot))
@@ -53,6 +61,12 @@ sub_dist_mat <- Makesubdistmat(con, annot2$sample, annot2$subtype, annot2$cellid
 PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
                    annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4) # add labels
 ```
+check the mat
+```{r}
+PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4, get.mat=TRUE)
+```
+
 
 Condition distance distribution
 ```{r}

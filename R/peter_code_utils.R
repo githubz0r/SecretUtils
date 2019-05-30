@@ -1,10 +1,7 @@
 FractionalPlot <- function(patient.vec, subtype.vec, condition.vec, fraction.palette=NULL, return.plot=TRUE){
   annotation <- bind_cols(list(patient.vec, subtype.vec, condition.vec)) %>% as.data.frame
-  patient.col <- 1
-  subtype.col <- 2
-  condition.col <- 3
-  sub.split <- split(annotation, annotation[, subtype.col])
-  sub.split <- sub.split %>% lapply(function(x){x <- mutate(x, pat.cond = paste(x[, patient.col], x[, condition.col], sep='-'))})
+  sub.split <- split(annotation, annotation[, 2])
+  sub.split <- sub.split %>% lapply(function(x){x <- mutate(x, pat.cond = paste(x[, 1], x[, 3], sep='-'))})
   CountPatConds <- function(annotation) {
     patcond.col <- dim(annotation)[2]
     combs.df <- table(annotation[, patcond.col]) %>% as.data.frame
@@ -12,7 +9,7 @@ FractionalPlot <- function(patient.vec, subtype.vec, condition.vec, fraction.pal
     colnames(combs.df)[2] <- 'count'
     combs.df <- combs.df %>% mutate(patient = gsub("-.*","", pat.cond))
     combs.df <- combs.df %>% mutate(condition = gsub(".*-","", pat.cond))
-    combs.df <- combs.df %>% mutate(subtype = annotation[, subtype.col][1:nrow(combs.df)])
+    combs.df <- combs.df %>% mutate(subtype = annotation[, 2][1:nrow(combs.df)])
   }
   sub.split.counts <- sub.split %>% lapply(CountPatConds)
   sub.split.df <- do.call(rbind, sub.split.counts)
@@ -78,10 +75,8 @@ PlotDistanceMatRed <- function(sub.dist.mat.object, sample.vec, subtype.vec, pat
   agg.dist.mat <- apply(x,c(1,2),sum)/apply(y,c(1,2),sum)
 
   sample.split <- split(annotation, sample.vec)
-  condition.col <- 5
-  patient.col <- 3
-  sample.conds <- sample.split %>% lapply(function(x){x[, condition.col][1]})
-  sample.pats <- sample.split %>% lapply(function(x){x[, patient.col][1]})
+  sample.conds <- sample.split %>% lapply(function(x){x[, 5][1]})
+  sample.pats <- sample.split %>% lapply(function(x){x[, 3][1]})
 
   agg.dist.mat.tsne <- Rtsne::Rtsne(agg.dist.mat,is_distance=TRUE, perplexity=perplexity,max_iter=max_iter)$Y
   df <- data.frame(agg.dist.mat.tsne); colnames(df) <- c("x","y")
