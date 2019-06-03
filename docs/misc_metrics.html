@@ -11,9 +11,9 @@
 
 <meta name="author" content="githubz0r" />
 
-<meta name="date" content="2019-05-23" />
+<meta name="date" content="2019-05-17" />
 
-<title>paga</title>
+<title>jensen_shannon_stuff</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -420,9 +420,9 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">paga</h1>
+<h1 class="title toc-ignore">jensen_shannon_stuff</h1>
 <h4 class="author">githubz0r</h4>
-<h4 class="date">2019-05-23</h4>
+<h4 class="date">2019-05-17</h4>
 
 </div>
 
@@ -553,7 +553,6 @@ Untracked files:
     Untracked:  analysis/transmute_peters_code.Rmd
     Untracked:  docs/figure/correlation_stuff.Rmd/
     Untracked:  docs/figure/jensen_shannon_stuff.Rmd/
-    Untracked:  docs/figure/misc_metrics.Rmd/
     Untracked:  docs/figure/paga.Rmd/
     Untracked:  docs/figure/visualizations.Rmd/
     Untracked:  man/
@@ -608,7 +607,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/da8aac70e66e7119698b78f89c14016f3695730b/analysis/paga2.Rmd" target="_blank">da8aac7</a>
+<a href="https://github.com/githubz0r/SecretUtils/blob/da8aac70e66e7119698b78f89c14016f3695730b/analysis/misc_metrics.Rmd" target="_blank">da8aac7</a>
 </td>
 <td>
 githubz0r
@@ -618,23 +617,6 @@ githubz0r
 </td>
 <td>
 wflow_publish(c(“analysis/jensen_shannon_stuff.Rmd”, “analysis/visualizations.Rmd”, “analysis/correlation_stuff.Rmd”,
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/6acc67713fdc12eb60aa659b82dfe1f860232dfc/docs/paga2.html" target="_blank">6acc677</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-05-29
-</td>
-<td>
-Build site.
 </td>
 </tr>
 </tbody>
@@ -658,11 +640,10 @@ Attaching package: &#39;igraph&#39;</code></pre>
 
     union</code></pre>
 <pre class="r"><code>library(pheatmap)
-devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)</code></pre>
-<pre><code>Loading SecretUtils</code></pre>
-<pre><code>Loading required package: magrittr</code></pre>
-<pre><code>Loading required package: reshape2</code></pre>
-<pre class="r"><code>require(pagoda2)</code></pre>
+#library(fuck)
+source(&#39;/home/larsc/SecretUtils/R/asdf.R&#39;)
+source(&#39;/home/larsc/SecretUtils/R/peter_code_utils.R&#39;)
+require(pagoda2)</code></pre>
 <pre><code>Loading required package: pagoda2</code></pre>
 <pre class="r"><code>library(dplyr)</code></pre>
 <pre><code>
@@ -680,12 +661,6 @@ Attaching package: &#39;dplyr&#39;</code></pre>
 library(tidyr)</code></pre>
 <pre><code>
 Attaching package: &#39;tidyr&#39;</code></pre>
-<pre><code>The following object is masked from &#39;package:reshape2&#39;:
-
-    smiths</code></pre>
-<pre><code>The following object is masked from &#39;package:magrittr&#39;:
-
-    extract</code></pre>
 <pre><code>The following object is masked from &#39;package:igraph&#39;:
 
     crossing</code></pre>
@@ -699,184 +674,214 @@ Attaching package: &#39;cowplot&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:ggplot2&#39;:
 
     ggsave</code></pre>
-<pre class="r"><code>library(igraph)
-con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
+<pre class="r"><code>library(irlba)
+con_object &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
 annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))</code></pre>
-<pre class="r"><code>annot &lt;- annot %&gt;% mutate(cellid = rownames(annot)) # turn rownames into a col for convenience
+<p>rowbind the adjusted expression values</p>
+<pre class="r"><code>if (is.null(annot$cellid)) {
+  annot$cellid &lt;- annot %&gt;% rownames
+}
 annot &lt;- annot %&gt;% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep=&#39;_&#39;))
-annot &lt;- annot %&gt;% mutate(subtype_sample = paste(annot$subtype, annot$sample, sep=&#39;-&#39;))
-conos_distances &lt;- Matrix::readMM(&#39;/home/larsc/data/scan_stuff/graph_distances.mtx&#39;)</code></pre>
-<pre class="r"><code>mem_levels &lt;- factor(annot$subtype_sample) %&gt;% levels
-subtype_order &lt;- gsub(&quot;.*-&quot;,&quot;&quot;, mem_levels) %&gt;% unique
-subtype_order2 &lt;- (paste0(annot$subtype) %&gt;% unique)[order(paste0(annot$subtype) %&gt;% unique)]
-membership_vec &lt;- as.numeric(factor(annot$subtype_condition))
-membership_levels &lt;- factor(annot$subtype_sample) %&gt;% levels
-membership_vec_subsamp &lt;- as.numeric(factor(annot$subtype_sample))</code></pre>
-<p>Paga statistics, subtype-condition</p>
-<pre class="r"><code>#source(&quot;/d0/home/larsc/SecretUtils/R/graph_stuff.R&quot;)
+rbound_panel &lt;- RbindPanel(con_object)</code></pre>
+<p>Are the cell names in the same order?</p>
+<pre class="r"><code>identical(rownames(rbound_panel), annot$cellid) # thank god, maybe add a sort for the future in Panelize</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code>state_split &lt;- split(annot, annot$condition, drop=TRUE)
+condition_tables &lt;- state_split %&gt;% lapply(function(x){table(x$subtype)})
+condition_tables$epilepsy&lt;condition_tables$healthy # only Lamp5</code></pre>
+<pre><code>
+     Id2_Nos1      Id2_Reln     L2/3_Cux2      L2_Lamp5     L3_Prss12 
+        FALSE         FALSE         FALSE          TRUE         FALSE 
+      L4_Rorb     L5_Grin3a      L5_Htr2c      L6_Nr4a2       L6_Syn3 
+        FALSE         FALSE         FALSE         FALSE         FALSE 
+      L6_Tle4     Pvalb_Crh    Pvalb_Nos1   Pvalb_Sulf1      Reln_Crh 
+        FALSE         FALSE         FALSE         FALSE         FALSE 
+    Sst_Calb1 Sst_Tac3_Lhx6       Vip_Crh     Vip_Nr2f2    Vip_Sema3c 
+        FALSE         FALSE         FALSE         FALSE         FALSE </code></pre>
+<pre class="r"><code>condition_tables</code></pre>
+<pre><code>$epilepsy
 
-connectivities &lt;- GetPagaMatrix(conos_distances, membership_vec, scale=F)
+     Id2_Nos1      Id2_Reln     L2/3_Cux2      L2_Lamp5     L3_Prss12 
+          497           947          1158          2224           284 
+      L4_Rorb     L5_Grin3a      L5_Htr2c      L6_Nr4a2       L6_Syn3 
+         3271          2431           518           508           714 
+      L6_Tle4     Pvalb_Crh    Pvalb_Nos1   Pvalb_Sulf1      Reln_Crh 
+          831           237           312          1444           442 
+    Sst_Calb1 Sst_Tac3_Lhx6       Vip_Crh     Vip_Nr2f2    Vip_Sema3c 
+         1354          1802          1811           914          1111 
 
-linearized_stats &lt;- seq(1, dim(connectivities)[1], 2) %&gt;% sapply(function(i){connectivities[i,i+1]})
+$healthy
 
-paga_df &lt;- bind_cols(value=linearized_stats, subtype=subtype_order2)
-ggplot(paga_df, aes(y=-linearized_stats, x=subtype)) +geom_point()+
+     Id2_Nos1      Id2_Reln     L2/3_Cux2      L2_Lamp5     L3_Prss12 
+          175           444           826          3067           136 
+      L4_Rorb     L5_Grin3a      L5_Htr2c      L6_Nr4a2       L6_Syn3 
+          915           463           109           120           219 
+      L6_Tle4     Pvalb_Crh    Pvalb_Nos1   Pvalb_Sulf1      Reln_Crh 
+          163            93            31           909           183 
+    Sst_Calb1 Sst_Tac3_Lhx6       Vip_Crh     Vip_Nr2f2    Vip_Sema3c 
+          654           642          1080           538           621 </code></pre>
+<p>PCA for later use</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+pca_cm &lt;- prcomp_irlba(rbound_panel[, od_genes],n=100)
+#pca_cmat &lt;- pca_cm$x[, 1:100]
+pca_cmat &lt;- pca_cm$x
+rownames(pca_cmat) &lt;- rownames(rbound_panel)</code></pre>
+<p>Bhattacharyya</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+subtype_split &lt;- state_split %&gt;% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs &lt;- subtype_split$healthy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+epilepsy_probs &lt;- subtype_split$epilepsy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+
+Bhattacharyya &lt;- function(x,y){
+  -log(sum(sqrt(x*y)))
+}
+all_bhats &lt;- Map(Bhattacharyya, healthy_probs, epilepsy_probs) %&gt;% as_tibble
+all_bhats &lt;- gather(all_bhats, key=subtype, value=bhat_div)
+ggplot(all_bhats, aes(y=bhat_div, x=subtype)) +geom_bar(stat=&#39;identity&#39;, col=&#39;hotpink&#39;) +
   theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
-<p><img src="figure/paga2.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
-Past versions of unnamed-chunk-4-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-4-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/6acc67713fdc12eb60aa659b82dfe1f860232dfc/docs/figure/paga2.Rmd/unnamed-chunk-4-1.png" target="_blank">6acc677</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-05-29
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Let’s incorporate the samples</p>
-<pre class="r"><code>connectivities &lt;- GetPagaMatrix(conos_distances, membership_vec_subsamp, scale=F)
-
-GenerateFactorVectors &lt;- function(subtype.vector, sample.vector, condition.vector) {
-  conc &lt;- paste0(subtype.vector, &quot;-;;-&quot;, sample.vector, &quot;;__;&quot; , condition.vector) %&gt;% as.factor %&gt;% levels
-  subtypes &lt;- gsub(&quot;-;;-.*&quot;, &quot;&quot;, conc)
-  samples &lt;- gsub(&quot;.*-;;-&quot;, &quot;&quot;, conc)
-  samples &lt;- gsub(&#39;;__;.*&#39;, &quot;&quot;, samples)
-  condition &lt;- gsub(&#39;.*;__;&#39;, &quot;&quot;, conc)
-  return(bind_cols(subtypes=subtypes, samples=samples, condition=condition, concatenated=conc))
-}
-factor_vectors &lt;- GenerateFactorVectors(annot$subtype, annot$sample, annot$condition)
-sub_cond_indices &lt;- as.factor(factor_vectors$concatenated) %&gt;% as.numeric %&gt;% 
-  split(list(factor_vectors$subtypes, factor_vectors$condition))
-sub_cond_indices &lt;- sub_cond_indices[order(sub_cond_indices %&gt;% names)]
-
-sub_samp_factor &lt;- as.factor(factor_vectors$samples) %&gt;% 
-  split(list(factor_vectors$subtypes, factor_vectors$condition))
-sub_samp_factor &lt;- sub_samp_factor[order(sub_samp_factor %&gt;% names)]
-
-sub_cond_factor &lt;- as.factor(factor_vectors$condition) %&gt;% 
-  split(list(factor_vectors$subtypes, factor_vectors$condition))
-sub_cond_factor &lt;- sub_cond_factor[order(sub_cond_factor %&gt;% names)]
-
-GetSubConnectivity &lt;- function(indices1, indices2, connectivity.matrix){
-  return(connectivity.matrix[indices1, indices2])
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Cell by Cell Bhat, 100 cells each, 1000 od genes</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes)
+epscellprobs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes)
+all_singlecell_dists &lt;- Map(CalculateAllBhat, healthcellprobs, epscellprobs)
+all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=bhat)
+ggplot(all_scd_gathered, aes(y=bhat, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)</code></pre>
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-7-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Dependency for single subtypes</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+nr_cells &lt;- c(30, 60, seq(100, 1000, by=50))
+nr_cells2 &lt;- (seq(30,300,by=15))
+do_dist_cells &lt;- function(nr.cell, subtype, pseudo.prob=1e-8, dist=js) {
+  healthy_probs &lt;- subtype_split$healthy[[subtype]] %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  epilepsy_probs &lt;- subtype_split$epilepsy[[subtype]] %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  return(Bhattacharyya(healthy_probs, epilepsy_probs))
 }
 
-factor1_mats &lt;- seq(1, length(sub_cond_indices), 2) %&gt;% 
-  lapply(function(i){sub.mat &lt;- GetSubConnectivity(sub_cond_indices[[i]], sub_cond_indices[[i]], connectivities);
-    rownames(sub.mat) &lt;- sub_samp_factor[[i]]; colnames(sub.mat) &lt;- sub_samp_factor[[i]]; return(sub.mat)})
-names(factor1_mats) &lt;- factor_vectors$subtypes %&gt;% as.factor %&gt;% levels
+get_all_jscells &lt;- function(subtype, cell.nr.vec, pseudo.prob=1e-8, dist=&#39;correlation&#39;){
+  js_nrcell &lt;- cell.nr.vec %&gt;% lapply(do_dist_cells, subtype, pseudo.prob, dist)
+  jscell_df &lt;- bind_cols(value=unlist(js_nrcell), nr.cells=cell.nr.vec) %&gt;% mutate(subtype=subtype)
+  #return(ggplot(jscell_df, aes(y=value, x=nr.cells))+geom_point()+ggtitle(subtype))
+}
 
-factor2_mats &lt;- seq(2, length(sub_cond_indices), 2) %&gt;% 
-  lapply(function(i){sub.mat &lt;- GetSubConnectivity(sub_cond_indices[[i]], sub_cond_indices[[i]], connectivities);
-    rownames(sub.mat) &lt;- sub_samp_factor[[i]]; colnames(sub.mat) &lt;- sub_samp_factor[[i]]; return(sub.mat)})
-names(factor2_mats) &lt;- factor_vectors$subtypes %&gt;% as.factor %&gt;% levels
+#all_jscells &lt;- annot$subtype %&gt;% unique %&gt;% lapply(get_all_jscells, nr_cells)
 
-between_mats &lt;- seq(1, length(sub_cond_indices), 2) %&gt;% 
-  lapply(function(i){sub.mat &lt;- GetSubConnectivity(sub_cond_indices[[i]], sub_cond_indices[[i+1]], connectivities);
-    rownames(sub.mat) &lt;- sub_samp_factor[[i]]; colnames(sub.mat) &lt;- sub_samp_factor[[i+1]]; return(sub.mat)})
-names(between_mats) &lt;- factor_vectors$subtypes %&gt;% as.factor %&gt;% levels
+do_plot &lt;- function(sub.df){
+  p &lt;- ggplot(sub.df, aes(x=nr.cells, y=value, col=subtype))+geom_line()+
+    theme(axis.text.x = element_text(angle = -90, hjust = 1))
+  return(p)
+}
 
-factor1_identity &lt;- sub_cond_factor[[1]] %&gt;% unique %&gt;% as.character
-factor2_identity &lt;- sub_cond_factor[[2]] %&gt;% unique %&gt;% as.character
+#all_plots &lt;- all_jscells %&gt;% lapply(do_plot)
+#subl1 &lt;- do.call(rbind, all_jscells[1:5])
 
-MeltMatrix &lt;- function(x, symmetric){
-  if (symmetric) {
-    x[lower.tri(x)] &lt;- NA; diag(x) &lt;- NA
-    df &lt;- na.omit(reshape2::melt(as.matrix(x)))
-  } else {
-    df &lt;- reshape2::melt(as.matrix(x))
+#p &lt;- ggplot(all_jscells[[20]], aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+#plot_grid(plotlist=all_plots[1:4], nrow=2)
+subtypes_ &lt;- annot$subtype %&gt;% unique
+#sub_jscells &lt;- get_all_jscells(&#39;L2_Lamp5&#39;, nr_cells2, dist=&#39;correlation&#39;)
+sub_jscells_rep &lt;- replicate(3, list(get_all_jscells(&#39;L2_Lamp5&#39;, nr_cells2, dist=&#39;correlation&#39;))) %&gt;% bind_rows
+p &lt;- sub_jscells_rep %&gt;% ggplot(aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+p</code></pre>
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>try JBLD</p>
+<pre class="r"><code>GetSubMatsList &lt;- function(list.of.annots, rbound.panel, list.of.genes, cellid.col) {
+  GetMat &lt;- function(sub.annot, genes, rbound.panel, cellid.col) {
+    cellids &lt;- sub.annot[, cellid.col]
+    return(rbound.panel[cellids, genes])
   }
-  df &lt;- bind_cols(value=df$value, comparison=paste0(df$Var1, &#39;-&#39;, df$Var2))
-  return(df)
+  exps.list &lt;- mapply(GetMat, list.of.annots, list.of.genes, MoreArgs=list(rbound.panel, cellid.col), SIMPLIFY=F)
+  return(exps.list)
 }
 
-MeltAndAppend &lt;- function(mat.list, factor.identity, symmetric=TRUE) {
-  molten.mats &lt;- mat.list %&gt;% lapply(MeltMatrix, symmetric)
-  AppendCols &lt;- function(df, subtype.name, factor.identity){
-    df$subtype = subtype.name
-    df$condition = factor.identity
-    return(df)
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+# listify
+od_genes_list &lt;- rep(list(od_genes), 20)
+pca_genes_list &lt;- rep(list(colnames(pca_cmat)), 20)
+
+# split
+state_split &lt;- split(annot, annot$condition, drop=TRUE)
+subtype_split &lt;- state_split %&gt;% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+
+#cmat &lt;- rbound_panel
+state_sub_mats &lt;- subtype_split %&gt;% lapply(GetSubMatsList, pca_cmat, pca_genes_list, 4)
+
+health_covs &lt;- state_sub_mats$healthy %&gt;% lapply(function(x){return(x %&gt;% as.matrix %&gt;% cov)})
+epilepsy_covs &lt;- state_sub_mats$epilepsy %&gt;% lapply(function(x){return(x %&gt;% as.matrix %&gt;% cov)})
+
+CalculateJBLD &lt;- function(cov1, cov2) {
+  JBLD &lt;- log(det((cov1+cov2)/2)) -0.5*log(det(cov1%*%cov2))
+  return(JBLD)
+}
+
+det(health_covs$Id2_Nos1%*%epilepsy_covs$Id2_Nos1)</code></pre>
+<pre><code>[1] 8.949979e-230</code></pre>
+<pre class="r"><code>all_jblds &lt;- Map(CalculateJBLD, health_covs, epilepsy_covs)
+jblds_gathered &lt;- gather(all_jblds %&gt;% as.data.frame, key=subtype, value=jbld)
+ggplot(jblds_gathered, aes(y=jbld, x=subtype)) +geom_bar(stat=&#39;identity&#39;, col=&#39;hotpink&#39;) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Correlation distance metric fuck, try correlation matrix distance</p>
+<pre class="r"><code>cmat &lt;- rbound_panel
+state_split &lt;- split(annot, annot$condition, drop=TRUE)
+subtype_split &lt;- state_split %&gt;% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+state_sub_mats &lt;- subtype_split %&gt;% lapply(GetSubMatsList, pca_cmat, pca_genes_list, 4)
+
+health_cors &lt;- state_sub_mats$healthy %&gt;% lapply(cor)
+epilepsy_cors &lt;- state_sub_mats$epilepsy %&gt;% lapply(cor)
+all_cmds &lt;- Map(CMD, health_cors, epilepsy_cors)
+cmds_gathered &lt;- gather(all_cmds %&gt;% as.data.frame, key=subtype, value=cmd)
+ggplot(cmds_gathered, aes(y=cmd, x=subtype)) +geom_bar(stat=&#39;identity&#39;) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>P-values load my de genes &amp; get some DE genes, equal numbers for each subtype</p>
+<pre class="r"><code>de_genez &lt;- readRDS(file.path(&#39;/home/larsc/data/eps_10x_de_celltype.rds&#39;))</code></pre>
+<pre class="r"><code>GetTopGenes &lt;- function(de.result, nr, value=&#39;gene.names&#39;, filter.mito=TRUE){
+  res.df &lt;- de.result$res
+  res.df &lt;- res.df %&gt;% dplyr::mutate(gene.names = rownames(res.df))
+  if (filter.mito){
+    res.df &lt;- dplyr::filter(res.df, !stringr::str_detect(gene.names, &quot;^MT-&quot;))
   }
-  extended.dfs &lt;- Map(AppendCols, molten.mats, names(mat.list), MoreArgs=list(factor.identity))
-  return(extended.dfs)
+  res.sorted &lt;- res.df %&gt;% arrange(padj)
+  return(res.sorted[[value]][1:nr])
 }
 
-epilepsy_dfs &lt;- MeltAndAppend(factor1_mats, factor1_identity)
-healthy_dfs &lt;- MeltAndAppend(factor2_mats, factor2_identity)
-between_dfs &lt;- MeltAndAppend(between_mats, &#39;between&#39;, symmetric = FALSE)
+top_genez &lt;- de_genez %&gt;% lapply(GetTopGenes, 100, filter.mito=FALSE)
 
-(connectivities[1:4, 5:7] %&gt;%  as.matrix %&gt;% melt)$value %in% between_dfs[[1]]$value # seems to be true</code></pre>
-<pre><code> [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE</code></pre>
-<pre class="r"><code>plot_df &lt;- bind_rows(epilepsy_dfs, healthy_dfs, between_dfs)
-plot_df %&gt;% ggplot(aes(x=subtype, y=-value ,dodge=condition,fill=condition))+
-    geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
-                           axis.text.y = element_text(angle = 90, hjust = 0.5))+
-  theme(legend.position=&quot;top&quot;)#+ylim(-50,0)</code></pre>
-<p><img src="figure/paga2.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
-Past versions of unnamed-chunk-5-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-5-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/6acc67713fdc12eb60aa659b82dfe1f860232dfc/docs/figure/paga2.Rmd/unnamed-chunk-5-1.png" target="_blank">6acc677</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-05-29
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+# check how many DE genes for each
+countPadjes &lt;- function(de.result,threshold=0.1){
+  padjes &lt;- de.result$res$padj
+  sum(na.omit(padjes&lt;threshold))
+}
+subtypes_total_count &lt;- split(annot$subtype, annot$subtype) %&gt;% lapply(length)
+padjes_count &lt;- de_genez %&gt;% lapply(countPadjes,threshold=0.05) %&gt;% as.data.frame %&gt;% gather(key=subtype, value=count) %&gt;% 
+  mutate(sumcells = as.numeric(table(annot$subtype)))
+padjes_count %&gt;% ggplot(aes(x=subtype, y=count))+geom_bar(stat=&#39;identity&#39;)+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Counts as function of number of cells</p>
+<pre class="r"><code>padjes_count %&gt;% ggplot(aes(x=sumcells, y=count))+geom_point()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Distribution of p values for each subtype</p>
+<pre class="r"><code>top_padjes &lt;- de_genez %&gt;% lapply(GetTopGenes, 1000, value=&#39;padj&#39;, filter.mito=FALSE)
+top_padjes_tibble &lt;- top_padjes %&gt;% as_tibble %&gt;% gather(key=subtype, value=val) %&gt;% mutate(log_val=log(val))
+top_avg &lt;- top_padjes %&gt;% lapply(mean) %&gt;% as.data.frame %&gt;% gather(key=subtype, value=val) %&gt;% mutate(log_val=log(val)) %&gt;% 
+  mutate(sumcells = as.numeric(table(annot$subtype)))
+
+top_padjes_tibble %&gt;% ggplot(aes(x=subtype, y=-log(val)))+geom_jitter()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>top_avg %&gt;% ggplot(aes(x=subtype, y=-log_val))+#geom_bar(stat=&#39;identity&#39;)+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))+ geom_point()+ggtitle(&#39;average pvalue using top 1000 DE genes&#39;)</code></pre>
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>As a function of number of points</p>
+<pre class="r"><code>top_avg %&gt;% ggplot(aes(x=sumcells, y=-log_val))+#geom_bar(stat=&#39;identity&#39;)+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))+ geom_point()+ggtitle(&#39;average pvalue using top 1000 DE genes&#39;)</code></pre>
+<p><img src="figure/misc_metrics.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -905,43 +910,35 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] cowplot_0.9.4     ggplot2_3.1.1     tidyr_0.8.3      
- [4] stringr_1.4.0     dplyr_0.8.0.1     pagoda2_0.1.0    
- [7] SecretUtils_0.1.0 reshape2_1.4.3    magrittr_1.5     
-[10] pheatmap_1.0.12   conos_1.0.0       igraph_1.2.4     
-[13] Matrix_1.2-17    
+ [1] irlba_2.3.3     cowplot_0.9.4   ggplot2_3.1.1   tidyr_0.8.3    
+ [5] stringr_1.4.0   dplyr_0.8.0.1   pagoda2_0.1.0   pheatmap_1.0.12
+ [9] conos_1.0.0     igraph_1.2.4    Matrix_1.2-17  
 
 loaded via a namespace (and not attached):
- [1] fs_1.2.7            usethis_1.5.0       devtools_2.0.2     
- [4] RColorBrewer_1.1-2  rprojroot_1.3-2     prabclus_2.2-7     
- [7] tools_3.5.3         backports_1.1.4     irlba_2.3.3        
-[10] R6_2.4.0            lazyeval_0.2.2      colorspace_1.4-1   
-[13] trimcluster_0.1-2.1 nnet_7.3-12         withr_2.1.2        
-[16] tidyselect_0.2.5    gridExtra_2.3       prettyunits_1.0.2  
-[19] processx_3.3.0      compiler_3.5.3      git2r_0.25.2       
-[22] cli_1.1.0           desc_1.2.0          labeling_0.3       
-[25] triebeard_0.3.0     diptest_0.75-7      scales_1.0.0       
-[28] DEoptimR_1.0-8      mvtnorm_1.0-10      robustbase_0.93-4  
-[31] callr_3.2.0         digest_0.6.18       rmarkdown_1.12     
-[34] base64enc_0.1-3     pkgconfig_2.0.2     htmltools_0.3.6    
-[37] sessioninfo_1.1.1   rlang_0.3.4         rstudioapi_0.10    
-[40] shiny_1.3.1         mclust_5.4.3        dendextend_1.10.0  
-[43] modeltools_0.2-22   Rcpp_1.0.1          munsell_0.5.0      
-[46] abind_1.4-5         viridis_0.5.1       stringi_1.4.3      
-[49] whisker_0.3-2       yaml_2.2.0          MASS_7.3-51.3      
-[52] flexmix_2.3-15      pkgbuild_1.0.3      Rtsne_0.14         
-[55] plyr_1.8.4          grid_3.5.3          parallel_3.5.3     
-[58] promises_1.0.1      crayon_1.3.4        lattice_0.20-38    
-[61] knitr_1.22          ps_1.3.0            pillar_1.3.1       
-[64] rjson_0.2.20        fpc_2.1-11.1        stats4_3.5.3       
-[67] pkgload_1.0.2       glue_1.3.1          evaluate_0.13      
-[70] data.table_1.12.2   remotes_2.0.4       urltools_1.7.3     
-[73] httpuv_1.5.1        testthat_2.0.1      gtable_0.3.0       
-[76] purrr_0.3.2         kernlab_0.9-27      assertthat_0.2.1   
-[79] xfun_0.6            mime_0.6            xtable_1.8-4       
-[82] later_0.8.0         class_7.3-15        viridisLite_0.3.0  
-[85] tibble_2.1.1        memoise_1.1.0       workflowr_1.3.0    
-[88] cluster_2.0.8       Rook_1.1-1          brew_1.0-6         </code></pre>
+ [1] viridis_0.5.1       viridisLite_0.3.0   shiny_1.3.1        
+ [4] assertthat_0.2.1    triebeard_0.3.0     urltools_1.7.3     
+ [7] stats4_3.5.3        yaml_2.2.0          robustbase_0.93-4  
+[10] pillar_1.3.1        backports_1.1.4     lattice_0.20-38    
+[13] glue_1.3.1          digest_0.6.18       RColorBrewer_1.1-2 
+[16] promises_1.0.1      colorspace_1.4-1    htmltools_0.3.6    
+[19] httpuv_1.5.1        plyr_1.8.4          pkgconfig_2.0.2    
+[22] purrr_0.3.2         xtable_1.8-4        mvtnorm_1.0-10     
+[25] scales_1.0.0        brew_1.0-6          whisker_0.3-2      
+[28] later_0.8.0         git2r_0.25.2        tibble_2.1.1       
+[31] withr_2.1.2         nnet_7.3-12         lazyeval_0.2.2     
+[34] magrittr_1.5        crayon_1.3.4        mime_0.6           
+[37] mclust_5.4.3        evaluate_0.13       fs_1.2.7           
+[40] MASS_7.3-51.3       class_7.3-15        Rook_1.1-1         
+[43] tools_3.5.3         trimcluster_0.1-2.1 kernlab_0.9-27     
+[46] munsell_0.5.0       cluster_2.0.8       fpc_2.1-11.1       
+[49] compiler_3.5.3      rlang_0.3.4         grid_3.5.3         
+[52] rjson_0.2.20        labeling_0.3        base64enc_0.1-3    
+[55] rmarkdown_1.12      gtable_0.3.0        flexmix_2.3-15     
+[58] R6_2.4.0            gridExtra_2.3       knitr_1.22         
+[61] prabclus_2.2-7      workflowr_1.3.0     rprojroot_1.3-2    
+[64] dendextend_1.10.0   modeltools_0.2-22   stringi_1.4.3      
+[67] parallel_3.5.3      Rcpp_1.0.1          DEoptimR_1.0-8     
+[70] tidyselect_0.2.5    xfun_0.6            diptest_0.75-7     </code></pre>
 </div>
 </div>
 

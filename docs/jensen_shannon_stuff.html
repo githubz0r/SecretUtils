@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="githubz0r" />
+
+<meta name="date" content="2019-05-17" />
+
+<title>jensen_shannon_stuff</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">SecretUtils</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/githubz0r/SecretUtils">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">jensen_shannon_stuff</h1>
+<h4 class="author">githubz0r</h4>
+<h4 class="date">2019-05-17</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-06-03
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>SecretUtils/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.3.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190415code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190415)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190415code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190415)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreeda8aac70e66e7119698b78f89c14016f3695730btargetblankda8aac7a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/da8aac70e66e7119698b78f89c14016f3695730b" target="_blank">da8aac7</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreeda8aac70e66e7119698b78f89c14016f3695730btargetblankda8aac7a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .Rbuildignore
+    Untracked:  R/hello.R
+    Untracked:  analysis/make_scanpy_viktor.R
+    Untracked:  analysis/paga.Rmd
+    Untracked:  analysis/subtype_distances.Rmd
+    Untracked:  analysis/subtype_distances2.Rmd
+    Untracked:  analysis/subtype_distances4.Rmd
+    Untracked:  analysis/subtype_distances_redux.Rmd
+    Untracked:  analysis/subtype_distances_revenge.Rmd
+    Untracked:  analysis/test_output.Rmd
+    Untracked:  analysis/transmute_peters_code.Rmd
+    Untracked:  docs/figure/correlation_stuff.Rmd/
+    Untracked:  docs/figure/misc_metrics.Rmd/
+    Untracked:  docs/figure/paga.Rmd/
+    Untracked:  docs/figure/visualizations.Rmd/
+    Untracked:  man/
+
+Unstaged changes:
+    Modified:   DESCRIPTION
+    Modified:   R/asdf.R
+    Modified:   R/peter_code_utils.R
+    Modified:   analysis/subtype_distances3.Rmd
+    Modified:   analysis/transmute_code_eps.Rmd
+    Modified:   analysis/transmute_code_eps_2.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/da8aac70e66e7119698b78f89c14016f3695730b/analysis/jensen_shannon_stuff.Rmd" target="_blank">da8aac7</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-03
+</td>
+<td>
+wflow_publish(c(“analysis/jensen_shannon_stuff.Rmd”, “analysis/visualizations.Rmd”, “analysis/correlation_stuff.Rmd”,
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<pre class="r"><code>library(conos)</code></pre>
+<pre><code>Loading required package: Matrix</code></pre>
+<pre><code>Loading required package: igraph</code></pre>
+<pre><code>
+Attaching package: &#39;igraph&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    decompose, spectrum</code></pre>
+<pre><code>The following object is masked from &#39;package:base&#39;:
+
+    union</code></pre>
+<pre class="r"><code>library(pheatmap)
+#library(fuck)
+devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)</code></pre>
+<pre><code>Loading SecretUtils</code></pre>
+<pre><code>Loading required package: magrittr</code></pre>
+<pre><code>Loading required package: reshape2</code></pre>
+<pre class="r"><code>require(pagoda2)</code></pre>
+<pre><code>Loading required package: pagoda2</code></pre>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>
+Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:igraph&#39;:
+
+    as_data_frame, groups, union</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    filter, lag</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(stringr)
+library(tidyr)</code></pre>
+<pre><code>
+Attaching package: &#39;tidyr&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:reshape2&#39;:
+
+    smiths</code></pre>
+<pre><code>The following object is masked from &#39;package:magrittr&#39;:
+
+    extract</code></pre>
+<pre><code>The following object is masked from &#39;package:igraph&#39;:
+
+    crossing</code></pre>
+<pre><code>The following object is masked from &#39;package:Matrix&#39;:
+
+    expand</code></pre>
+<pre class="r"><code>library(ggplot2)
+library(cowplot)</code></pre>
+<pre><code>
+Attaching package: &#39;cowplot&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:ggplot2&#39;:
+
+    ggsave</code></pre>
+<pre class="r"><code>con_object &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
+annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))</code></pre>
+<p>rowbind the adjusted expression values</p>
+<pre class="r"><code>if (is.null(annot$cellid)) {
+  annot$cellid &lt;- annot %&gt;% rownames
+}
+annot &lt;- annot %&gt;% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep=&#39;_&#39;))
+rbound_panel &lt;- RbindPanel(con_object)</code></pre>
+<p>Are the cell names in the same order?</p>
+<pre class="r"><code>identical(rownames(rbound_panel), rownames(annot)) # thank god, maybe add a sort for the future in Panelize</code></pre>
+<pre><code>[1] FALSE</code></pre>
+<p>Inter sample distance, aggregated</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+# split annot in categories (disease, healthy)
+state_split &lt;- split(annot, annot$condition, drop=TRUE)
+# get probability distributions for subtype/sample categories
+all_probs &lt;- ObtainProbabilities(state_split, rbound_panel, 1, 2, 4, od_genes, pseudo.count=10^(-6))
+# now get JS distances
+all_distances &lt;- Map(CalculateAllJSD, all_probs$healthy, all_probs$epilepsy)
+#all_dists_dfd &lt;- all_distances %&gt;% lapply(function(x){data.frame(comparison=names(x), value=x, row.names=NULL)})
+# use stackexchange magic to pad NAs to shorter distance vectors, and also tibbling
+all_dists &lt;- lapply(all_distances, `length&lt;-`, max(lengths(all_distances))) %&gt;% as_tibble
+all_dists &lt;- all_dists %&gt;% mutate(comparison=names(all_distances$Id2_Reln))
+# gather into format for easy ggplot
+all_dists_gathered &lt;- gather(all_dists, key=subtype, value=js_distance, -comparison)
+# plot
+ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) + geom_violin()+geom_point(aes(col=comparison), alpha = 0.6, size=1.8) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<pre><code>Warning: Removed 6 rows containing non-finite values (stat_ydensity).</code></pre>
+<pre><code>Warning: Removed 6 rows containing missing values (geom_point).</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-4-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>What about within condition distances (jensen shannon)</p>
+<pre class="r"><code>getUpperTri &lt;- function(dist.numeric){
+  dist.vec &lt;- as.vector(dist.numeric)
+  dist.mat &lt;- dist.vec %&gt;% matrix(nrow=sqrt(dist.vec %&gt;% length))
+  name.mat &lt;- names(dist.numeric) %&gt;% matrix(nrow=sqrt(dist.vec %&gt;% length))
+  comp.names &lt;- name.mat[upper.tri(name.mat)]
+  vals &lt;- dist.mat[upper.tri(dist.mat)]
+  names(vals) &lt;- comp.names
+  return(vals)
+}
+
+Dataframize &lt;- function(vector.name, a.list){
+  named.vector &lt;- a.list[[vector.name]]
+  init.df &lt;- bind_cols(value=named.vector, comparison=names(named.vector))
+  full.df &lt;- init.df %&gt;% mutate(subtype=vector.name)
+  return(full.df)
+}
+
+InterSampleDists &lt;- function(cond.sub.samples){
+  inter.dists &lt;- Map(CalculateAllJSD, cond.sub.samples, cond.sub.samples)
+  inter.dists &lt;- inter.dists %&gt;% lapply(getUpperTri)
+  inter.dists &lt;- do.call(rbind, inter.dists %&gt;% names %&gt;% lapply(Dataframize, inter.dists))
+  return(inter.dists)
+}
+
+Dataframize2 &lt;- function(between.vector.name, list.of.vectors){
+  between.vector &lt;- list.of.vectors[[between.vector.name]]
+  comparison &lt;- between.vector %&gt;% names
+  df &lt;- (bind_cols(value=between.vector, comparison=comparison))
+  df$subtype &lt;- between.vector.name
+  return(df)
+}
+all_probs &lt;- ObtainProbabilities(state_split, rbound_panel, 1, 2, 4, od_genes, pseudo.count=10^(-6))
+eps_distances &lt;- Map(CalculateAllJSD, all_probs$epilepsy, all_probs$epilepsy) 
+health_distances &lt;- Map(CalculateAllJSD, all_probs$healthy, all_probs$healthy)
+between_distances &lt;- Map(CalculateAllJSD, all_probs$healthy, all_probs$epilepsy)
+# if we want to try viktors JS plot we replace the rbound panel with neighbour smoothed
+# and we replace sample probabilities with individual cell probabilities
+
+eps_dist2 &lt;- eps_distances %&gt;% lapply(getUpperTri)
+health_dist2 &lt;- health_distances %&gt;% lapply(getUpperTri)
+between_dist2 &lt;- names(between_distances) %&gt;% lapply(Dataframize2, between_distances) %&gt;% bind_rows
+
+eps_dist3 &lt;- do.call(rbind, eps_dist2 %&gt;% names %&gt;% lapply(Dataframize, eps_dist2))
+health_dist3 &lt;- do.call(rbind, health_dist2 %&gt;% names %&gt;% lapply(Dataframize, health_dist2))
+
+
+combined_dists &lt;- rbind(eps_dist3, health_dist3) %&gt;% mutate(condition = c(rep(&#39;epilepsy&#39;, 60), rep(&#39;healthy&#39;, 114)))
+combined_dists2 &lt;- rbind(combined_dists, mutate(between_dist2, condition=&#39;between&#39;))
+combined_dists2 %&gt;% ggplot(aes(x=subtype, y=value, col=condition))+geom_boxplot()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Overall JS, all sample-conds aggregated let’s see overall JS dist.</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+state_split &lt;- split(annot, annot$condition, drop=TRUE)
+subtype_split &lt;- state_split %&gt;% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs &lt;- subtype_split$healthy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=10^(-10))
+epilepsy_probs &lt;- subtype_split$epilepsy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=10^(-10))
+
+all_dists &lt;- Map(JensenShannon, healthy_probs, epilepsy_probs) %&gt;% as_tibble
+all_dists_gathered &lt;- gather(all_dists, key=subtype, value=js_distance)
+ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) +geom_bar(stat=&#39;identity&#39;, col=&#39;hotpink&#39;) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>JS distance for each subtype (i.e. all samples aggregated) as function of the minimum (or max) number of cells</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+state_split &lt;- split(annot, annot$condition, drop=TRUE)
+condition_tables &lt;- state_split %&gt;% lapply(function(x){table(x$subtype)})
+condition_df &lt;- condition_tables %&gt;% as.data.frame
+condition_df &lt;- condition_df %&gt;% mutate(min_cells = mapply(min, epilepsy.Freq, healthy.Freq))
+condition_df &lt;- condition_df %&gt;% mutate(max_cells = mapply(max, epilepsy.Freq, healthy.Freq))
+subtype_split &lt;- state_split %&gt;% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs &lt;- subtype_split$healthy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=10^(-10))
+epilepsy_probs &lt;- subtype_split$epilepsy %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=10^(-10))
+
+all_dists &lt;- Map(JensenShannon, healthy_probs, epilepsy_probs) %&gt;% as_tibble
+all_dists_gathered &lt;- gather(all_dists, key=subtype, value=js_distance) %&gt;% 
+  mutate(min_cells = condition_df$min_cells, max_cells = condition_df$max_cells)
+ggplot(all_dists_gathered, aes(y=js_distance, x=min_cells, col=subtype)) +geom_point() +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(all_dists_gathered, aes(y=js_distance, x=max_cells, col=subtype)) +geom_point() +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Dependency for single subtypes</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+nr_cells &lt;- c(30, 60, seq(100, 1000, by=50))
+nr_cells2 &lt;- (seq(30,300,by=15))
+do_dist_cells &lt;- function(nr.cell, subtype, pseudo.prob=1e-8, dist=js) {
+  healthy_probs &lt;- subtype_split$healthy[[subtype]] %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  epilepsy_probs &lt;- subtype_split$epilepsy[[subtype]] %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  if (dist==&#39;js&#39;) {
+    js.dist &lt;- JensenShannon( healthy_probs, epilepsy_probs)
+    return(js.dist)
+  } else if (dist==&#39;correlation&#39;) {
+    cor.dist &lt;- 1-cor(healthy_probs, epilepsy_probs)
+    return(cor.dist)
+  }
+}
+
+get_all_jscells &lt;- function(subtype, cell.nr.vec, pseudo.prob=1e-8, dist=&#39;js&#39;){
+  js_nrcell &lt;- cell.nr.vec %&gt;% lapply(do_dist_cells, subtype, pseudo.prob, dist)
+  jscell_df &lt;- bind_cols(value=unlist(js_nrcell), nr.cells=cell.nr.vec) %&gt;% mutate(subtype=subtype)
+  #return(ggplot(jscell_df, aes(y=value, x=nr.cells))+geom_point()+ggtitle(subtype))
+}
+
+#all_jscells &lt;- annot$subtype %&gt;% unique %&gt;% lapply(get_all_jscells, nr_cells)
+
+do_plot &lt;- function(sub.df){
+  p &lt;- ggplot(sub.df, aes(x=nr.cells, y=value, col=subtype))+geom_line()+
+    theme(axis.text.x = element_text(angle = -90, hjust = 1))
+  return(p)
+}
+
+#all_plots &lt;- all_jscells %&gt;% lapply(do_plot)
+#subl1 &lt;- do.call(rbind, all_jscells[1:5])
+
+#p &lt;- ggplot(all_jscells[[20]], aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+#plot_grid(plotlist=all_plots[1:4], nrow=2)
+subtypes_ &lt;- annot$subtype %&gt;% unique
+sub_jscells &lt;- get_all_jscells(&#39;L2_Lamp5&#39;, nr_cells2, dist=&#39;js&#39;)
+sub_jscells_rep &lt;- replicate(3, list(get_all_jscells(&#39;L2_Lamp5&#39;, nr_cells2, dist=&#39;js&#39;))) %&gt;% bind_rows
+p &lt;- sub_jscells_rep %&gt;% ggplot(aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+p</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>nr_genes=seq(100, 10000, 500)
+do_js_genes &lt;- function(nr.genes, pseudo.prob=1e-8) {
+  od_genes = conos:::getOdGenesUniformly(con_object$samples, nr.genes)
+  healthy_probs &lt;- subtype_split$healthy$L2_Lamp5 %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=100, pseudo.count=pseudo.prob)
+  epilepsy_probs &lt;- subtype_split$epilepsy$L2_Lamp5 %&gt;% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=100, pseudo.count=pseudo.prob)
+  js.dist &lt;- JensenShannon( healthy_probs, epilepsy_probs)
+  return(js.dist)
+}
+js_nrgenes &lt;- nr_genes %&gt;% lapply(do_js_genes)
+jsgenes_df &lt;- bind_cols(value=unlist(js_nrgenes), nr.genes=nr_genes)
+ggplot(jsgenes_df, aes(y=value, x=nr.genes))+geom_point()+ggtitle(&#39;JSD for L2_Lamp5, using x number of OD genes&#39;)</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Load DE genes generated with conos (deseq2) and use top x number of genes</p>
+<pre class="r"><code>de_genez &lt;- readRDS(file.path(&#39;/home/larsc/data/eps_10x_de_celltype.rds&#39;))
+
+GetTopGenes &lt;- function(de.result, nr, value=&#39;gene.names&#39;, filter.mito=TRUE){
+  res.df &lt;- de.result$res
+  res.df &lt;- res.df %&gt;% dplyr::mutate(gene.names = rownames(res.df))
+  if (filter.mito){
+    res.df &lt;- dplyr::filter(res.df, !stringr::str_detect(gene.names, &quot;^MT-&quot;))
+  }
+  res.sorted &lt;- res.df %&gt;% arrange(padj)
+  return(res.sorted[[value]][1:nr])
+}
+
+top_genez &lt;- de_genez %&gt;% lapply(GetTopGenes, 500, filter.mito=FALSE)</code></pre>
+<p>100 cells pairwise , top x DE genes</p>
+<pre class="r"><code>ObtainDistributions &lt;- function(sub.annot, some.genes, rbound.panel, cellid.col, nr.cell, pseudo.count){
+    return(SelectCellProbs(sub.annot, rbound.panel, cellid.col, nr.cell, some.genes, pseudo.count))
+  } # just to rearrange the inputs for mapply
+
+IndividualCellProbsList &lt;- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes.list, pseudo.count=0){
+  sub.split &lt;- split(annotation, annotation[, sub.col], drop=T)
+  cell.distributions &lt;- mapply(ObtainDistributions, sub.split, genes.list, MoreArgs=list(rbound.panel, cellid.col, nr.cell, pseudo.count), SIMPLIFY=F)
+  return(cell.distributions)
+}
+ProbsToJSD &lt;- function(state.split, rbound.panel, cellid.col, sub.col, nr.cell, genes.list, pseudo.count){
+  list.of.lists &lt;- state.split %&gt;% lapply(IndividualCellProbsList, rbound.panel, cellid.col, sub.col, 
+                                          nr.cell, genes.list, pseudo.count)
+  all.sc.dists.de &lt;- Map(CalculateAllJSD, list.of.lists$healthy, list.of.lists$epilepsy)
+  return(all.sc.dists.de %&gt;% as_tibble)
+} # specific for this data but saves some lines
+
+all_sc_dists_de &lt;- ProbsToJSD(state_split, rbound_panel, 4, 2, 100, top_genez, 10^(-8))
+all_scd_de_gathered &lt;- gather(all_sc_dists_de, key=subtype, value=JSD)
+ggplot(all_scd_de_gathered, aes(y=JSD, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-11-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Sam’s genes, not equal number of genes</p>
+<pre class="r"><code>de_genes &lt;- readRDS(&quot;/d0-mendel/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/de_multilevel_genes.rds&quot;)
+sam_de_count &lt;- de_genes %&gt;% lapply(length) %&gt;% as.data.frame
+#names(de_genez)==names(de_genes) # just checking
+CheckOverlap &lt;- function(x,y){ # is it completely off or wut
+  y=y[1:100]
+  return(sum(x %in% y)/100)
+}
+check_overlap &lt;- Map(CheckOverlap, top_genez, de_genes) # low for pvalb nos since it only has 16
+all_sc_dists_de_sam &lt;- ProbsToJSD(state_split, rbound_panel, 4, 2, 100, de_genes, 10^(-8))
+all_scd_de_gathered_sam &lt;- gather(all_sc_dists_de_sam, key=subtype, value=JSD)
+ggplot(all_scd_de_gathered_sam, aes(y=JSD, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))#+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-12-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>same number of cells pairwise, same number of OD genes</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes, 10^(-8))
+epscellprobs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes, 10^(-8))
+all_singlecell_dists &lt;- Map(CalculateAllJSD, healthcellprobs, epscellprobs)
+all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=jsd)
+ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-13-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Constant number of OD genes, constant number of cells, normalize variance.</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 100)
+healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes, 10^(-8), norm.var=T)
+epscellprobs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes, 10^(-8), norm.var=T)
+all_singlecell_dists &lt;- Map(CalculateAllJSD, healthcellprobs, epscellprobs)
+all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=jsd)
+ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-14-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>pairwise 100 cells, union of most DE genes</p>
+<pre class="r"><code>top_genes_union &lt;- top_genez %&gt;% unlist %&gt;% unique
+healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, top_genes_union, 10^(-8))
+epscellprobs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, top_genes_union, 10^(-8))
+all_singlecell_dists &lt;- Map(CalculateAllJSD, healthcellprobs, epscellprobs)
+all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=jsd)
+ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-15-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>Now Aggregation of cells, same number of cells, 2000 od genes</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+od_genes_list &lt;- rep(list(od_genes), 20)
+
+IndividualCellProbsAgg &lt;- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes.list, pseudo.count=0){
+  sub.split &lt;- split(annotation, annotation[, sub.col], drop=T)
+  cell.distributions &lt;- mapply(SelectCellProbsAggregated, sub.split, genes.list, MoreArgs=list(rbound.panel, cellid.col, nr.cell, pseudo.count), SIMPLIFY=F)
+  return(cell.distributions)
+}
+sub_probs_agg &lt;- state_split %&gt;% lapply(IndividualCellProbsAgg, rbound_panel, 4, 2, 200, od_genes_list, 10^(-8))
+jsd_agg &lt;- Map(JensenShannon, sub_probs_agg$healthy, sub_probs_agg$epilepsy) %&gt;% as_tibble
+jsd_agg_gathered &lt;- gather(jsd_agg, key=subtype, value=js_distance_cell_agg)
+ggplot(jsd_agg_gathered, aes(y=js_distance_cell_agg, x=subtype)) +geom_bar(stat=&#39;identity&#39;, col=&#39;hotpink&#39;) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Now Aggregation of cells, each with their own top x</p>
+<pre class="r"><code>IndividualCellProbsAgg &lt;- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes.list, pseudo.count=0){
+  sub.split &lt;- split(annotation, annotation[, sub.col], drop=T)
+  cell.distributions &lt;- mapply(SelectCellProbsAggregated, sub.split, genes.list, MoreArgs=list(rbound.panel, cellid.col, nr.cell, pseudo.count), SIMPLIFY=F)
+  return(cell.distributions)
+}
+sub_probs_agg &lt;- state_split %&gt;% lapply(IndividualCellProbsAgg, rbound_panel, 4, 2, 100, top_genez, 10^(-8))
+jsd_agg &lt;- Map(JensenShannon, sub_probs_agg$healthy, sub_probs_agg$epilepsy) %&gt;% as_tibble
+jsd_agg_gathered &lt;- gather(jsd_agg, key=subtype, value=js_distance_cell_agg)
+ggplot(jsd_agg_gathered, aes(y=js_distance_cell_agg, x=subtype)) +geom_bar(stat=&#39;identity&#39;) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>30 cells, 1000 od genes</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 30, od_genes, 10^(-8))
+epscellprobs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 30, od_genes, 10^(-8))
+all_singlecell_dists &lt;- Map(CalculateAllJSD, healthcellprobs, epscellprobs)
+all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=jsd)
+ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_boxplot(alpha=0.5)+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-18-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>previous cell but more iterations</p>
+<pre class="r"><code>iterate_sc_js &lt;- function(avg=FALSE){
+  healthcellprobs &lt;- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 30, od_genes, 10^(-8))
+  epscellprobs &lt;- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 30, od_genes, 10^(-8))
+  all_singlecell_dists &lt;- Map(CalculateAllJSD, healthcellprobs, epscellprobs)
+   if (avg) {
+    all_singlecell_dists &lt;- all_singlecell_dists %&gt;% lapply(mean)
+  }
+  all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+  list(all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=jsd))
+}
+js_its &lt;- replicate(5, iterate_sc_js())
+js_its_df &lt;- do.call(rbind, js_its)
+ggplot(js_its_df, aes(y=jsd, x=subtype)) + geom_boxplot(alpha=0.5)+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>try averaging the jsd for each iteration</p>
+<pre class="r"><code>js_its_agg &lt;- replicate(5, iterate_sc_js(avg=T))
+js_its_agg_df &lt;- do.call(rbind, js_its_agg)
+ggplot(js_its_agg_df, aes(y=jsd, x=subtype)) + geom_boxplot(alpha=0.5)+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>aggregate and do some iterations</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+od_genes_list &lt;- rep(list(od_genes), 20)
+
+domultcellaggs &lt;- function() {
+  sub_probs_agg &lt;- state_split %&gt;% lapply(IndividualCellProbsAgg, rbound_panel, 4, 2, 30, od_genes_list, 10^(-8))
+  jsd_agg &lt;- Map(JensenShannon, sub_probs_agg$healthy, sub_probs_agg$epilepsy) %&gt;% as_tibble
+  jsd_agg_gathered &lt;- gather(jsd_agg, key=subtype, value=js_distance_cell_agg)
+  return(list(jsd_agg_gathered))
+}
+aggs_jsd &lt;- replicate(10, domultcellaggs())
+aggs_jsd_df &lt;- do.call(rbind, aggs_jsd)
+ggplot(aggs_jsd_df, aes(y=js_distance_cell_agg, x=subtype)) +geom_boxplot()+#geom_jitter()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/jensen_shannon_stuff.Rmd/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>condition_tables</code></pre>
+<pre><code>$epilepsy
+
+     Id2_Nos1      Id2_Reln     L2/3_Cux2      L2_Lamp5     L3_Prss12 
+          497           947          1158          2224           284 
+      L4_Rorb     L5_Grin3a      L5_Htr2c      L6_Nr4a2       L6_Syn3 
+         3271          2431           518           508           714 
+      L6_Tle4     Pvalb_Crh    Pvalb_Nos1   Pvalb_Sulf1      Reln_Crh 
+          831           237           312          1444           442 
+    Sst_Calb1 Sst_Tac3_Lhx6       Vip_Crh     Vip_Nr2f2    Vip_Sema3c 
+         1354          1802          1811           914          1111 
+
+$healthy
+
+     Id2_Nos1      Id2_Reln     L2/3_Cux2      L2_Lamp5     L3_Prss12 
+          175           444           826          3067           136 
+      L4_Rorb     L5_Grin3a      L5_Htr2c      L6_Nr4a2       L6_Syn3 
+          915           463           109           120           219 
+      L6_Tle4     Pvalb_Crh    Pvalb_Nos1   Pvalb_Sulf1      Reln_Crh 
+          163            93            31           909           183 
+    Sst_Calb1 Sst_Tac3_Lhx6       Vip_Crh     Vip_Nr2f2    Vip_Sema3c 
+          654           642          1080           538           621 </code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.3 (2019-03-11)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.2 LTS
+
+Matrix products: default
+BLAS: /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3
+LAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3.10.3
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] cowplot_0.9.4     ggplot2_3.1.1     tidyr_0.8.3      
+ [4] stringr_1.4.0     dplyr_0.8.0.1     pagoda2_0.1.0    
+ [7] SecretUtils_0.1.0 reshape2_1.4.3    magrittr_1.5     
+[10] pheatmap_1.0.12   conos_1.0.0       igraph_1.2.4     
+[13] Matrix_1.2-17    
+
+loaded via a namespace (and not attached):
+ [1] fs_1.2.7            usethis_1.5.0       devtools_2.0.2     
+ [4] RColorBrewer_1.1-2  rprojroot_1.3-2     prabclus_2.2-7     
+ [7] tools_3.5.3         backports_1.1.4     irlba_2.3.3        
+[10] R6_2.4.0            lazyeval_0.2.2      colorspace_1.4-1   
+[13] trimcluster_0.1-2.1 nnet_7.3-12         withr_2.1.2        
+[16] tidyselect_0.2.5    gridExtra_2.3       prettyunits_1.0.2  
+[19] processx_3.3.0      compiler_3.5.3      git2r_0.25.2       
+[22] cli_1.1.0           desc_1.2.0          labeling_0.3       
+[25] triebeard_0.3.0     diptest_0.75-7      scales_1.0.0       
+[28] DEoptimR_1.0-8      mvtnorm_1.0-10      robustbase_0.93-4  
+[31] callr_3.2.0         digest_0.6.18       rmarkdown_1.12     
+[34] base64enc_0.1-3     pkgconfig_2.0.2     htmltools_0.3.6    
+[37] sessioninfo_1.1.1   rlang_0.3.4         rstudioapi_0.10    
+[40] shiny_1.3.1         mclust_5.4.3        dendextend_1.10.0  
+[43] modeltools_0.2-22   Rcpp_1.0.1          munsell_0.5.0      
+[46] abind_1.4-5         viridis_0.5.1       stringi_1.4.3      
+[49] whisker_0.3-2       yaml_2.2.0          MASS_7.3-51.3      
+[52] flexmix_2.3-15      pkgbuild_1.0.3      Rtsne_0.14         
+[55] plyr_1.8.4          grid_3.5.3          parallel_3.5.3     
+[58] promises_1.0.1      crayon_1.3.4        lattice_0.20-38    
+[61] knitr_1.22          ps_1.3.0            pillar_1.3.1       
+[64] rjson_0.2.20        fpc_2.1-11.1        stats4_3.5.3       
+[67] pkgload_1.0.2       glue_1.3.1          evaluate_0.13      
+[70] data.table_1.12.2   remotes_2.0.4       urltools_1.7.3     
+[73] httpuv_1.5.1        testthat_2.0.1      gtable_0.3.0       
+[76] purrr_0.3.2         kernlab_0.9-27      assertthat_0.2.1   
+[79] xfun_0.6            mime_0.6            xtable_1.8-4       
+[82] later_0.8.0         class_7.3-15        viridisLite_0.3.0  
+[85] tibble_2.1.1        memoise_1.1.0       workflowr_1.3.0    
+[88] cluster_2.0.8       Rook_1.1-1          brew_1.0-6         </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

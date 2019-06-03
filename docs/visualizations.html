@@ -11,9 +11,9 @@
 
 <meta name="author" content="githubz0r" />
 
-<meta name="date" content="2019-05-23" />
+<meta name="date" content="2019-05-17" />
 
-<title>paga</title>
+<title>jensen_shannon_stuff</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -420,9 +420,9 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">paga</h1>
+<h1 class="title toc-ignore">jensen_shannon_stuff</h1>
 <h4 class="author">githubz0r</h4>
-<h4 class="date">2019-05-23</h4>
+<h4 class="date">2019-05-17</h4>
 
 </div>
 
@@ -555,7 +555,6 @@ Untracked files:
     Untracked:  docs/figure/jensen_shannon_stuff.Rmd/
     Untracked:  docs/figure/misc_metrics.Rmd/
     Untracked:  docs/figure/paga.Rmd/
-    Untracked:  docs/figure/visualizations.Rmd/
     Untracked:  man/
 
 Unstaged changes:
@@ -608,7 +607,7 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/da8aac70e66e7119698b78f89c14016f3695730b/analysis/paga2.Rmd" target="_blank">da8aac7</a>
+<a href="https://github.com/githubz0r/SecretUtils/blob/da8aac70e66e7119698b78f89c14016f3695730b/analysis/visualizations.Rmd" target="_blank">da8aac7</a>
 </td>
 <td>
 githubz0r
@@ -618,23 +617,6 @@ githubz0r
 </td>
 <td>
 wflow_publish(c(“analysis/jensen_shannon_stuff.Rmd”, “analysis/visualizations.Rmd”, “analysis/correlation_stuff.Rmd”,
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/6acc67713fdc12eb60aa659b82dfe1f860232dfc/docs/paga2.html" target="_blank">6acc677</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-05-29
-</td>
-<td>
-Build site.
 </td>
 </tr>
 </tbody>
@@ -658,11 +640,10 @@ Attaching package: &#39;igraph&#39;</code></pre>
 
     union</code></pre>
 <pre class="r"><code>library(pheatmap)
-devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)</code></pre>
-<pre><code>Loading SecretUtils</code></pre>
-<pre><code>Loading required package: magrittr</code></pre>
-<pre><code>Loading required package: reshape2</code></pre>
-<pre class="r"><code>require(pagoda2)</code></pre>
+#library(fuck)
+source(&#39;/home/larsc/SecretUtils/R/asdf.R&#39;)
+source(&#39;/home/larsc/SecretUtils/R/peter_code_utils.R&#39;)
+require(pagoda2)</code></pre>
 <pre><code>Loading required package: pagoda2</code></pre>
 <pre class="r"><code>library(dplyr)</code></pre>
 <pre><code>
@@ -680,12 +661,6 @@ Attaching package: &#39;dplyr&#39;</code></pre>
 library(tidyr)</code></pre>
 <pre><code>
 Attaching package: &#39;tidyr&#39;</code></pre>
-<pre><code>The following object is masked from &#39;package:reshape2&#39;:
-
-    smiths</code></pre>
-<pre><code>The following object is masked from &#39;package:magrittr&#39;:
-
-    extract</code></pre>
 <pre><code>The following object is masked from &#39;package:igraph&#39;:
 
     crossing</code></pre>
@@ -699,184 +674,283 @@ Attaching package: &#39;cowplot&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:ggplot2&#39;:
 
     ggsave</code></pre>
-<pre class="r"><code>library(igraph)
-con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
+<pre class="r"><code>library(irlba)
+con_object &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
 annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))</code></pre>
-<pre class="r"><code>annot &lt;- annot %&gt;% mutate(cellid = rownames(annot)) # turn rownames into a col for convenience
+<p>rowbind the adjusted expression values</p>
+<pre class="r"><code>if (is.null(annot$cellid)) {
+  annot$cellid &lt;- annot %&gt;% rownames
+}
 annot &lt;- annot %&gt;% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep=&#39;_&#39;))
-annot &lt;- annot %&gt;% mutate(subtype_sample = paste(annot$subtype, annot$sample, sep=&#39;-&#39;))
-conos_distances &lt;- Matrix::readMM(&#39;/home/larsc/data/scan_stuff/graph_distances.mtx&#39;)</code></pre>
-<pre class="r"><code>mem_levels &lt;- factor(annot$subtype_sample) %&gt;% levels
-subtype_order &lt;- gsub(&quot;.*-&quot;,&quot;&quot;, mem_levels) %&gt;% unique
-subtype_order2 &lt;- (paste0(annot$subtype) %&gt;% unique)[order(paste0(annot$subtype) %&gt;% unique)]
-membership_vec &lt;- as.numeric(factor(annot$subtype_condition))
-membership_levels &lt;- factor(annot$subtype_sample) %&gt;% levels
-membership_vec_subsamp &lt;- as.numeric(factor(annot$subtype_sample))</code></pre>
-<p>Paga statistics, subtype-condition</p>
-<pre class="r"><code>#source(&quot;/d0/home/larsc/SecretUtils/R/graph_stuff.R&quot;)
+rbound_panel &lt;- RbindPanel(con_object)</code></pre>
+<p>Are the cell names in the same order?</p>
+<pre class="r"><code>identical(rownames(rbound_panel), annot$cellid) # thank god, maybe add a sort for the future in Panelize</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<p>condition subtype table</p>
+<pre class="r"><code>state_split &lt;- split(annot, annot$condition, drop=TRUE)
+condition_tables &lt;- state_split %&gt;% lapply(function(x){table(x$subtype)})
+condition_tables</code></pre>
+<pre><code>$epilepsy
 
-connectivities &lt;- GetPagaMatrix(conos_distances, membership_vec, scale=F)
+     Id2_Nos1      Id2_Reln     L2/3_Cux2      L2_Lamp5     L3_Prss12 
+          497           947          1158          2224           284 
+      L4_Rorb     L5_Grin3a      L5_Htr2c      L6_Nr4a2       L6_Syn3 
+         3271          2431           518           508           714 
+      L6_Tle4     Pvalb_Crh    Pvalb_Nos1   Pvalb_Sulf1      Reln_Crh 
+          831           237           312          1444           442 
+    Sst_Calb1 Sst_Tac3_Lhx6       Vip_Crh     Vip_Nr2f2    Vip_Sema3c 
+         1354          1802          1811           914          1111 
 
-linearized_stats &lt;- seq(1, dim(connectivities)[1], 2) %&gt;% sapply(function(i){connectivities[i,i+1]})
+$healthy
 
-paga_df &lt;- bind_cols(value=linearized_stats, subtype=subtype_order2)
-ggplot(paga_df, aes(y=-linearized_stats, x=subtype)) +geom_point()+
-  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
-<p><img src="figure/paga2.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
-Past versions of unnamed-chunk-4-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-4-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/6acc67713fdc12eb60aa659b82dfe1f860232dfc/docs/figure/paga2.Rmd/unnamed-chunk-4-1.png" target="_blank">6acc677</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-05-29
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Let’s incorporate the samples</p>
-<pre class="r"><code>connectivities &lt;- GetPagaMatrix(conos_distances, membership_vec_subsamp, scale=F)
-
-GenerateFactorVectors &lt;- function(subtype.vector, sample.vector, condition.vector) {
-  conc &lt;- paste0(subtype.vector, &quot;-;;-&quot;, sample.vector, &quot;;__;&quot; , condition.vector) %&gt;% as.factor %&gt;% levels
-  subtypes &lt;- gsub(&quot;-;;-.*&quot;, &quot;&quot;, conc)
-  samples &lt;- gsub(&quot;.*-;;-&quot;, &quot;&quot;, conc)
-  samples &lt;- gsub(&#39;;__;.*&#39;, &quot;&quot;, samples)
-  condition &lt;- gsub(&#39;.*;__;&#39;, &quot;&quot;, conc)
-  return(bind_cols(subtypes=subtypes, samples=samples, condition=condition, concatenated=conc))
+     Id2_Nos1      Id2_Reln     L2/3_Cux2      L2_Lamp5     L3_Prss12 
+          175           444           826          3067           136 
+      L4_Rorb     L5_Grin3a      L5_Htr2c      L6_Nr4a2       L6_Syn3 
+          915           463           109           120           219 
+      L6_Tle4     Pvalb_Crh    Pvalb_Nos1   Pvalb_Sulf1      Reln_Crh 
+          163            93            31           909           183 
+    Sst_Calb1 Sst_Tac3_Lhx6       Vip_Crh     Vip_Nr2f2    Vip_Sema3c 
+          654           642          1080           538           621 </code></pre>
+<p>plot joint graph colored by sample</p>
+<pre class="r"><code>con_object$plotGraph(color.by=&#39;sample&#39;,mark.groups=F,alpha=0.1,show.legend=T)</code></pre>
+<pre><code>Estimating embeddings.</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>subtypes</p>
+<pre class="r"><code>annot &lt;- annot %&gt;% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep=&#39;_&#39;))
+subannot=setNames(annot$subtype, annot$cellid)
+con_object$plotGraph(groups=subannot, font.size=3, shuffle.colors=T, show.legend=F)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>condition</p>
+<pre class="r"><code>disannot&lt;-setNames(annot$condition, annot$cellid)
+con_object$plotGraph(groups=disannot)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>subtype-condition</p>
+<pre class="r"><code>annot &lt;- annot %&gt;% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep=&#39;_&#39;))
+cellannot=setNames(annot$subtype_condition, annot$cellid)
+con_object$plotGraph(groups=cellannot, font.size=3, shuffle.colors=T, show.legend=F)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Individual subtype joint graph plot</p>
+<pre class="r"><code>plotOneSubtype &lt;- function(con.object, annotation, subtype, font.size=2, alpha=0.3, size=0.4){
+  split.annot&lt;-split(annotation, annotation$subtype)
+  sub.annot &lt;- split.annot[[subtype]]
+  sub.annot &lt;- sub.annot %&gt;% mutate(sub.cond = paste(sub.annot$subtype, sub.annot$condition, sep=&#39;_&#39;))
+  sub.groups &lt;- setNames(sub.annot$sub.cond, sub.annot$cellid)
+  con.object$plotGraph(groups=sub.groups, font.size=font.size, alpha=alpha, size=size, mark.groups=T, plot.na=F)
 }
-factor_vectors &lt;- GenerateFactorVectors(annot$subtype, annot$sample, annot$condition)
-sub_cond_indices &lt;- as.factor(factor_vectors$concatenated) %&gt;% as.numeric %&gt;% 
-  split(list(factor_vectors$subtypes, factor_vectors$condition))
-sub_cond_indices &lt;- sub_cond_indices[order(sub_cond_indices %&gt;% names)]
+#plotOneSubtype(con_object, annot, &#39;L2_Lamp5&#39;) # really should use repel, but I can&#39;t make it work
+all_types &lt;- annot$subtype %&gt;% unique
+all_types_plots &lt;- all_types %&gt;% lapply(function(x, con.obj, annotation){
+  plotOneSubtype(con.obj, annotation, x, font.size=3, alpha=0.5, size=1.5)}, con_object, annot)</code></pre>
+<pre><code>Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-sub_samp_factor &lt;- as.factor(factor_vectors$samples) %&gt;% 
-  split(list(factor_vectors$subtypes, factor_vectors$condition))
-sub_samp_factor &lt;- sub_samp_factor[order(sub_samp_factor %&gt;% names)]
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-sub_cond_factor &lt;- as.factor(factor_vectors$condition) %&gt;% 
-  split(list(factor_vectors$subtypes, factor_vectors$condition))
-sub_cond_factor &lt;- sub_cond_factor[order(sub_cond_factor %&gt;% names)]
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-GetSubConnectivity &lt;- function(indices1, indices2, connectivity.matrix){
-  return(connectivity.matrix[indices1, indices2])
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`</code></pre>
+<pre class="r"><code>plot_grid(plotlist=all_types_plots[1:4], nrow=2)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot_grid(plotlist=all_types_plots[5:8], nrow=2)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot_grid(plotlist=all_types_plots[9:12], nrow=2)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-9-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot_grid(plotlist=all_types_plots[13:16], nrow=2)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-9-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot_grid(plotlist=all_types_plots[17:20], nrow=2)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-9-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plotOneSubtype(con_object, annot, &#39;L4_Rorb&#39;, font.size=3, alpha=0.5, size=1.5)</code></pre>
+<pre><code>Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>fractional plot</p>
+<pre class="r"><code>FractionalPlot(annot$sample, annot$subtype, annot$condition)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>More details on individual samples</p>
+<pre class="r"><code>frac_df &lt;- FractionalPlot(annot$sample, annot$subtype, annot$condition, return.plot=F)
+ggplot(na.omit(frac_df),aes(x=subtype,y=freq))+geom_bar(stat=&#39;identity&#39;)+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab(&quot;&quot;) +ylab(&quot;fraction of total cells&quot;)+facet_wrap(~patient, nrow=4)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(na.omit(frac_df),aes(x=subtype,y=freq, col=patient, shape=condition))+geom_point()+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab(&quot;&quot;) +ylab(&quot;fraction of total cells&quot;)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>PCA</p>
+<pre class="r"><code>od_genes = conos:::getOdGenesUniformly(con_object$samples, 4000)
+pca_cm &lt;- prcomp_irlba(rbound_panel[, od_genes],n=100)
+pca_cmat &lt;- pca_cm$x
+rownames(pca_cmat) &lt;- rownames(rbound_panel)</code></pre>
+<p>plot PCA eigenspectrum</p>
+<pre class="r"><code>pca_sum &lt;- summary(pca_cm)
+bind_cols(percent_var=pca_sum$importance[2,], number=c(1:100)) %&gt;% ggplot(aes(y=percent_var, x=number))+geom_point()</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>PCA annotated by samples</p>
+<pre class="r"><code>sampannot &lt;- setNames(annot$sample, annot$cellid)
+pca_cmat[,1:2] %&gt;% as_tibble %&gt;%  mutate(samples=annot$sample) %&gt;% 
+  ggplot(aes(x=PC1, y=PC2))+geom_point(aes(col=samples), alpha=0.3, size=0.2)+guides(colour = guide_legend(override.aes = list(size=2, alpha=1)))</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Tsne, rbound pagoda looks like sample 4 has a lot of Lamp5 cells</p>
+<pre class="r"><code>require(Rtsne)</code></pre>
+<pre><code>Loading required package: Rtsne</code></pre>
+<pre class="r"><code>pagoda_tsne &lt;- pca_cmat[,0:25] %&gt;% as.matrix %&gt;% Rtsne(pca=F)</code></pre>
+<pre><code> - point 10000 of 34198
+ - point 20000 of 34198
+ - point 30000 of 34198</code></pre>
+<pre class="r"><code>tsne_vals &lt;- pagoda_tsne$Y; colnames(tsne_vals)=c(&#39;var1&#39;, &#39;var2&#39;)
+tsne_annot &lt;- bind_cols(tsne_vals %&gt;% as.data.frame, annot)
+tsne_annot %&gt;% ggplot(aes(x=var1, y=var2))+geom_point(aes(col=sample), alpha=0.7, size=0.2) + 
+  guides(colour = guide_legend(override.aes = list(size=2)))</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Tsne whole pagoda</p>
+<pre class="r"><code>devtools::load_all(&#39;/home/viktor_petukhov/Copenhagen/NeuronalMaturation&#39;)</code></pre>
+<pre><code>Loading NeuronalMaturation</code></pre>
+<pre class="r"><code>cm_merged_raw &lt;- lapply(con_object$samples, function(p2) t(p2$misc$rawCounts)) %&gt;%
+  NeuronalMaturation::MergeCountMatrices()
+
+p2 &lt;- NeuronalMaturation::GetPagoda(cm_merged_raw)</code></pre>
+<pre><code>34198 cells, 33694 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 1030 overdispersed genes ... 1030 persisting ... done.
+running PCA using 1000 OD genes .... done
+calculating distance ... pearson ...running tSNE using 30 cores:
+ - point 10000 of 34198
+ - point 20000 of 34198
+ - point 30000 of 34198</code></pre>
+<p>pagoda PCA</p>
+<pre class="r"><code>pca_whole &lt;- bind_cols(pca1=p2$reductions$PCA[,1], pca2=p2$reductions$PCA[,2], sample=annot$sample, 
+                       subtype=annot$subtype, condition=annot$condition)
+
+pca_whole %&gt;% ggplot(aes(x=pca1, y=pca2))+geom_point(aes(col=sample), alpha=0.3, size=0.2)+guides(colour = guide_legend(override.aes = list(size=2, alpha=1)))</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>conos:::plotSamples(list(p2), groups=sampannot, shuffle.colors=T, font.size=c(2,5),
+                    show.legend=T, size=0.4)</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>MergedOneSubtype &lt;- function(annotation, subtype, font.size=2, alpha=0.3, size=0.4){
+  split.annot&lt;-split(annotation, annotation$subtype)
+  sub.annot &lt;- split.annot[[subtype]]
+  sub.annot &lt;- sub.annot %&gt;% mutate(sub.cond = paste(sub.annot$subtype, sub.annot$sample, sep=&#39;_&#39;))
+  sub.groups &lt;- setNames(sub.annot$sub.cond, sub.annot$cellid)
+  conos:::plotSamples(list(p2), groups=sub.groups, shuffle.colors=T, font.size=c(2),
+                    show.legend=T, size=0.4, plot.na=F)
 }
+#plotOneSubtype(con_object, annot, &#39;L2_Lamp5&#39;) # really should use repel, but I can&#39;t make it work
+all_types &lt;- annot$subtype %&gt;% unique
+all_types_plots &lt;- all_types %&gt;% lapply(function(x, annotation){MergedOneSubtype(annotation, x)}, annot)</code></pre>
+<pre><code>Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-factor1_mats &lt;- seq(1, length(sub_cond_indices), 2) %&gt;% 
-  lapply(function(i){sub.mat &lt;- GetSubConnectivity(sub_cond_indices[[i]], sub_cond_indices[[i]], connectivities);
-    rownames(sub.mat) &lt;- sub_samp_factor[[i]]; colnames(sub.mat) &lt;- sub_samp_factor[[i]]; return(sub.mat)})
-names(factor1_mats) &lt;- factor_vectors$subtypes %&gt;% as.factor %&gt;% levels
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-factor2_mats &lt;- seq(2, length(sub_cond_indices), 2) %&gt;% 
-  lapply(function(i){sub.mat &lt;- GetSubConnectivity(sub_cond_indices[[i]], sub_cond_indices[[i]], connectivities);
-    rownames(sub.mat) &lt;- sub_samp_factor[[i]]; colnames(sub.mat) &lt;- sub_samp_factor[[i]]; return(sub.mat)})
-names(factor2_mats) &lt;- factor_vectors$subtypes %&gt;% as.factor %&gt;% levels
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-between_mats &lt;- seq(1, length(sub_cond_indices), 2) %&gt;% 
-  lapply(function(i){sub.mat &lt;- GetSubConnectivity(sub_cond_indices[[i]], sub_cond_indices[[i+1]], connectivities);
-    rownames(sub.mat) &lt;- sub_samp_factor[[i]]; colnames(sub.mat) &lt;- sub_samp_factor[[i+1]]; return(sub.mat)})
-names(between_mats) &lt;- factor_vectors$subtypes %&gt;% as.factor %&gt;% levels
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-factor1_identity &lt;- sub_cond_factor[[1]] %&gt;% unique %&gt;% as.character
-factor2_identity &lt;- sub_cond_factor[[2]] %&gt;% unique %&gt;% as.character
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-MeltMatrix &lt;- function(x, symmetric){
-  if (symmetric) {
-    x[lower.tri(x)] &lt;- NA; diag(x) &lt;- NA
-    df &lt;- na.omit(reshape2::melt(as.matrix(x)))
-  } else {
-    df &lt;- reshape2::melt(as.matrix(x))
-  }
-  df &lt;- bind_cols(value=df$value, comparison=paste0(df$Var1, &#39;-&#39;, df$Var2))
-  return(df)
-}
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-MeltAndAppend &lt;- function(mat.list, factor.identity, symmetric=TRUE) {
-  molten.mats &lt;- mat.list %&gt;% lapply(MeltMatrix, symmetric)
-  AppendCols &lt;- function(df, subtype.name, factor.identity){
-    df$subtype = subtype.name
-    df$condition = factor.identity
-    return(df)
-  }
-  extended.dfs &lt;- Map(AppendCols, molten.mats, names(mat.list), MoreArgs=list(factor.identity))
-  return(extended.dfs)
-}
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-epilepsy_dfs &lt;- MeltAndAppend(factor1_mats, factor1_identity)
-healthy_dfs &lt;- MeltAndAppend(factor2_mats, factor2_identity)
-between_dfs &lt;- MeltAndAppend(between_mats, &#39;between&#39;, symmetric = FALSE)
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
 
-(connectivities[1:4, 5:7] %&gt;%  as.matrix %&gt;% melt)$value %in% between_dfs[[1]]$value # seems to be true</code></pre>
-<pre><code> [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE</code></pre>
-<pre class="r"><code>plot_df &lt;- bind_rows(epilepsy_dfs, healthy_dfs, between_dfs)
-plot_df %&gt;% ggplot(aes(x=subtype, y=-value ,dodge=condition,fill=condition))+
-    geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
-                           axis.text.y = element_text(angle = 90, hjust = 0.5))+
-  theme(legend.position=&quot;top&quot;)#+ylim(-50,0)</code></pre>
-<p><img src="figure/paga2.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
-Past versions of unnamed-chunk-5-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-5-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/6acc67713fdc12eb60aa659b82dfe1f860232dfc/docs/figure/paga2.Rmd/unnamed-chunk-5-1.png" target="_blank">6acc677</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-05-29
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`
+
+Warning: Factor `Group` contains implicit NA, consider using
+`forcats::fct_explicit_na`</code></pre>
+<pre class="r"><code>#names(all_types_plots) &lt;- all_types
+all_types_plots[10]</code></pre>
+<pre><code>[[1]]</code></pre>
+<p><img src="figure/visualizations.Rmd/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#plot_grid(all_types_plots)</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -905,43 +979,46 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] cowplot_0.9.4     ggplot2_3.1.1     tidyr_0.8.3      
- [4] stringr_1.4.0     dplyr_0.8.0.1     pagoda2_0.1.0    
- [7] SecretUtils_0.1.0 reshape2_1.4.3    magrittr_1.5     
-[10] pheatmap_1.0.12   conos_1.0.0       igraph_1.2.4     
-[13] Matrix_1.2-17    
+ [1] NeuronalMaturation_0.1.0 Rtsne_0.14              
+ [3] irlba_2.3.3              cowplot_0.9.4           
+ [5] ggplot2_3.1.1            tidyr_0.8.3             
+ [7] stringr_1.4.0            dplyr_0.8.0.1           
+ [9] pagoda2_0.1.0            pheatmap_1.0.12         
+[11] conos_1.0.0              igraph_1.2.4            
+[13] Matrix_1.2-17           
 
 loaded via a namespace (and not attached):
- [1] fs_1.2.7            usethis_1.5.0       devtools_2.0.2     
- [4] RColorBrewer_1.1-2  rprojroot_1.3-2     prabclus_2.2-7     
- [7] tools_3.5.3         backports_1.1.4     irlba_2.3.3        
-[10] R6_2.4.0            lazyeval_0.2.2      colorspace_1.4-1   
-[13] trimcluster_0.1-2.1 nnet_7.3-12         withr_2.1.2        
-[16] tidyselect_0.2.5    gridExtra_2.3       prettyunits_1.0.2  
-[19] processx_3.3.0      compiler_3.5.3      git2r_0.25.2       
-[22] cli_1.1.0           desc_1.2.0          labeling_0.3       
-[25] triebeard_0.3.0     diptest_0.75-7      scales_1.0.0       
-[28] DEoptimR_1.0-8      mvtnorm_1.0-10      robustbase_0.93-4  
-[31] callr_3.2.0         digest_0.6.18       rmarkdown_1.12     
-[34] base64enc_0.1-3     pkgconfig_2.0.2     htmltools_0.3.6    
-[37] sessioninfo_1.1.1   rlang_0.3.4         rstudioapi_0.10    
-[40] shiny_1.3.1         mclust_5.4.3        dendextend_1.10.0  
-[43] modeltools_0.2-22   Rcpp_1.0.1          munsell_0.5.0      
-[46] abind_1.4-5         viridis_0.5.1       stringi_1.4.3      
-[49] whisker_0.3-2       yaml_2.2.0          MASS_7.3-51.3      
-[52] flexmix_2.3-15      pkgbuild_1.0.3      Rtsne_0.14         
+ [1] nlme_3.1-139        fs_1.2.7            usethis_1.5.0      
+ [4] devtools_2.0.2      RColorBrewer_1.1-2  rprojroot_1.3-2    
+ [7] prabclus_2.2-7      tools_3.5.3         backports_1.1.4    
+[10] R6_2.4.0            mgcv_1.8-28         lazyeval_0.2.2     
+[13] colorspace_1.4-1    trimcluster_0.1-2.1 nnet_7.3-12        
+[16] withr_2.1.2         tidyselect_0.2.5    gridExtra_2.3      
+[19] prettyunits_1.0.2   processx_3.3.0      compiler_3.5.3     
+[22] git2r_0.25.2        cli_1.1.0           desc_1.2.0         
+[25] labeling_0.3        triebeard_0.3.0     diptest_0.75-7     
+[28] scales_1.0.0        DEoptimR_1.0-8      mvtnorm_1.0-10     
+[31] robustbase_0.93-4   callr_3.2.0         digest_0.6.18      
+[34] rmarkdown_1.12      base64enc_0.1-3     pkgconfig_2.0.2    
+[37] htmltools_0.3.6     sessioninfo_1.1.1   rlang_0.3.4        
+[40] rstudioapi_0.10     shiny_1.3.1         mclust_5.4.3       
+[43] dendextend_1.10.0   magrittr_1.5        modeltools_0.2-22  
+[46] Rcpp_1.0.1          munsell_0.5.0       viridis_0.5.1      
+[49] stringi_1.4.3       whisker_0.3-2       yaml_2.2.0         
+[52] MASS_7.3-51.3       flexmix_2.3-15      pkgbuild_1.0.3     
 [55] plyr_1.8.4          grid_3.5.3          parallel_3.5.3     
-[58] promises_1.0.1      crayon_1.3.4        lattice_0.20-38    
-[61] knitr_1.22          ps_1.3.0            pillar_1.3.1       
-[64] rjson_0.2.20        fpc_2.1-11.1        stats4_3.5.3       
-[67] pkgload_1.0.2       glue_1.3.1          evaluate_0.13      
-[70] data.table_1.12.2   remotes_2.0.4       urltools_1.7.3     
-[73] httpuv_1.5.1        testthat_2.0.1      gtable_0.3.0       
-[76] purrr_0.3.2         kernlab_0.9-27      assertthat_0.2.1   
-[79] xfun_0.6            mime_0.6            xtable_1.8-4       
-[82] later_0.8.0         class_7.3-15        viridisLite_0.3.0  
-[85] tibble_2.1.1        memoise_1.1.0       workflowr_1.3.0    
-[88] cluster_2.0.8       Rook_1.1-1          brew_1.0-6         </code></pre>
+[58] promises_1.0.1      ggrepel_0.8.0       crayon_1.3.4       
+[61] lattice_0.20-38     splines_3.5.3       knitr_1.22         
+[64] ps_1.3.0            pillar_1.3.1        ggpubr_0.2         
+[67] rjson_0.2.20        fpc_2.1-11.1        stats4_3.5.3       
+[70] pkgload_1.0.2       glue_1.3.1          evaluate_0.13      
+[73] remotes_2.0.4       httpuv_1.5.1        urltools_1.7.3     
+[76] testthat_2.0.1      gtable_0.3.0        purrr_0.3.2        
+[79] kernlab_0.9-27      assertthat_0.2.1    xfun_0.6           
+[82] mime_0.6            xtable_1.8-4        later_0.8.0        
+[85] class_7.3-15        viridisLite_0.3.0   tibble_2.1.1       
+[88] memoise_1.1.0       workflowr_1.3.0     cluster_2.0.8      
+[91] Rook_1.1-1          brew_1.0-6         </code></pre>
 </div>
 </div>
 
