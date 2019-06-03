@@ -1,0 +1,193 @@
+---
+title: "jensen_shannon_stuff"
+author: "githubz0r"
+date: "2019-05-17"
+output: workflowr::wflow_html
+---
+
+## Introduction
+
+```{r}
+library(conos)
+library(pheatmap)
+#library(fuck)
+source('/home/larsc/SecretUtils/R/asdf.R')
+source('/home/larsc/SecretUtils/R/peter_code_utils.R')
+require(pagoda2)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+library(cowplot)
+library(irlba)
+con_object <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
+annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
+```
+
+rowbind the adjusted expression values 
+```{r}
+if (is.null(annot$cellid)) {
+  annot$cellid <- annot %>% rownames
+}
+annot <- annot %>% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep='_'))
+rbound_panel <- RbindPanel(con_object)
+```
+
+Are the cell names in the same order?
+```{r}
+identical(rownames(rbound_panel), annot$cellid) # thank god, maybe add a sort for the future in Panelize
+```
+
+condition subtype table
+```{r}
+state_split <- split(annot, annot$condition, drop=TRUE)
+condition_tables <- state_split %>% lapply(function(x){table(x$subtype)})
+condition_tables
+```
+
+plot joint graph colored by sample
+```{r}
+con_object$plotGraph(color.by='sample',mark.groups=F,alpha=0.1,show.legend=T)
+```
+
+subtypes
+```{r}
+annot <- annot %>% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep='_'))
+subannot=setNames(annot$subtype, annot$cellid)
+con_object$plotGraph(groups=subannot, font.size=3, shuffle.colors=T, show.legend=F)
+```
+
+condition
+```{r}
+disannot<-setNames(annot$condition, annot$cellid)
+con_object$plotGraph(groups=disannot)
+```
+
+
+subtype-condition
+```{r}
+annot <- annot %>% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep='_'))
+cellannot=setNames(annot$subtype_condition, annot$cellid)
+con_object$plotGraph(groups=cellannot, font.size=3, shuffle.colors=T, show.legend=F)
+```
+
+Individual subtype joint graph plot
+```{r}
+plotOneSubtype <- function(con.object, annotation, subtype, font.size=2, alpha=0.3, size=0.4){
+  split.annot<-split(annotation, annotation$subtype)
+  sub.annot <- split.annot[[subtype]]
+  sub.annot <- sub.annot %>% mutate(sub.cond = paste(sub.annot$subtype, sub.annot$condition, sep='_'))
+  sub.groups <- setNames(sub.annot$sub.cond, sub.annot$cellid)
+  con.object$plotGraph(groups=sub.groups, font.size=font.size, alpha=alpha, size=size, mark.groups=T, plot.na=F)
+}
+#plotOneSubtype(con_object, annot, 'L2_Lamp5') # really should use repel, but I can't make it work
+all_types <- annot$subtype %>% unique
+all_types_plots <- all_types %>% lapply(function(x, con.obj, annotation){
+  plotOneSubtype(con.obj, annotation, x, font.size=3, alpha=0.5, size=1.5)}, con_object, annot)
+plot_grid(plotlist=all_types_plots[1:4], nrow=2)
+plot_grid(plotlist=all_types_plots[5:8], nrow=2)
+plot_grid(plotlist=all_types_plots[9:12], nrow=2)
+plot_grid(plotlist=all_types_plots[13:16], nrow=2)
+plot_grid(plotlist=all_types_plots[17:20], nrow=2)
+```
+
+
+```{r}
+plotOneSubtype(con_object, annot, 'L4_Rorb', font.size=3, alpha=0.5, size=1.5)
+```
+
+fractional plot
+```{r}
+FractionalPlot(annot$sample, annot$subtype, annot$condition)
+```
+
+More details on individual samples
+```{r, fig.height=12}
+frac_df <- FractionalPlot(annot$sample, annot$subtype, annot$condition, return.plot=F)
+ggplot(na.omit(frac_df),aes(x=subtype,y=freq))+geom_bar(stat='identity')+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab("") +ylab("fraction of total cells")+facet_wrap(~patient, nrow=4)
+```
+
+```{r}
+ggplot(na.omit(frac_df),aes(x=subtype,y=freq, col=patient, shape=condition))+geom_point()+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab("") +ylab("fraction of total cells")
+```
+
+PCA
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 4000)
+pca_cm <- prcomp_irlba(rbound_panel[, od_genes],n=100)
+pca_cmat <- pca_cm$x
+rownames(pca_cmat) <- rownames(rbound_panel)
+```
+plot PCA eigenspectrum
+```{r}
+pca_sum <- summary(pca_cm)
+bind_cols(percent_var=pca_sum$importance[2,], number=c(1:100)) %>% ggplot(aes(y=percent_var, x=number))+geom_point()
+```
+
+PCA annotated by samples
+```{r}
+sampannot <- setNames(annot$sample, annot$cellid)
+pca_cmat[,1:2] %>% as_tibble %>%  mutate(samples=annot$sample) %>% 
+  ggplot(aes(x=PC1, y=PC2))+geom_point(aes(col=samples), alpha=0.3, size=0.2)+guides(colour = guide_legend(override.aes = list(size=2, alpha=1)))
+```
+
+Tsne, rbound pagoda looks like sample 4 has a lot of Lamp5 cells
+```{r}
+require(Rtsne)
+
+pagoda_tsne <- pca_cmat[,0:25] %>% as.matrix %>% Rtsne(pca=F)
+tsne_vals <- pagoda_tsne$Y; colnames(tsne_vals)=c('var1', 'var2')
+tsne_annot <- bind_cols(tsne_vals %>% as.data.frame, annot)
+tsne_annot %>% ggplot(aes(x=var1, y=var2))+geom_point(aes(col=sample), alpha=0.7, size=0.2) + 
+  guides(colour = guide_legend(override.aes = list(size=2)))
+```
+
+
+Tsne whole pagoda
+```{r}
+devtools::load_all('/home/viktor_petukhov/Copenhagen/NeuronalMaturation')
+cm_merged_raw <- lapply(con_object$samples, function(p2) t(p2$misc$rawCounts)) %>%
+  NeuronalMaturation::MergeCountMatrices()
+
+p2 <- NeuronalMaturation::GetPagoda(cm_merged_raw)
+
+```
+
+pagoda PCA
+```{r}
+pca_whole <- bind_cols(pca1=p2$reductions$PCA[,1], pca2=p2$reductions$PCA[,2], sample=annot$sample, 
+                       subtype=annot$subtype, condition=annot$condition)
+
+pca_whole %>% ggplot(aes(x=pca1, y=pca2))+geom_point(aes(col=sample), alpha=0.3, size=0.2)+guides(colour = guide_legend(override.aes = list(size=2, alpha=1)))
+```
+
+```{r}
+conos:::plotSamples(list(p2), groups=sampannot, shuffle.colors=T, font.size=c(2,5),
+                    show.legend=T, size=0.4)
+```
+
+```{r}
+MergedOneSubtype <- function(annotation, subtype, font.size=2, alpha=0.3, size=0.4){
+  split.annot<-split(annotation, annotation$subtype)
+  sub.annot <- split.annot[[subtype]]
+  sub.annot <- sub.annot %>% mutate(sub.cond = paste(sub.annot$subtype, sub.annot$sample, sep='_'))
+  sub.groups <- setNames(sub.annot$sub.cond, sub.annot$cellid)
+  conos:::plotSamples(list(p2), groups=sub.groups, shuffle.colors=T, font.size=c(2),
+                    show.legend=T, size=0.4, plot.na=F)
+}
+#plotOneSubtype(con_object, annot, 'L2_Lamp5') # really should use repel, but I can't make it work
+all_types <- annot$subtype %>% unique
+all_types_plots <- all_types %>% lapply(function(x, annotation){MergedOneSubtype(annotation, x)}, annot)
+#names(all_types_plots) <- all_types
+all_types_plots[10]
+```
+
+
+```{r}
+#plot_grid(all_types_plots)
+```
+

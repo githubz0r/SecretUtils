@@ -10,7 +10,6 @@ output: workflowr::wflow_html
 ```{r}
 library(conos)
 library(pheatmap)
-#library(fuck)
 devtools::load_all('/home/larsc/SecretUtils')
 require(pagoda2)
 library(dplyr)
@@ -24,7 +23,7 @@ annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_3
 ```
 
 ```{r}
-annot <- annot %>% mutate(cellids = rownames(annot)) # turn rownames into a col for convenience
+annot <- annot %>% mutate(cellid = rownames(annot)) # turn rownames into a col for convenience
 annot <- annot %>% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep='_'))
 annot <- annot %>% mutate(subtype_sample = paste(annot$subtype, annot$sample, sep='-'))
 conos_distances <- Matrix::readMM('/home/larsc/data/scan_stuff/graph_distances.mtx')
@@ -35,6 +34,7 @@ mem_levels <- factor(annot$subtype_sample) %>% levels
 subtype_order <- gsub(".*-","", mem_levels) %>% unique
 subtype_order2 <- (paste0(annot$subtype) %>% unique)[order(paste0(annot$subtype) %>% unique)]
 membership_vec <- as.numeric(factor(annot$subtype_condition))
+membership_levels <- factor(annot$subtype_sample) %>% levels
 membership_vec_subsamp <- as.numeric(factor(annot$subtype_sample))
 ```
 
@@ -131,6 +131,6 @@ plot_df <- bind_rows(epilepsy_dfs, healthy_dfs, between_dfs)
 plot_df %>% ggplot(aes(x=subtype, y=-value ,dodge=condition,fill=condition))+
     geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
                            axis.text.y = element_text(angle = 90, hjust = 0.5))+
-  theme(legend.position="top")
+  theme(legend.position="top")#+ylim(-50,0)
 ```
 

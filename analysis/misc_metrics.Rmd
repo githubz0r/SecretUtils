@@ -1,0 +1,240 @@
+---
+title: "jensen_shannon_stuff"
+author: "githubz0r"
+date: "2019-05-17"
+output: workflowr::wflow_html
+---
+
+## Introduction
+
+```{r}
+library(conos)
+library(pheatmap)
+#library(fuck)
+source('/home/larsc/SecretUtils/R/asdf.R')
+source('/home/larsc/SecretUtils/R/peter_code_utils.R')
+require(pagoda2)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+library(cowplot)
+library(irlba)
+con_object <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
+annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
+```
+
+rowbind the adjusted expression values 
+```{r}
+if (is.null(annot$cellid)) {
+  annot$cellid <- annot %>% rownames
+}
+annot <- annot %>% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep='_'))
+rbound_panel <- RbindPanel(con_object)
+```
+
+Are the cell names in the same order?
+```{r}
+identical(rownames(rbound_panel), annot$cellid) # thank god, maybe add a sort for the future in Panelize
+```
+
+
+```{r}
+state_split <- split(annot, annot$condition, drop=TRUE)
+condition_tables <- state_split %>% lapply(function(x){table(x$subtype)})
+condition_tables$epilepsy<condition_tables$healthy # only Lamp5
+condition_tables
+```
+
+PCA for later use 
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+pca_cm <- prcomp_irlba(rbound_panel[, od_genes],n=100)
+#pca_cmat <- pca_cm$x[, 1:100]
+pca_cmat <- pca_cm$x
+rownames(pca_cmat) <- rownames(rbound_panel)
+```
+
+
+Bhattacharyya
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+subtype_split <- state_split %>% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs <- subtype_split$healthy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+epilepsy_probs <- subtype_split$epilepsy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+
+Bhattacharyya <- function(x,y){
+  -log(sum(sqrt(x*y)))
+}
+all_bhats <- Map(Bhattacharyya, healthy_probs, epilepsy_probs) %>% as_tibble
+all_bhats <- gather(all_bhats, key=subtype, value=bhat_div)
+ggplot(all_bhats, aes(y=bhat_div, x=subtype)) +geom_bar(stat='identity', col='hotpink') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+Cell by Cell Bhat, 100 cells each, 1000 od genes
+```{r, fig.height=7, fig.width=10}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 1000)
+healthcellprobs <- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes)
+epscellprobs <- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes)
+all_singlecell_dists <- Map(CalculateAllBhat, healthcellprobs, epscellprobs)
+all_sc_dists <- all_singlecell_dists %>% as_tibble
+all_scd_gathered <- gather(all_sc_dists, key=subtype, value=bhat)
+ggplot(all_scd_gathered, aes(y=bhat, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)
+```
+
+Dependency for single subtypes
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+nr_cells <- c(30, 60, seq(100, 1000, by=50))
+nr_cells2 <- (seq(30,300,by=15))
+do_dist_cells <- function(nr.cell, subtype, pseudo.prob=1e-8, dist=js) {
+  healthy_probs <- subtype_split$healthy[[subtype]] %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  epilepsy_probs <- subtype_split$epilepsy[[subtype]] %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  return(Bhattacharyya(healthy_probs, epilepsy_probs))
+}
+
+get_all_jscells <- function(subtype, cell.nr.vec, pseudo.prob=1e-8, dist='correlation'){
+  js_nrcell <- cell.nr.vec %>% lapply(do_dist_cells, subtype, pseudo.prob, dist)
+  jscell_df <- bind_cols(value=unlist(js_nrcell), nr.cells=cell.nr.vec) %>% mutate(subtype=subtype)
+  #return(ggplot(jscell_df, aes(y=value, x=nr.cells))+geom_point()+ggtitle(subtype))
+}
+
+#all_jscells <- annot$subtype %>% unique %>% lapply(get_all_jscells, nr_cells)
+
+do_plot <- function(sub.df){
+  p <- ggplot(sub.df, aes(x=nr.cells, y=value, col=subtype))+geom_line()+
+    theme(axis.text.x = element_text(angle = -90, hjust = 1))
+  return(p)
+}
+
+#all_plots <- all_jscells %>% lapply(do_plot)
+#subl1 <- do.call(rbind, all_jscells[1:5])
+
+#p <- ggplot(all_jscells[[20]], aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+#plot_grid(plotlist=all_plots[1:4], nrow=2)
+subtypes_ <- annot$subtype %>% unique
+#sub_jscells <- get_all_jscells('L2_Lamp5', nr_cells2, dist='correlation')
+sub_jscells_rep <- replicate(3, list(get_all_jscells('L2_Lamp5', nr_cells2, dist='correlation'))) %>% bind_rows
+p <- sub_jscells_rep %>% ggplot(aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+p
+
+```
+
+try JBLD
+```{r}
+GetSubMatsList <- function(list.of.annots, rbound.panel, list.of.genes, cellid.col) {
+  GetMat <- function(sub.annot, genes, rbound.panel, cellid.col) {
+    cellids <- sub.annot[, cellid.col]
+    return(rbound.panel[cellids, genes])
+  }
+  exps.list <- mapply(GetMat, list.of.annots, list.of.genes, MoreArgs=list(rbound.panel, cellid.col), SIMPLIFY=F)
+  return(exps.list)
+}
+
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+# listify
+od_genes_list <- rep(list(od_genes), 20)
+pca_genes_list <- rep(list(colnames(pca_cmat)), 20)
+
+# split
+state_split <- split(annot, annot$condition, drop=TRUE)
+subtype_split <- state_split %>% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+
+#cmat <- rbound_panel
+state_sub_mats <- subtype_split %>% lapply(GetSubMatsList, pca_cmat, pca_genes_list, 4)
+
+health_covs <- state_sub_mats$healthy %>% lapply(function(x){return(x %>% as.matrix %>% cov)})
+epilepsy_covs <- state_sub_mats$epilepsy %>% lapply(function(x){return(x %>% as.matrix %>% cov)})
+
+CalculateJBLD <- function(cov1, cov2) {
+  JBLD <- log(det((cov1+cov2)/2)) -0.5*log(det(cov1%*%cov2))
+  return(JBLD)
+}
+
+det(health_covs$Id2_Nos1%*%epilepsy_covs$Id2_Nos1)
+all_jblds <- Map(CalculateJBLD, health_covs, epilepsy_covs)
+jblds_gathered <- gather(all_jblds %>% as.data.frame, key=subtype, value=jbld)
+ggplot(jblds_gathered, aes(y=jbld, x=subtype)) +geom_bar(stat='identity', col='hotpink') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+Correlation distance metric
+fuck, try correlation matrix distance
+```{r}
+cmat <- rbound_panel
+state_split <- split(annot, annot$condition, drop=TRUE)
+subtype_split <- state_split %>% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+state_sub_mats <- subtype_split %>% lapply(GetSubMatsList, pca_cmat, pca_genes_list, 4)
+
+health_cors <- state_sub_mats$healthy %>% lapply(cor)
+epilepsy_cors <- state_sub_mats$epilepsy %>% lapply(cor)
+all_cmds <- Map(CMD, health_cors, epilepsy_cors)
+cmds_gathered <- gather(all_cmds %>% as.data.frame, key=subtype, value=cmd)
+ggplot(cmds_gathered, aes(y=cmd, x=subtype)) +geom_bar(stat='identity') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+P-values
+load my de genes & get some DE genes, equal numbers for each subtype
+```{r}
+de_genez <- readRDS(file.path('/home/larsc/data/eps_10x_de_celltype.rds'))
+```
+
+```{r}
+GetTopGenes <- function(de.result, nr, value='gene.names', filter.mito=TRUE){
+  res.df <- de.result$res
+  res.df <- res.df %>% dplyr::mutate(gene.names = rownames(res.df))
+  if (filter.mito){
+    res.df <- dplyr::filter(res.df, !stringr::str_detect(gene.names, "^MT-"))
+  }
+  res.sorted <- res.df %>% arrange(padj)
+  return(res.sorted[[value]][1:nr])
+}
+
+top_genez <- de_genez %>% lapply(GetTopGenes, 100, filter.mito=FALSE)
+
+# check how many DE genes for each
+countPadjes <- function(de.result,threshold=0.1){
+  padjes <- de.result$res$padj
+  sum(na.omit(padjes<threshold))
+}
+subtypes_total_count <- split(annot$subtype, annot$subtype) %>% lapply(length)
+padjes_count <- de_genez %>% lapply(countPadjes,threshold=0.05) %>% as.data.frame %>% gather(key=subtype, value=count) %>% 
+  mutate(sumcells = as.numeric(table(annot$subtype)))
+padjes_count %>% ggplot(aes(x=subtype, y=count))+geom_bar(stat='identity')+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+Counts as function of number of cells
+```{r}
+padjes_count %>% ggplot(aes(x=sumcells, y=count))+geom_point()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+
+Distribution of p values for each subtype
+```{r}
+top_padjes <- de_genez %>% lapply(GetTopGenes, 1000, value='padj', filter.mito=FALSE)
+top_padjes_tibble <- top_padjes %>% as_tibble %>% gather(key=subtype, value=val) %>% mutate(log_val=log(val))
+top_avg <- top_padjes %>% lapply(mean) %>% as.data.frame %>% gather(key=subtype, value=val) %>% mutate(log_val=log(val)) %>% 
+  mutate(sumcells = as.numeric(table(annot$subtype)))
+
+top_padjes_tibble %>% ggplot(aes(x=subtype, y=-log(val)))+geom_jitter()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+```{r}
+top_avg %>% ggplot(aes(x=subtype, y=-log_val))+#geom_bar(stat='identity')+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))+ geom_point()+ggtitle('average pvalue using top 1000 DE genes')
+```
+
+As a function of number of points
+```{r}
+top_avg %>% ggplot(aes(x=sumcells, y=-log_val))+#geom_bar(stat='identity')+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))+ geom_point()+ggtitle('average pvalue using top 1000 DE genes')
+```
+

@@ -1,0 +1,294 @@
+---
+title: "jensen_shannon_stuff"
+author: "githubz0r"
+date: "2019-05-17"
+output: workflowr::wflow_html
+---
+
+## Introduction
+
+```{r}
+library(conos)
+library(pheatmap)
+devtools::load_all('/home/larsc/SecretUtils')
+require(pagoda2)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+library(cowplot)
+library(irlba)
+con_object <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
+annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
+```
+
+rowbind the adjusted expression values and add stuff to annotation
+```{r}
+if (is.null(annot$cellid)) {
+  annot$cellid <- annot %>% rownames
+}
+annot <- annot %>% mutate(subtype_condition = paste(annot$subtype, annot$condition, sep='_'))
+rbound_panel <- RbindPanel(con_object)
+```
+
+Are the cell names in the same order?
+```{r}
+identical(rownames(rbound_panel), annot$cellid) # thank god, maybe add a sort for the future in Panelize
+```
+
+
+Inter sample distance, aggregated on gene exp space
+```{r, fig.height=7, fig.width=10}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+# split annot in categories (disease, healthy)
+state_split <- split(annot, annot$condition, drop=TRUE)
+# get probability distributions for subtype/sample categories
+all_probs <- ObtainProbabilities(state_split, rbound_panel, 1, 2, 4, od_genes, pseudo.count=10^(-6))
+# now get JS distances
+all_distances <- Map(CalculateAllCor, all_probs$healthy, all_probs$epilepsy)
+#all_dists_dfd <- all_distances %>% lapply(function(x){data.frame(comparison=names(x), value=x, row.names=NULL)})
+# use stackexchange magic to pad NAs to shorter distance vectors, and also tibbling
+all_dists <- lapply(all_distances, `length<-`, max(lengths(all_distances))) %>% as_tibble
+all_dists <- all_dists %>% mutate(comparison=names(all_distances$Id2_Reln))
+# gather into format for easy ggplot
+all_dists_gathered <- gather(all_dists, key=subtype, value=cor_distance, -comparison)
+# plot
+ggplot(all_dists_gathered, aes(y=cor_distance, x=subtype)) + geom_violin()+geom_point(aes(col=comparison), alpha = 0.6, size=1.8) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+Overall JS, all sample-conds aggregated
+let's see overall JS dist.
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+state_split <- split(annot, annot$condition, drop=TRUE)
+subtype_split <- state_split %>% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs <- subtype_split$healthy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+epilepsy_probs <- subtype_split$epilepsy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+
+all_dists <- Map(function(x,y){1-cor(x,y)}, healthy_probs, epilepsy_probs) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=corcomplement)
+ggplot(all_dists_gathered, aes(y=corcomplement, x=subtype)) +geom_bar(stat='identity') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))#+ylim(0.05,0.12)#+geom_point()
+```
+
+
+
+1-cor distance for each subtype (i.e. all samples aggregated) as function of the minimum (or max) number of cells
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+state_split <- split(annot, annot$condition, drop=TRUE)
+condition_tables <- state_split %>% lapply(function(x){table(x$subtype)})
+condition_df <- condition_tables %>% as.data.frame
+condition_df <- condition_df %>% mutate(min_cells = mapply(min, epilepsy.Freq, healthy.Freq))
+condition_df <- condition_df %>% mutate(max_cells = mapply(max, epilepsy.Freq, healthy.Freq))
+subtype_split <- state_split %>% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+healthy_probs <- subtype_split$healthy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+epilepsy_probs <- subtype_split$epilepsy %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 4, pseudo.count=0)
+
+all_dists <- Map(function(x,y){1-cor(x,y)}, healthy_probs, epilepsy_probs) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=corcomplement) %>% 
+  mutate(min_cells = condition_df$min_cells, max_cells = condition_df$max_cells)
+ggplot(all_dists_gathered, aes(y=corcomplement, x=min_cells, col=subtype)) +geom_point() +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+ggplot(all_dists_gathered, aes(y=corcomplement, x=max_cells, col=subtype)) +geom_point() +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+
+Dependency for single subtypes
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+nr_cells <- c(30, 60, seq(100, 1000, by=50))
+nr_cells2 <- (seq(30,300,by=15))
+do_dist_cells <- function(nr.cell, subtype, pseudo.prob=1e-8, dist=js) {
+  healthy_probs <- subtype_split$healthy[[subtype]] %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  epilepsy_probs <- subtype_split$epilepsy[[subtype]] %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  if (dist=='js') {
+    js.dist <- JensenShannon( healthy_probs, epilepsy_probs)
+    return(js.dist)
+  } else if (dist=='correlation') {
+    cor.dist <- 1-cor(healthy_probs, epilepsy_probs)
+    return(cor.dist)
+  }
+}
+
+get_all_jscells <- function(subtype, cell.nr.vec, pseudo.prob=1e-8, dist='correlation'){
+  js_nrcell <- cell.nr.vec %>% lapply(do_dist_cells, subtype, pseudo.prob, dist)
+  jscell_df <- bind_cols(value=unlist(js_nrcell), nr.cells=cell.nr.vec) %>% mutate(subtype=subtype)
+  #return(ggplot(jscell_df, aes(y=value, x=nr.cells))+geom_point()+ggtitle(subtype))
+}
+
+#all_jscells <- annot$subtype %>% unique %>% lapply(get_all_jscells, nr_cells)
+
+do_plot <- function(sub.df){
+  p <- ggplot(sub.df, aes(x=nr.cells, y=value, col=subtype))+geom_line()+
+    theme(axis.text.x = element_text(angle = -90, hjust = 1))
+  return(p)
+}
+
+#all_plots <- all_jscells %>% lapply(do_plot)
+#subl1 <- do.call(rbind, all_jscells[1:5])
+
+#p <- ggplot(all_jscells[[20]], aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+#plot_grid(plotlist=all_plots[1:4], nrow=2)
+subtypes_ <- annot$subtype %>% unique
+#sub_jscells <- get_all_jscells('L2_Lamp5', nr_cells2, dist='correlation')
+sub_jscells_rep <- replicate(3, list(get_all_jscells('L2_Lamp5', nr_cells2, dist='correlation'))) %>% bind_rows
+p <- sub_jscells_rep %>% ggplot(aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+p
+
+```
+
+```{r}
+nr_genes=seq(100, 10000, 500)
+do_cor_genes <- function(nr.genes, pseudo.prob=1e-8) {
+  od_genes = conos:::getOdGenesUniformly(con_object$samples, nr.genes)
+  healthy_probs <- subtype_split$healthy$L2_Lamp5 %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=100, pseudo.count=pseudo.prob)
+  epilepsy_probs <- subtype_split$epilepsy$L2_Lamp5 %>% 
+    SelectCellProbsAggregated(od_genes, rbound_panel, cellid.col = 4, nr.cell=100, pseudo.count=pseudo.prob)
+  cor.dist <- 1-cor(healthy_probs, epilepsy_probs)
+  return(cor.dist)
+}
+cor_nrgenes <- nr_genes %>% lapply(do_cor_genes)
+corgenes_df <- bind_cols(value=unlist(cor_nrgenes), nr.genes=nr_genes)
+replicateNrGenes <- function(){
+  cor_nrgenes <- nr_genes %>% lapply(do_cor_genes)
+  corgenes_df <- bind_cols(value=unlist(cor_nrgenes), nr.genes=nr_genes)
+}
+rep_nr_genes <- replicate(3, list(replicateNrGenes())) %>% bind_rows()
+ggplot(rep_nr_genes, aes(y=value, x=nr.genes))+geom_point()+ggtitle('1-cor for L2_Lamp5, using x number of OD genes')
+```
+
+
+pairwise correlation 100 cells
+```{r, fig.height=7, fig.width=10}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+healthcellprobs <- IndividualCellProbs(state_split$healthy, rbound_panel, 4, 2, 100, od_genes, 0)
+epscellprobs <- IndividualCellProbs(state_split$epilepsy, rbound_panel, 4, 2, 100, od_genes, 0)
+all_singlecell_dists <- Map(CalculateAllCor, healthcellprobs, epscellprobs)
+all_sc_dists <- all_singlecell_dists %>% as_tibble
+all_scd_gathered <- gather(all_sc_dists, key=subtype, value=corcomplement)
+ggplot(all_scd_gathered, aes(y=corcomplement, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1)) #+geom_jitter(aes(col=subtype), alpha = 0.05, size=0.5)
+```
+
+
+Now Aggregation of cells, same number of cells, 3000 od genes
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 2000)
+od_genes_list <- rep(list(od_genes), 20)
+
+IndividualCellProbsAgg <- function(annotation, rbound.panel, cellid.col, sub.col, nr.cell, genes.list, pseudo.count=0){
+  sub.split <- split(annotation, annotation[, sub.col], drop=T)
+  cell.distributions <- mapply(SelectCellProbsAggregated, sub.split, genes.list, MoreArgs=list(rbound.panel, cellid.col, nr.cell, pseudo.count), SIMPLIFY=F)
+  return(cell.distributions)
+}
+sub_probs_agg <- state_split %>% lapply(IndividualCellProbsAgg, rbound_panel, 4, 2, 200, od_genes_list, 10^(-8))
+cor_agg <- Map(function(x,y){1-cor(x,y)}, sub_probs_agg$healthy, sub_probs_agg$epilepsy) %>% as_tibble
+cor_agg_gathered <- gather(cor_agg, key=subtype, value=cor_distance_cell_agg)
+ggplot(cor_agg_gathered, aes(y=cor_distance_cell_agg, x=subtype)) +geom_bar(stat='identity', col='hotpink') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+PCA
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_object$samples, 3000)
+pca_cm <- prcomp_irlba(rbound_panel[, od_genes],n=100)
+#pca_cmat <- pca_cm$x[, 1:100]
+pca_cmat <- pca_cm$x
+rownames(pca_cmat) <- rownames(rbound_panel)
+```
+
+plot PCA eigenspectrum
+```{r}
+pca_sum <- summary(pca_cm)
+bind_cols(percent_var=pca_sum$importance[2,], number=c(1:100)) %>% ggplot(aes(y=percent_var, x=number))+geom_point()
+```
+
+PCA annotated by samples
+```{r}
+sampannot <- setNames(annot$sample, annot$cellid)
+pca_cmat[,1:2] %>% as_tibble %>%  mutate(samples=annot$sample) %>% 
+  ggplot(aes(x=PC1, y=PC2))+geom_point(aes(col=samples), alpha=0.3, size=0.2)+guides(colour = guide_legend(override.aes = list(size=2, alpha=1)))
+```
+
+Inter condition (whole samples) 1-cor with pca space
+```{r, fig.height=7, fig.width=10}
+do_pca = T
+if (do_pca){
+  some_cmat <- pca_cmat
+  some_od_genes <- pca_cmat %>% colnames
+} else {
+  some_cmat <- rbound_panel
+  some_od_genes <- od_genes
+}
+# split annot in categories (disease, healthy)
+state_split <- split(annot, annot$condition, drop=TRUE)
+# get probability distributions for subtype/sample categories
+
+#all_probs <- ObtainProbabilities(state_split, some_cmat, 1, 2, 4, some_od_genes, pseudo.count=0)
+all_avgs <- ObtainSubSampleMats(state_split, some_cmat, 1, 2, 4, some_od_genes)
+
+# now get JS distances
+all_distances_pca <- Map(CalculateAllCor, all_avgs$healthy, all_avgs$epilepsy)
+
+# use stackexchange magic to pad NAs to shorter distance vectors, and also tibbling
+all_dists_pca <- lapply(all_distances_pca, `length<-`, max(lengths(all_distances_pca))) %>% as_tibble
+all_dists_pca <- all_dists_pca %>% mutate(comparison=names(all_distances_pca$Id2_Reln))
+# gather into format for easy ggplot
+all_dists_gathered_pca <- gather(all_dists_pca, key=subtype, value=corcomplement, -comparison)
+# plot
+ggplot(all_dists_gathered_pca, aes(y=corcomplement, x=subtype)) + geom_violin()+
+  geom_jitter(aes(col=comparison), alpha = 0.6, size=1.8) +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))+ylab('1- correlation')
+```
+```{r}
+test1 <- all_avgs$healthy$L6_Tle4$c_p4
+test2 <- all_avgs$epilepsy$L6_Tle4$ep_p3
+test3 <- test1/sum(test1)
+test4 <- test2/sum(test2)
+cor(test3, test4) # anti correlated
+
+```
+
+
+Dependency on number of cells (correlation in pca space)
+```{r}
+subtype_split <- state_split %>% lapply(function(x){split(x, x$subtype, drop=TRUE)})
+nr_cells <- c(30, 60, seq(100, 1000, by=50))
+nr_cells2 <- (seq(30,300,by=15))
+do_dist_cells <- function(nr.cell, subtype, pseudo.prob=1e-8, dist=js) {
+  healthy_probs <- subtype_split$healthy[[subtype]] %>% 
+    SelectCellProbsAggregated(some_od_genes, some_cmat, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  epilepsy_probs <- subtype_split$epilepsy[[subtype]] %>% 
+    SelectCellProbsAggregated(some_od_genes, some_cmat, cellid.col = 4, nr.cell=nr.cell, pseudo.count=pseudo.prob)
+  if (dist=='js') {
+    js.dist <- JensenShannon( healthy_probs, epilepsy_probs)
+    return(js.dist)
+  } else if (dist=='correlation') {
+    cor.dist <- 1-cor(healthy_probs, epilepsy_probs)
+    return(cor.dist)
+  }
+}
+
+get_all_jscells <- function(subtype, cell.nr.vec, pseudo.prob=1e-8, dist='js'){
+  js_nrcell <- cell.nr.vec %>% lapply(do_dist_cells, subtype, pseudo.prob, dist)
+  jscell_df <- bind_cols(value=unlist(js_nrcell), nr.cells=cell.nr.vec) %>% mutate(subtype=subtype)
+}
+
+sub_corcells <- get_all_jscells('L2_Lamp5', nr_cells2, dist='correlation')
+sub_corcells_reps <- replicate(3, list(get_all_jscells('L2_Lamp5', nr_cells2, dist='correlation'))) %>% bind_rows
+p <- sub_corcells_reps %>% ggplot(aes(x=nr.cells, y=value, col=subtype))+geom_point()+theme(axis.text.x = element_text(angle = -90, hjust = 1))
+p
+```
+
+
+
+```{r}
+condition_tables
+```
+
