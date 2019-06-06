@@ -13,7 +13,7 @@ GetPagaMatrix <- function(dst.matrix, membership.vector, scale=F) {
   }
   es.inner.cluster <- 1:length(vc) %>% lapply(getEsCount, vc, g) %>% unlist
   cg1 <- contract(g, vc$membership, vertex.attr.comb = 'sum')
-  cg2 <- simplify(cg1, remove.multiple = F, remove.loops = T,
+  cg2 <- igraph::simplify(cg1, remove.multiple = F, remove.loops = T,
                   edge.attr.comb = igraph_opt("sum"))
   inter.es <- as_adj(cg2)
   inter.es2 <- inter.es + Matrix::t(inter.es)

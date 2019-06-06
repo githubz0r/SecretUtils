@@ -1,0 +1,120 @@
+---
+title: "mouse_alzheimer_annotating"
+author: "githubz0r"
+date: "2019-06-6"
+output: workflowr::wflow_html
+---
+
+Load conos, pagoda2 and fuck.
+
+```{r}
+library(conos)
+library(tidyverse)
+devtools::load_all('/home/larsc/SecretUtils')
+require(pagoda2)
+library(pheatmap)
+library(irlba)
+library(igraph)
+mouse_annot <- read.csv(file.path('/home/larsc/data/mouse_alzheimer/mouse_alzheimers_annotation_filtered_subtypes.csv'))
+mouse_annot$subtype_condition <- paste0(mouse_annot$celltype, '.', mouse_annot$condition)
+```
+
+load conos object
+```{r}
+mouse_con <- readRDS('/home/larsc/data/mouse_alzheimer/mouse_alzheimers_conos_procced_graphed.rds')
+```
+
+Rbind panels from conos objects
+```{r}
+rbound_panel <- RbindPanel(mouse_con)
+# sorting it just in case
+rbound_panel <- rbound_panel[order(rbound_panel %>% rownames),]
+```
+
+Make groups for plotting
+```{r}
+nr_annot <- setNames(mouse_annot$mouse_nr, mouse_annot$Well_ID)
+batch_annot <- setNames(mouse_annot$Amp_batch_ID, mouse_annot$Well_ID)
+condition_annot <- setNames(mouse_annot$condition, mouse_annot$Well_ID)
+celltype_annot <- setNames(mouse_annot$celltype, mouse_annot$Well_ID)
+sub_cond_annot <- setNames(mouse_annot$subtype_condition, mouse_annot$Well_ID)
+```
+
+```{r}
+table(nr_annot)
+table(celltype_annot)
+```
+
+Plot graph with different annotations
+```{r}
+mouse_con$plotGraph(groups=condition_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)
+mouse_con$plotGraph(groups=celltype_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)
+mouse_con$plotGraph(groups=sub_cond_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)
+mouse_con$plotGraph(groups=nr_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)
+```
+
+Initiate some variables
+```{r}
+od_genes = conos:::getOdGenesUniformly(mouse_con$samples, 3000)
+state_split <- split(mouse_annot, mouse_annot$condition, drop=TRUE)
+subtype_split <- state_split %>% lapply(function(x){split(x, x$celltype, drop=TRUE)})
+```
+
+
+Jensen Shannon, overall (microglia has by far the most cells so this will heavily skew the result due to dropout)
+```{r}
+wt_probs <- subtype_split$WT %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 1, pseudo.count=10^(-8))
+ad_probs <- subtype_split$AD %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 1, pseudo.count=10^(-8))
+
+all_dists <- Map(JensenShannon, wt_probs, ad_probs) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=js_distance)
+ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) +geom_bar(stat='identity') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+PCA for correlation
+```{r}
+pca_cm <- prcomp_irlba(rbound_panel[, od_genes],n=100)
+pca_cmat <- pca_cm$x
+rownames(pca_cmat) <- rownames(rbound_panel)
+pca_genes <- colnames(pca_cmat)
+```
+
+```{r}
+wt_vecs <- subtype_split$WT %>% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 1, avg=T)
+ad_vecs <- subtype_split$AD %>% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 1, avg=T)
+
+#ad_vecs <- subtype_split$AD %>% GetSampProbs(pca_cmat, pca_genes, cellid.col = 1, pseudo.count=0) # remember sign
+#wt_vecs <- subtype_split$WT %>% GetSampProbs(pca_cmat, pca_genes, cellid.col = 1, pseudo.count=0)
+
+all_dists <- Map(function(x,y){1-cor(x,y)}, wt_vecs, ad_vecs) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=corcomplement)
+ggplot(all_dists_gathered, aes(y=corcomplement, x=subtype)) +geom_bar(stat='identity') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+Fractional plot
+```{r}
+FractionalPlot(mouse_annot$mouse_nr, mouse_annot$celltype, mouse_annot$condition)
+```
+
+PAGA
+```{r}
+conos_distances <- Matrix::readMM('/home/larsc/data/mouse_alzheimer/for_paga/graph_distances.mtx')
+mouse_annot$subtype_sample <- paste(mouse_annot$celltype, mouse_annot$mouse_nr, sep='-')
+
+mem_levels <- factor(mouse_annot$subtype_sample) %>% levels
+subtype_order <- (paste0(mouse_annot$celltype) %>% unique)[order(paste0(mouse_annot$celltype) %>% unique)]
+membership_vec <- as.numeric(factor(mouse_annot$subtype_condition))
+membership_levels <- factor(mouse_annot$subtype_sample) %>% levels
+membership_vec_subsamp <- as.numeric(factor(mouse_annot$subtype_sample))
+```
+
+```{r}
+connectivities <- GetPagaMatrix(conos_distances, membership_vec, scale=F)
+linearized_stats <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
+
+paga_df <- bind_cols(value=linearized_stats, subtype=subtype_order)
+ggplot(paga_df, aes(y=-linearized_stats, x=subtype)) +geom_point()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
