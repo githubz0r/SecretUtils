@@ -1,4 +1,8 @@
 GetPagaMatrix <- function(dst.matrix, membership.vector, scale=F) {
+  if (class(dst.matrix)!='dsTMatrix'){
+    dst.matrix %<>% as('dgTMatrix') %>% as('symmetricMatrix')
+  }
+  dst.matrix@Dimnames <- list(NULL, NULL)
   ones <- dst.matrix
   ones@x <- rep(1, length(ones@x))
   g <- graph_from_adjacency_matrix(ones, mode='directed')
@@ -28,4 +32,146 @@ GetPagaMatrix <- function(dst.matrix, membership.vector, scale=F) {
   connectivities <- inter.es4
   connectivities@x <- scaled.values
   return(connectivities)
+}
+
+GenerateFactorVectors <- function(subtype.vector, sample.vector, condition.vector) {
+  conc <- paste0(subtype.vector, "-;;-", sample.vector, ";__;" , condition.vector) %>% as.factor %>% levels
+  subtypes <- gsub("-;;-.*", "", conc)
+  samples <- gsub(".*-;;-", "", conc)
+  samples <- gsub(';__;.*', "", samples)
+  condition <- gsub('.*;__;', "", conc)
+  return(bind_cols(subtypes=subtypes, samples=samples, condition=condition, concatenated=conc))
+}
+
+MeltMatrix <- function(x, symmetric){
+  if (symmetric) {
+    x[lower.tri(x)] <- NA; diag(x) <- NA
+    df <- na.omit(reshape2::melt(as.matrix(x)))
+  } else {
+    df <- reshape2::melt(as.matrix(x))
+  }
+  df <- bind_cols(value=df$value, comparison=paste0(df$Var1, '-', df$Var2))
+  return(df)
+}
+
+MeltAndAppend <- function(mat.list, factor.identity, symmetric=TRUE) {
+  molten.mats <- mat.list %>% lapply(MeltMatrix, symmetric)
+  AppendCols <- function(df, subtype.name, factor.identity){
+    df$subtype = subtype.name
+    df$condition = factor.identity
+    return(df)
+  }
+  extended.dfs <- Map(AppendCols, molten.mats, names(mat.list), MoreArgs=list(factor.identity))
+  return(extended.dfs)
+}
+
+GeneratePagaSubSampDFOld <- function(paga.connectivities, subtype.vector, sample.vector, condition.vector) {
+  factor.vectors <- GenerateFactorVectors(subtype.vector, sample.vector, condition.vector)
+  sub.cond.indices <- as.factor(factor.vectors$concatenated) %>% as.numeric %>%
+    split(list(factor.vectors$subtypes, factor.vectors$condition))
+  sub.cond.indices <- sub.cond.indices[order(sub.cond.indices %>% names)]
+
+  sub.samp.factor <- as.factor(factor.vectors$samples) %>%
+    split(list(factor.vectors$subtypes, factor.vectors$condition))
+  sub.samp.factor <- sub.samp.factor[order(sub.samp.factor %>% names)]
+
+  sub.cond.factor <- as.factor(factor.vectors$condition) %>%
+    split(list(factor.vectors$subtypes, factor.vectors$condition))
+  sub.cond.factor <- sub.cond.factor[order(sub.cond.factor %>% names)]
+
+  GetSubConnectivity <- function(indices1, indices2, connectivity.matrix){
+    return(connectivity.matrix[indices1, indices2])
+  }
+
+  factor1.mats <- seq(1, length(sub.cond.indices), 2) %>%
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], connectivities);
+    rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i]]; return(sub.mat)})
+  names(factor1.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
+
+  factor2.mats <- seq(2, length(sub.cond.indices), 2) %>%
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], connectivities);
+    rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i]]; return(sub.mat)})
+  names(factor2.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
+
+  between.mats <- seq(1, length(sub.cond.indices), 2) %>%
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i+1]], connectivities);
+    rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i+1]]; return(sub.mat)})
+  names(between.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
+
+  factor1.identity <- sub.cond.factor[[1]] %>% unique %>% as.character
+  factor2.identity <- sub.cond.factor[[2]] %>% unique %>% as.character
+
+  factor1.dfs <- MeltAndAppend(factor1.mats, factor1.identity)
+  factor2.dfs <- MeltAndAppend(factor2.mats, factor2.identity)
+  between.dfs <- MeltAndAppend(between.mats, 'between', symmetric = FALSE)
+  return(bind_rows(factor1.dfs, factor2.dfs, between.dfs))
+}
+
+GeneratePagaSubSampDF <- function(paga.connectivities, subtype.vector, sample.vector, condition.vector) {
+  factor.vectors <- GenerateFactorVectors(subtype.vector, sample.vector, condition.vector)
+  sub.cond.indices <- as.factor(factor.vectors$concatenated) %>% as.numeric %>%
+    split(list(factor.vectors$subtypes, factor.vectors$condition))
+  sub.cond.indices <- sub.cond.indices[order(sub.cond.indices %>% names)]
+
+  sub.samp.factor <- as.factor(factor.vectors$samples) %>%
+    split(list(factor.vectors$subtypes, factor.vectors$condition))
+  sub.samp.factor <- sub.samp.factor[order(sub.samp.factor %>% names)]
+
+  sub.cond.factor <- as.factor(factor.vectors$condition) %>%
+    split(list(factor.vectors$subtypes, factor.vectors$condition))
+  sub.cond.factor <- sub.cond.factor[order(sub.cond.factor %>% names)]
+
+  GetSubConnectivity <- function(indices1, indices2, connectivity.matrix){
+    return(connectivity.matrix[indices1, indices2])
+  }
+
+  factor1.mats <- seq(1, length(sub.cond.indices), 2) %>%
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], connectivities) %>% as.matrix;
+    rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i]]; return(sub.mat)})
+  names(factor1.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
+
+  factor2.mats <- seq(2, length(sub.cond.indices), 2) %>%
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], connectivities) %>% as.matrix;
+    rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i]]; return(sub.mat)})
+  names(factor2.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
+
+  between.mats <- seq(1, length(sub.cond.indices), 2) %>%
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i+1]], connectivities) %>% as.matrix;
+    rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i+1]]; return(sub.mat)})
+  names(between.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
+
+  factor1.count <- sub.cond.factor[[1]] %>% length
+  factor2.count <- sub.cond.factor[[2]] %>%  length
+  factor1.identity <- sub.cond.factor[[1]] %>% unique %>% as.character
+  factor2.identity <- sub.cond.factor[[2]] %>% unique %>% as.character
+
+  if (factor1.count > 1) {
+    factor1.dfs <- MeltAndAppend(factor1.mats, factor1.identity)
+  } else {
+    factor1.dfs <- NULL
+  }
+  if (factor2.count > 1) {
+    factor2.dfs <- MeltAndAppend(factor2.mats, factor2.identity)
+  } else {
+    factor2.dfs <- NULL
+  }
+  between.dfs <- MeltAndAppend(between.mats, 'between', symmetric = FALSE)
+  return(bind_rows(factor1.dfs, factor2.dfs, between.dfs))
+}
+
+GenerateUnalignedAdjOld <- function(raw.count.mat, k=15, cellid.vector){
+  p2 <- Pagoda2$new(Matrix::t(raw.count.mat), log.scale=F)
+  p2$adjustVariance(gam.k=10)
+  p2$calculatePcaReduction(nPcs=100,n.odgenes=3e3)
+  p2$makeKnnGraph(k=k,type='PCA',center=T,distance='angular')
+  unaligned.graph.adj <- igraph::as_adjacency_matrix(p2$graphs$PCA, attr="weight")[cellid.vector, cellid.vector]
+  return(unaligned.graph.adj)
+}
+
+GenerateUnalignedAdj <- function(raw.count.mat, k=15, cellid.vector){
+  p2 <- Matrix::t(raw.count.mat) %>% basicP2proc(n.cores=1, min.cells.per.gene=0, n.odgenes=3e3,
+                                                 get.largevis=FALSE, make.geneknn=FALSE, get.tsne=FALSE)
+  p2$makeKnnGraph(k=k,type='PCA',center=T,distance='angular')
+  unaligned.graph.adj <- igraph::as_adjacency_matrix(p2$graphs$PCA, attr="weight")[cellid.vector, cellid.vector]
+  return(unaligned.graph.adj)
 }

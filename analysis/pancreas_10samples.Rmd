@@ -1,0 +1,158 @@
+---
+title: "pancreas_10samples"
+author: "githubz0r"
+date: "2019-16-6"
+output: workflowr::wflow_html
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+load teh data and packs
+
+```{r}
+library(conos)
+require(pagoda2)
+devtools::load_all('/home/larsc/SecretUtils')
+library(pheatmap)
+library(irlba)
+library(tidyverse)
+
+panel <- readRDS(file.path('/home/larsc/pancreas_smart_seq_cms.rds'))
+```
+
+```{r}
+panel.preprocessed <- lapply(panel, basicP2proc, n.cores=25, min.cells.per.gene=0, n.odgenes=2e3, get.largevis=FALSE, make.geneknn=FALSE)
+```
+
+what is going on
+```{r}
+str(panel.preprocessed,1)
+```
+
+make conos object
+```{r}
+con <- Conos$new(panel.preprocessed, n.cores=1)
+```
+
+
+```{r}
+str(con$samples,1)
+```
+
+```{r}
+con$plotPanel(clustering="multilevel", use.local.clusters=T, title.size=6)
+```
+
+```{r}
+con$buildGraph(k=15, k.self=10, k.self.weight=0.1, space='PCA', ncomps=50, n.odgenes=2000, matching.method='mNN', metric='angular', verbose=TRUE)
+```
+
+load annotation
+```{r}
+annot <- readRDS(file.path('/home/larsc/pancreas_smart_seq_design_info.rds'))
+```
+rbind panel
+```{r}
+rbound_pancreas <- RbindPanel(con)
+```
+
+Plotting with annotation just because
+
+```{r}
+common_cells <- annot$CellId %in%rownames(rbound_pancreas)
+annot_filt <- annot[common_cells,]
+annot_filt <- as.data.frame(annot_filt[,c(1,6,8, 9, 10)])
+annot_filt$subtype_condition <- paste0(annot_filt$`Characteristics[cell type]`, '_', annot_filt$`Characteristics[disease]`)
+```
+
+```{r}
+cell_annot <- setNames(annot_filt$`Characteristics[cell type]`, annot_filt$CellId)
+sample_annot <- setNames(annot_filt$Individual, annot_filt$CellId )
+condition_annot <- setNames(annot_filt$`Characteristics[disease]`, annot_filt$CellId)
+sub_cond_annot <- setNames(annot_filt$subtype_condition, annot_filt$CellId)
+sex_annot <- setNames(annot_filt$`Characteristics[sex]`, annot_filt$CellId)
+```
+
+```{r}
+con$plotGraph(groups=cell_annot, show.legend=T, font.size=3, size=0.3, alpha=0.3)
+con$plotGraph(groups=sample_annot, show.legend=T, font.size=3, size=0.3, alpha=0.3)
+con$plotGraph(groups=condition_annot, show.legend=T, font.size=3, size=0.3, alpha=0.3)
+con$plotGraph(groups=sub_cond_annot, font.size=3, size=0.3, alpha=0.3)
+con$plotGraph(groups=sex_annot, show.legend=T, font.size=3, size=0.3, alpha=0.3)
+```
+
+Initiate some variables
+```{r}
+od_genes = conos:::getOdGenesUniformly(con$samples, 3000)
+state_split <- split(annot_filt, annot_filt$`Characteristics[disease]`, drop=TRUE)
+subtype_split <- state_split %>% lapply(function(x){split(x, x$`Characteristics[cell type]`, drop=TRUE)})
+```
+
+
+Jensen Shannon, overall
+```{r}
+normal_probs <- subtype_split$normal %>% GetSampProbs(rbound_pancreas, od_genes, cellid.col = 1, pseudo.count=10^(-8))
+diabetes_probs <- subtype_split$`type II diabetes mellitus` %>% GetSampProbs(rbound_pancreas, od_genes, cellid.col = 1, pseudo.count=10^(-8))
+
+all_dists <- Map(JensenShannon, normal_probs, diabetes_probs) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=js_distance)
+ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) +geom_bar(stat='identity') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+PCA for correlation
+```{r}
+pca_cm <- prcomp_irlba(rbound_pancreas[, od_genes],n=100)
+pca_cmat <- pca_cm$x
+rownames(pca_cmat) <- rownames(rbound_pancreas)
+pca_genes <- colnames(pca_cmat)
+```
+
+```{r}
+normal_vecs <- subtype_split$normal %>% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 1, avg=T)
+diabetes_vecs <- subtype_split$`type II diabetes mellitus` %>% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 1, avg=T)
+
+all_dists <- Map(function(x,y){1-cor(x,y)}, normal_vecs, diabetes_vecs) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=corcomplement)
+ggplot(all_dists_gathered, aes(y=corcomplement, x=subtype)) +geom_bar(stat='identity') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+Fractional plot
+```{r}
+FractionalPlot(annot_filt$Individual, annot_filt$`Characteristics[cell type]`, annot_filt$`Characteristics[disease]`)
+```
+
+PAGA
+```{r}
+con_graph <- igraph::as_adjacency_matrix(con$graph, attr="weight")
+con_distances <- igraph::as_adjacency_matrix(con$graph,attr="weight")
+con_distances@x <- 1-con_distances@x
+annot_filt$subtype_sample <- paste(annot_filt$`Characteristics[cell type]`, annot_filt$Individual, sep='-')
+
+mem_levels <- factor(annot_filt$subtype_sample) %>% levels
+subtype_order <- (paste0(annot_filt$`Characteristics[cell type]`) %>% unique)[order(paste0(annot_filt$`Characteristics[cell type]`) %>% unique)]
+membership_vec <- as.numeric(factor(annot_filt$subtype_condition))
+#membership_levels <- factor(mouse_annot$subtype_sample) %>% levels
+#membership_vec_subsamp <- as.numeric(factor(mouse_annot$subtype_sample))
+```
+
+```{r}
+connectivities <- GetPagaMatrix(con_distances, membership_vec, scale=F)
+linearized_stats <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
+
+paga_df <- bind_cols(value=linearized_stats, subtype=subtype_order)
+ggplot(paga_df, aes(y=-linearized_stats, x=subtype)) +geom_point()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+tables
+```{r}
+table(annot_filt$`Characteristics[cell type]`)
+```
+
+```{r}
+table(annot_filt$subtype_condition)
+```
+

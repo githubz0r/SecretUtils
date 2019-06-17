@@ -1,0 +1,163 @@
+---
+title: "pancreas_indrop"
+author: "githubz0r"
+date: "2019-16-6"
+output: workflowr::wflow_html
+---
+
+load packages
+
+```{r}
+library(conos)
+library(tidyverse)
+devtools::load_all('/home/larsc/SecretUtils')
+require(pagoda2)
+library(pheatmap)
+library(irlba)
+library(igraph)
+con_pancreas <- readRDS('/home/larsc/data/pancreas_indrop_conos_precced_graphed.rds')
+location_of_annot <- '/d0-mendel/home/viktor_petukhov/SmallProjects/conos/data/conditions/seurat_islets/indrop/design_info.csv'
+pancreas_annot <- location_of_annot %>% data.table::fread(sep=",",header=T) %>% as.data.frame() 
+```
+
+
+Rbind panels from conos objects
+```{r}
+rbound_pancreas <- RbindPanel(con_pancreas)
+all.equal(rownames(rbound_pancreas), pancreas_annot$CellId)
+```
+
+Make groups for plotting
+```{r}
+pancreas_annot$subtype_disease <- paste0(pancreas_annot$CellType, pancreas_annot$Disease)
+
+individual_annot <- setNames(pancreas_annot$Individual, pancreas_annot$CellId)
+disease_annot <- setNames(pancreas_annot$Disease, pancreas_annot$CellId)
+celltype_annot <- setNames(pancreas_annot$CellType, pancreas_annot$CellId)
+sub_cond_annot <- setNames(pancreas_annot$subtype_disease, pancreas_annot$CellId)
+```
+
+```{r}
+table(individual_annot)
+table(celltype_annot)
+```
+
+Plot graph with different annotations
+```{r}
+con_pancreas$plotGraph(groups=disease_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)
+con_pancreas$plotGraph(groups=celltype_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)
+con_pancreas$plotGraph(groups=sub_cond_annot, font.size=3, size=0.3, alpha=0.3)
+con_pancreas$plotGraph(groups=individual_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)
+```
+
+Initiate some variables
+```{r}
+od_genes = conos:::getOdGenesUniformly(con_pancreas$samples, 3000)
+state_split <- split(pancreas_annot, pancreas_annot$Disease, drop=TRUE)
+subtype_split <- state_split %>% lapply(function(x){split(x, x$CellType, drop=TRUE)})
+```
+
+
+Jensen Shannon, overall (microglia has by far the most cells so this will heavily skew the result due to dropout)
+```{r}
+he_probs <- subtype_split$normal %>% GetSampProbs(rbound_pancreas, od_genes, cellid.col = 1, pseudo.count=10^(-8))
+t2_probs <- subtype_split$`type II diabetes mellitus` %>% 
+  GetSampProbs(rbound_pancreas, od_genes, cellid.col = 1, pseudo.count=10^(-8))
+
+all_dists <- Map(JensenShannon, he_probs, t2_probs) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=js_distance)
+ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) +geom_bar(stat='identity') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+
+Violins without neighbour smoothing?
+```{r}
+hecellprobs <- IndividualCellProbs(state_split$normal, rbound_pancreas, 3, 2, 100, od_genes, 10^(-8))
+t2cellprobs <- IndividualCellProbs(state_split$`type II diabetes mellitus`, rbound_pancreas, 3, 2, 100, od_genes, 10^(-8))
+all_singlecell_dists <- Map(CalculateAllJSD, hecellprobs, t2cellprobs)
+all_sc_dists <- all_singlecell_dists %>% as_tibble
+all_scd_gathered <- gather(all_sc_dists, key=subtype, value=jsd)
+ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+
+PCA for correlation
+```{r}
+pca_cm <- prcomp_irlba(rbound_pancreas[, od_genes],n=100)
+pca_cmat <- pca_cm$x
+rownames(pca_cmat) <- rownames(rbound_pancreas)
+pca_genes <- colnames(pca_cmat)
+```
+
+```{r}
+he_vecs <- subtype_split$normal %>% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 3, avg=T)
+t2_vecs <- subtype_split$`type II diabetes mellitus` %>% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 3, avg=T)
+
+#t2_vecs <- subtype_split$AD %>% GetSampProbs(pca_cmat, pca_genes, cellid.col = 1, pseudo.count=0) # remember sign
+#he_vecs <- subtype_split$WT %>% GetSampProbs(pca_cmat, pca_genes, cellid.col = 1, pseudo.count=0)
+
+all_dists <- Map(function(x,y){1-cor(x,y)}, he_vecs, t2_vecs) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=corcomplement)
+ggplot(all_dists_gathered, aes(y=corcomplement, x=subtype)) +geom_bar(stat='identity') +
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+Fractional plot
+```{r}
+FractionalPlot(pancreas_annot$Individual, pancreas_annot$CellType, pancreas_annot$Disease)
+```
+
+PAGA
+```{r}
+pancreas_adj <- igraph::as_adj(con_pancreas$graph, attr="weight")[pancreas_annot$CellId, pancreas_annot$CellId]
+
+subtype_order <- (paste0(pancreas_annot$CellType) %>% unique)[order(paste0(pancreas_annot$CellType) %>% unique)]
+membership_vec <- as.numeric(factor(pancreas_annot$subtype_disease))
+
+pancreas_annot$subtype_sample <- paste0(pancreas_annot$CellType, '-', pancreas_annot$Individual)
+membership_levels_subsamp <- factor(pancreas_annot$subtype_sample) %>% levels
+membership_vec_subsamp <- as.numeric(factor(pancreas_annot$subtype_sample))
+```
+
+
+```{r}
+connectivities <- GetPagaMatrix(pancreas_adj, membership_vec, scale=F)
+linearized_stats <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
+
+paga_df <- bind_cols(value=linearized_stats, subtype=subtype_order)
+ggplot(paga_df, aes(y=-linearized_stats, x=subtype)) +geom_point()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+test with sample information
+```{r}
+connectivities <- GetPagaMatrix(pancreas_adj, membership_vec_subsamp, scale=F)
+plot_df <- GeneratePagaSubSampDF(connectivities, pancreas_annot$CellType, pancreas_annot$Individual, pancreas_annot$Disease)
+
+plot_df %>% ggplot(aes(x=subtype, y=-value ,dodge=condition,fill=condition))+
+    geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+                           axis.text.y = element_text(angle = 90, hjust = 0.5))+
+  theme(legend.position="top")
+```
+
+
+Unaligned graph
+```{r}
+devtools::load_all('/home/larsc/SecretUtils')
+raw_pancreas <- RbindRaw(con_pancreas)
+pancreas_unaligned_adj <- GenerateUnalignedAdj(raw_pancreas, 
+                                            cellid.vector=pancreas_annot$CellId)
+
+```
+
+```{r}
+connectivities <- GetPagaMatrix(pancreas_unaligned_adj, membership_vec, scale=F)
+linearized_stats <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
+
+paga_df <- bind_cols(value=linearized_stats, subtype=subtype_order)
+ggplot(paga_df, aes(y=-linearized_stats, x=subtype)) +geom_point()+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+
