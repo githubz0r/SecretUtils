@@ -44,7 +44,7 @@ Makesubdistmat <- function(con.object, sample.vec, subtype.vec, cellid.vec) {
   CM <- con.object$getClusterCountMatrices(groups=type.factor)
   type.factor.count <- table(type.factor, sample.factor)
 
-  sub.dist.mat <- mclapply(setNames(colnames(CM[[1]]), colnames(CM[[1]])),function(ct) {
+  sub.dist.mat <- parallel::mclapply(setNames(colnames(CM[[1]]), colnames(CM[[1]])),function(ct) {
     tcm <- do.call(rbind,lapply(CM,function(x) x[,ct]))
     tcm <- t(tcm/pmax(1,rowSums(tcm)))
     tcd <- pagoda2:::jsDist(tcm); dimnames(tcd) <- list(colnames(tcm),colnames(tcm)); # calls a c function
@@ -57,22 +57,25 @@ Makesubdistmat <- function(con.object, sample.vec, subtype.vec, cellid.vec) {
 }
 
 PlotDistanceMatRed <- function(sub.dist.mat.object, sample.vec, subtype.vec, patient.vec,
-                               cellid.vec, condition.vec, perplexity, max_iter=1e3, get.mat=FALSE) {
+                               cellid.vec, condition.vec, perplexity, max_iter=1e3, get.mat=FALSE, by.subtype=TRUE) {
   annotation <- bind_cols(list(sample.vec, subtype.vec, patient.vec, cellid.vec, condition.vec)) %>% as.data.frame
   type.factor <- setNames(subtype.vec, cellid.vec) %>% as.factor
   samp.factor <- setNames(sample.vec, cellid.vec) %>% as.factor
-
   type.factor.count <- table(type.factor, samp.factor)
-  x <- abind(lapply(sub.dist.mat.object,function(x) {
+  if (by.subtype) {
+  x <- abind::abind(lapply(sub.dist.mat.object,function(x) {
     nc <- attr(x,'cc')
     wm <- sqrt(outer(nc,nc,FUN='pmin'))
     return( x*wm )
   }),along=3)
-  y <- abind(lapply(sub.dist.mat.object,function(x) {
+  y <- abind::abind(lapply(sub.dist.mat.object,function(x) {
     nc <- attr(x,'cc')
     sqrt(outer(nc,nc,FUN='pmin'))
   }),along=3)
   agg.dist.mat <- apply(x,c(1,2),sum)/apply(y,c(1,2),sum)
+  } else {
+    agg.dist.mat <- sub.dist.mat.object
+  }
 
   sample.split <- split(annotation, sample.vec)
   sample.conds <- sample.split %>% lapply(function(x){x[, 5][1]})
@@ -96,21 +99,25 @@ PlotDistanceMatRed <- function(sub.dist.mat.object, sample.vec, subtype.vec, pat
 }
 
 ConditionDistanceDensity <- function(sub.dist.mat.object, sample.vec, subtype.vec, patient.vec,
-                               cellid.vec, condition.vec, notch=FALSE, fraction.palette=NULL, plot=TRUE) {
+                               cellid.vec, condition.vec, notch=FALSE, fraction.palette=NULL, plot=TRUE, by.subtype=TRUE) {
   type.factor <- setNames(subtype.vec, cellid.vec) %>% as.factor
   samp.factor <- setNames(sample.vec, cellid.vec) %>% as.factor
 
   type.sample.count <- table(type.factor, samp.factor)
-  x <- abind(lapply(sub.dist.mat.object, function(x) {
+  if (by.subtype) {
+  x <- abind::abind(lapply(sub.dist.mat.object, function(x) {
     nc <- attr(x,'cc')
     wm <- sqrt(outer(nc,nc,FUN='pmin'))
     return( x*wm )
   }),along=3)
-  y <- abind(lapply(sub.dist.mat.object, function(x) {
+  y <- abind::abind(lapply(sub.dist.mat.object, function(x) {
     nc <- attr(x,'cc')
     sqrt(outer(nc,nc,FUN='pmin'))
   }),along=3)
   agg.dist.mat <- apply(x,c(1,2),sum)/apply(y,c(1,2),sum)
+  } else {
+    agg.dist.mat <- sub.dist.mat.object
+  }
   x <- agg.dist.mat; x[upper.tri(x)] <- NA; diag(x) <- NA
   df.jsd <- na.omit(melt(x))
 
@@ -147,36 +154,45 @@ ConditionDistanceDensity <- function(sub.dist.mat.object, sample.vec, subtype.ve
   }
 }
 
-PlotCellTypeDists <- function(sub.dist.mat.object, min.cells, between.conditions=TRUE) {
-  InterPatDF <- function(cell.type, min.cells=0, between.conditions) {
+PlotCellTypeDists <- function(sub.dist.mat.object, min.cells, sample.vector, condition.vector, plot=T, cell.count.attr=TRUE) {
+  look.up <- split(condition.vector, sample.vector) %>% lapply(unique)
+  InterPatDF <- function(cell.type, min.cells=0, look.up, cell.count.attr) {
+    factors <- look.up %>% unlist %>% unique
     x <- sub.dist.mat.object[[cell.type]] # jsdists for subtype xn
-    nc <- attr(x,'cc') # count of cells
-    wm <- outer(nc,nc,FUN='pmin') # min cells for the comparison
-
     x[upper.tri(x)] <- NA; diag(x) <- NA
-    wm[upper.tri(wm)] <- NA; diag(wm) <- NA
     df2 <- melt(x)
-    df2$ncells <- melt(wm)$value
+    if (cell.count.attr){
+      nc <- attr(x,'cc') # count of cells
+      wm <- outer(nc,nc,FUN='pmin') # min cells for the comparison
+      wm[upper.tri(wm)] <- NA; diag(wm) <- NA
+      df2$ncells <- melt(wm)$value
+      df2 <- na.omit(df2)
+      df2 <- df2[df2$ncells>=min.cells,]
+    }
     df2 <- na.omit(df2)
-    df2 <- df2[df2$ncells>=min.cells,]
 
     df2$patient1 <- df2$Var1
     df2$patient2 <- df2$Var2
-    inds.c <- grep('c_',df2$Var1)
-    inds.e <- grep('ep_',df2$Var2)
-    if (between.conditions){
-      inds.mixed <- intersect(inds.c, inds.e)
-    } else {
-      inds.mixed <- setdiff(union(inds.c, inds.e), intersect(inds.c, inds.e))
-    }
+    inds.factor1.var1 <- which((df2$Var1 %>% lapply(function(x)look.up[[as.character(x)]]) %>% unlist)==factors[1])
+    inds.factor1.var2 <- which((df2$Var2 %>% lapply(function(x)look.up[[as.character(x)]]) %>% unlist)==factors[1])
+    inds.factor2.var1 <- which((df2$Var1 %>% lapply(function(x)look.up[[as.character(x)]]) %>% unlist)==factors[2])
+    inds.factor2.var2 <- which((df2$Var2 %>% lapply(function(x)look.up[[as.character(x)]]) %>% unlist)==factors[2])
+    factor1.nooverlap <- setdiff(union(inds.factor1.var1, inds.factor1.var2), intersect(inds.factor1.var1, inds.factor1.var2))
+    factor2.nooverlap <- setdiff(union(inds.factor2.var1, inds.factor2.var2), intersect(inds.factor2.var1, inds.factor2.var2))
+    inds.mixed <- intersect(factor1.nooverlap, factor2.nooverlap)
+
     df2 <- df2[inds.mixed,]
     df2$cell <- cell.type
     df2
   }
-  xl <- do.call(rbind,lapply(names(sub.dist.mat.object), InterPatDF, min.cells, between.conditions=TRUE))
+  xl <- do.call(rbind,lapply(names(sub.dist.mat.object), InterPatDF, min.cells, look.up, cell.count.attr=cell.count.attr))
   xl$comparison <- paste(xl$patient1, xl$patient2, sep='.')
   p <- ggplot(na.omit(xl),aes(x=cell,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
     theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
     xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
-  return(p)
+  if (plot) {
+    return(p)
+  } else {
+    return(xl)
+  }
 }

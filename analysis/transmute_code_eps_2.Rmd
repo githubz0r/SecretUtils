@@ -24,8 +24,7 @@ library(dplyr)
 library(abind)
 library(tidyr)
 require(Rtsne)
-source('/home/larsc/SecretUtils/R/asdf.R')
-source('/home/larsc/SecretUtils/R/peter_code_utils.R')
+devtools::load_all('/home/larsc/SecretUtils')
 
 con <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
 con <- Conos$new(con)
@@ -71,7 +70,7 @@ PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample,
 Condition distance distribution
 ```{r}
 ConditionDistanceDensity(sub_dist_mat, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
-                         notch=TRUE, fraction.palette = fraction_palette_eps)
+                         notch=F, fraction.palette = fraction_palette_eps)
 
 ```
 
@@ -80,7 +79,53 @@ ConditionDistanceDensity(sub_dist_mat, annot$sample, annot$subtype, annot$sample
 
 Distribution distances per cell type (using ctdm so must be unweighted)
 ```{r}
+devtools::load_all('/home/larsc/SecretUtils')
 min_cells=0
-PlotCellTypeDists(sub_dist_mat, min_cells)
+SecretUtils::PlotCellTypeDists(sub_dist_mat, min_cells, annot$sample, annot$condition)
 ```
+
+Replacing JS distance matrix with paga metric
+Initialize some variables
+```{r}
+annot$subtype_sample <- paste0(annot$subtype, '-', annot$sample)
+membership_vec_subsamp <- as.numeric(factor(annot$subtype_sample))
+membership_vec_sample <- as.numeric(factor(annot$sample))
+raw_cm <- RbindRaw(con)
+unaligned_graph <- SecretUtils::GenerateUnalignedAdj(raw_cm, annot2$cellid)
+connectivities <- GetPagaMatrix(unaligned_graph, membership_vec_sample, scale=F)
+mem_levels <- factor(annot$subtype_sample) %>% levels
+subtype_order <- gsub("-.*","", mem_levels)
+sample_order <- gsub(".*-","", mem_levels)
+sample_order2 <- factor(annot$sample) %>% levels # sometimes care must be taken with special characters in the names
+```
+
+
+```{r}
+connectivities <- GetPagaMatrix(unaligned_graph, membership_vec_sample, scale=F) %>% as.matrix
+rownames(connectivities) <- sample_order %>% unique; colnames(connectivities) <- sample_order %>% unique
+SecretUtils::PlotDistanceMatRed(log(connectivities), annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e5, by.subtype=F)
+```
+
+```{r}
+SecretUtils::ConditionDistanceDensity(connectivities, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
+                         notch=F, fraction.palette = fraction_palette_eps, by.subtype=F)
+```
+
+
+Between conditions intersample distance per subtype, log transformed. Some -Inf because of 0 values being logged
+```{r}
+connectivities <- GetPagaMatrix(unaligned_graph, membership_vec_subsamp, scale=F) %>% as.matrix
+sub_paga_mats <- SecretUtils::SubsetPAGABySubtype(connectivities, mem_levels, sample_order, subtype_order)
+# pad the matrices to have same dim
+sub_paga_mats_padded <- sub_paga_mats %>% lapply(PadMatZeroes, sample_order %>% unique) %>% lapply(as.matrix)
+
+SecretUtils::PlotCellTypeDists(sub_paga_mats_padded %>% lapply(log), min_cells, annot$sample, annot$condition, cell.count.attr=F)
+```
+
+```{r}
+between_conds_df <- SecretUtils::PlotCellTypeDists(sub_paga_mats_padded %>% lapply(log), min_cells, annot$sample, annot$condition, plot=F, cell.count.attr=F)
+```
+
+
 

@@ -159,7 +159,7 @@ GeneratePagaSubSampDF <- function(paga.connectivities, subtype.vector, sample.ve
   return(bind_rows(factor1.dfs, factor2.dfs, between.dfs))
 }
 
-GenerateUnalignedAdjOld <- function(raw.count.mat, k=15, cellid.vector){
+GenerateUnalignedAdjOld <- function(raw.count.mat, cellid.vector, k=15){
   p2 <- Pagoda2$new(Matrix::t(raw.count.mat), log.scale=F)
   p2$adjustVariance(gam.k=10)
   p2$calculatePcaReduction(nPcs=100,n.odgenes=3e3)
@@ -168,10 +168,36 @@ GenerateUnalignedAdjOld <- function(raw.count.mat, k=15, cellid.vector){
   return(unaligned.graph.adj)
 }
 
-GenerateUnalignedAdj <- function(raw.count.mat, k=15, cellid.vector){
+GenerateUnalignedAdj <- function(raw.count.mat, cellid.vector, k=15){
   p2 <- Matrix::t(raw.count.mat) %>% basicP2proc(n.cores=1, min.cells.per.gene=0, n.odgenes=3e3,
                                                  get.largevis=FALSE, make.geneknn=FALSE, get.tsne=FALSE)
   p2$makeKnnGraph(k=k,type='PCA',center=T,distance='angular')
   unaligned.graph.adj <- igraph::as_adjacency_matrix(p2$graphs$PCA, attr="weight")[cellid.vector, cellid.vector]
   return(unaligned.graph.adj)
+}
+
+SubsetPAGABySubtype <- function(connectivities, membership.levels, sample.order, subtype.order) {
+  membership.split <- membership.levels %>% as.factor %>% as.numeric %>% split(subtype.order)
+  sample.split <- sample.order %>% as.factor %>% split(subtype.order)
+  subsetConnectivities <- function(sub.name){
+    sub.inds <- membership.split[[sub.name]]
+    submat <- connectivities[sub.inds, sub.inds]
+    colnames(submat) <- sample.split[[sub.name]]
+    rownames(submat) <- sample.split[[sub.name]]
+    return(submat)
+  }
+  subtype.connectivities <- subtype.order %>% unique %>% lapply(subsetConnectivities)
+  names(subtype.connectivities) <- subtype.order %>% unique
+  return(subtype.connectivities)
+}
+
+PadMatZeroes <- function(a.matrix, sample.list) {
+  N <- sample.list %>% length
+  Nold <- dim(a.matrix)[1]
+  new.mat <- matrix(0L, nrow = N, ncol = N)
+  new.mat[1:Nold, 1:Nold] <- a.matrix %>% as.vector
+  missing.samples <- setdiff(sample.list, colnames(a.matrix))
+  name.vector <- c(colnames(a.matrix), missing.samples)
+  colnames(new.mat) <- name.vector; rownames(new.mat) <- name.vector
+  return(new.mat[sample.list, sample.list])
 }
