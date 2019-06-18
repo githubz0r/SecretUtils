@@ -447,7 +447,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-05-29
+<strong>Last updated:</strong> 2019-06-18
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -526,10 +526,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreee04108ccf48e08dcde1e171c2922ce6413c88830targetblanke04108ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/e04108ccf48e08dcde1e171c2922ce6413c88830" target="_blank">e04108c</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreec4c861bdd0db133c99f2848917725881d5f2b698targetblankc4c861ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/c4c861bdd0db133c99f2848917725881d5f2b698" target="_blank">c4c861b</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreee04108ccf48e08dcde1e171c2922ce6413c88830targetblanke04108ca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreec4c861bdd0db133c99f2848917725881d5f2b698targetblankc4c861ba" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -541,17 +541,12 @@ Ignored files:
 
 Untracked files:
     Untracked:  .Rbuildignore
-    Untracked:  DESCRIPTION
-    Untracked:  NAMESPACE
-    Untracked:  R/graph_stuff.R
     Untracked:  R/hello.R
-    Untracked:  analysis/all.panels.pdf
-    Untracked:  analysis/cell_type_total_tSNE.w.pdf
-    Untracked:  analysis/fraction.all.pdf
-    Untracked:  analysis/jensen_shannon_stuff.Rmd
     Untracked:  analysis/make_scanpy_viktor.R
+    Untracked:  analysis/mouse_alzheimer_annotating.Rmd
+    Untracked:  analysis/mouse_alzheimer_preproc.Rmd
     Untracked:  analysis/paga.Rmd
-    Untracked:  analysis/paga2.Rmd
+    Untracked:  analysis/paga3.Rmd
     Untracked:  analysis/subtype_distances.Rmd
     Untracked:  analysis/subtype_distances2.Rmd
     Untracked:  analysis/subtype_distances4.Rmd
@@ -559,11 +554,21 @@ Untracked files:
     Untracked:  analysis/subtype_distances_revenge.Rmd
     Untracked:  analysis/test_output.Rmd
     Untracked:  analysis/transmute_peters_code.Rmd
+    Untracked:  analysis/ulcerative_collitis_preproc.Rmd
+    Untracked:  docs/figure/paga.Rmd/
     Untracked:  man/
 
 Unstaged changes:
+    Modified:   DESCRIPTION
+    Modified:   R/asdf.R
+    Modified:   analysis/correlation_stuff.Rmd
+    Modified:   analysis/jensen_shannon_stuff.Rmd
+    Modified:   analysis/misc_metrics.Rmd
+    Modified:   analysis/mouse_alzheimer_analysis.Rmd
+    Modified:   analysis/paga2.Rmd
     Modified:   analysis/subtype_distances3.Rmd
     Modified:   analysis/transmute_code_eps.Rmd
+    Modified:   analysis/visualizations.Rmd
 
 </code></pre>
 <p>
@@ -602,6 +607,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/c4c861bdd0db133c99f2848917725881d5f2b698/analysis/transmute_code_eps_2.Rmd" target="_blank">c4c861b</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-18
+</td>
+<td>
+adapting functions
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/e9a9541e6e21f057fa66c0fbaaf111cc417ae03e/docs/transmute_code_eps_2.html" target="_blank">e9a9541</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-29
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -848,10 +887,24 @@ Attaching package: &#39;tidyr&#39;</code></pre>
     expand</code></pre>
 <pre class="r"><code>require(Rtsne)</code></pre>
 <pre><code>Loading required package: Rtsne</code></pre>
-<pre class="r"><code>source(&#39;/home/larsc/SecretUtils/R/asdf.R&#39;)
-source(&#39;/home/larsc/SecretUtils/R/peter_code_utils.R&#39;)
+<pre class="r"><code>devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)</code></pre>
+<pre><code>Loading SecretUtils</code></pre>
+<pre><code>Loading required package: magrittr</code></pre>
+<pre><code>
+Attaching package: &#39;magrittr&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
 
-con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
+    extract</code></pre>
+<pre><code>Loading required package: reshape2</code></pre>
+<pre><code>
+Attaching package: &#39;reshape2&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    smiths</code></pre>
+<pre><code>The following objects are masked from &#39;package:data.table&#39;:
+
+    dcast, melt</code></pre>
+<pre class="r"><code>con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
 con &lt;- Conos$new(con)
 annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))
 fraction_palette_eps &lt;- c(epilepsy=&#39;hotpink&#39;, healthy=&#39;seagreen&#39;) </code></pre>
@@ -947,6 +1000,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/e9a9541e6e21f057fa66c0fbaaf111cc417ae03e/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-4-1.png" target="_blank">e9a9541</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-29
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/githubz0r/SecretUtils/blob/3d76016cdb31f43cb4298d14fac3f9c4e0755021/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-4-1.png" target="_blank">3d76016</a>
 </td>
 <td>
@@ -1030,6 +1094,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/e9a9541e6e21f057fa66c0fbaaf111cc417ae03e/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-5-1.png" target="_blank">e9a9541</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-29
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/githubz0r/SecretUtils/blob/3d76016cdb31f43cb4298d14fac3f9c4e0755021/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-5-1.png" target="_blank">3d76016</a>
 </td>
 <td>
@@ -1075,14 +1150,120 @@ c_p3  0.0827164
 c_p4  0.0000000</code></pre>
 <p>Condition distance distribution</p>
 <pre class="r"><code>ConditionDistanceDensity(sub_dist_mat, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
-                         notch=TRUE, fraction.palette = fraction_palette_eps)</code></pre>
-<pre><code>notch went outside hinges. Try setting notch=FALSE.
-notch went outside hinges. Try setting notch=FALSE.</code></pre>
+                         notch=F, fraction.palette = fraction_palette_eps)</code></pre>
 <p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/e9a9541e6e21f057fa66c0fbaaf111cc417ae03e/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-7-1.png" target="_blank">e9a9541</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Distribution distances per cell type (using ctdm so must be unweighted)</p>
+<pre class="r"><code>devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)</code></pre>
+<pre><code>Loading SecretUtils</code></pre>
 <pre class="r"><code>min_cells=0
-PlotCellTypeDists(sub_dist_mat, min_cells)</code></pre>
+SecretUtils::PlotCellTypeDists(sub_dist_mat, min_cells, annot$sample, annot$condition)</code></pre>
 <p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
+Past versions of unnamed-chunk-8-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-8-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/e9a9541e6e21f057fa66c0fbaaf111cc417ae03e/docs/figure/transmute_code_eps_2.Rmd/unnamed-chunk-8-1.png" target="_blank">e9a9541</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-05-29
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Replacing JS distance matrix with paga metric Initialize some variables</p>
+<pre class="r"><code>annot$subtype_sample &lt;- paste0(annot$subtype, &#39;-&#39;, annot$sample)
+membership_vec_subsamp &lt;- as.numeric(factor(annot$subtype_sample))
+membership_vec_sample &lt;- as.numeric(factor(annot$sample))
+raw_cm &lt;- RbindRaw(con)
+unaligned_graph &lt;- SecretUtils::GenerateUnalignedAdj(raw_cm, annot2$cellid)</code></pre>
+<pre><code>34198 cells, 33694 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 1029 overdispersed genes ... 1029 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>connectivities &lt;- GetPagaMatrix(unaligned_graph, membership_vec_sample, scale=F)
+mem_levels &lt;- factor(annot$subtype_sample) %&gt;% levels
+subtype_order &lt;- gsub(&quot;-.*&quot;,&quot;&quot;, mem_levels)
+sample_order &lt;- gsub(&quot;.*-&quot;,&quot;&quot;, mem_levels)
+sample_order2 &lt;- factor(annot$sample) %&gt;% levels # sometimes care must be taken with special characters in the names</code></pre>
+<pre class="r"><code>connectivities &lt;- GetPagaMatrix(unaligned_graph, membership_vec_sample, scale=F) %&gt;% as.matrix
+rownames(connectivities) &lt;- sample_order %&gt;% unique; colnames(connectivities) &lt;- sample_order %&gt;% unique
+SecretUtils::PlotDistanceMatRed(log(connectivities), annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e5, by.subtype=F)</code></pre>
+<p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>SecretUtils::ConditionDistanceDensity(connectivities, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
+                         notch=F, fraction.palette = fraction_palette_eps, by.subtype=F)</code></pre>
+<p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Between conditions intersample distance per subtype, log transformed. Some -Inf because of 0 values being logged</p>
+<pre class="r"><code>connectivities &lt;- GetPagaMatrix(unaligned_graph, membership_vec_subsamp, scale=F) %&gt;% as.matrix
+sub_paga_mats &lt;- SecretUtils::SubsetPAGABySubtype(connectivities, mem_levels, sample_order, subtype_order)
+# pad the matrices to have same dim
+sub_paga_mats_padded &lt;- sub_paga_mats %&gt;% lapply(PadMatZeroes, sample_order %&gt;% unique) %&gt;% lapply(as.matrix)
+
+SecretUtils::PlotCellTypeDists(sub_paga_mats_padded %&gt;% lapply(log), min_cells, annot$sample, annot$condition, cell.count.attr=F)</code></pre>
+<pre><code>Warning: Removed 93 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="figure/transmute_code_eps_2.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>between_conds_df &lt;- SecretUtils::PlotCellTypeDists(sub_paga_mats_padded %&gt;% lapply(log), min_cells, annot$sample, annot$condition, plot=F, cell.count.attr=F)</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1112,37 +1293,38 @@ attached base packages:
 [8] base     
 
 other attached packages:
- [1] Rtsne_0.14        tidyr_0.8.3       abind_1.4-5      
- [4] dplyr_0.8.0.1     cowplot_0.9.4     pagoda2_0.1.0    
- [7] data.table_1.12.2 ggplot2_3.1.1     conos_1.0.0      
-[10] igraph_1.2.4      Matrix_1.2-17    
+ [1] SecretUtils_0.1.0 reshape2_1.4.3    magrittr_1.5     
+ [4] Rtsne_0.15        tidyr_0.8.3       abind_1.4-5      
+ [7] dplyr_0.8.1       cowplot_0.9.4     pagoda2_0.1.0    
+[10] data.table_1.12.2 ggplot2_3.1.1     conos_1.0.0      
+[13] igraph_1.2.4      Matrix_1.2-17    
 
 loaded via a namespace (and not attached):
- [1] viridis_0.5.1       viridisLite_0.3.0   shiny_1.3.1        
- [4] assertthat_0.2.1    triebeard_0.3.0     urltools_1.7.3     
- [7] stats4_3.5.3        yaml_2.2.0          robustbase_0.93-4  
-[10] pillar_1.3.1        backports_1.1.4     lattice_0.20-38    
-[13] glue_1.3.1          digest_0.6.18       promises_1.0.1     
-[16] colorspace_1.4-1    htmltools_0.3.6     httpuv_1.5.1       
-[19] plyr_1.8.4          pkgconfig_2.0.2     purrr_0.3.2        
-[22] xtable_1.8-4        mvtnorm_1.0-10      scales_1.0.0       
-[25] brew_1.0-6          whisker_0.3-2       later_0.8.0        
-[28] git2r_0.25.2        tibble_2.1.1        withr_2.1.2        
-[31] nnet_7.3-12         lazyeval_0.2.2      magrittr_1.5       
-[34] crayon_1.3.4        mime_0.6            mclust_5.4.3       
-[37] evaluate_0.13       fs_1.2.7            MASS_7.3-51.3      
-[40] class_7.3-15        Rook_1.1-1          tools_3.5.3        
-[43] trimcluster_0.1-2.1 stringr_1.4.0       kernlab_0.9-27     
-[46] munsell_0.5.0       cluster_2.0.8       irlba_2.3.3        
-[49] fpc_2.1-11.1        compiler_3.5.3      rlang_0.3.4        
-[52] grid_3.5.3          rjson_0.2.20        labeling_0.3       
-[55] base64enc_0.1-3     rmarkdown_1.12      gtable_0.3.0       
-[58] flexmix_2.3-15      reshape2_1.4.3      R6_2.4.0           
-[61] gridExtra_2.3       knitr_1.22          prabclus_2.2-7     
-[64] workflowr_1.3.0     rprojroot_1.3-2     dendextend_1.10.0  
-[67] modeltools_0.2-22   stringi_1.4.3       Rcpp_1.0.1         
-[70] DEoptimR_1.0-8      tidyselect_0.2.5    xfun_0.6           
-[73] diptest_0.75-7     </code></pre>
+ [1] viridis_0.5.1     pkgload_1.0.2     splines_3.5.3    
+ [4] viridisLite_0.3.0 shiny_1.3.2       assertthat_0.2.1 
+ [7] triebeard_0.3.0   urltools_1.7.3    yaml_2.2.0       
+[10] remotes_2.0.4     sessioninfo_1.1.1 pillar_1.4.1     
+[13] backports_1.1.4   lattice_0.20-38   glue_1.3.1       
+[16] digest_0.6.18     promises_1.0.1    colorspace_1.4-1 
+[19] htmltools_0.3.6   httpuv_1.5.1      plyr_1.8.4       
+[22] pkgconfig_2.0.2   devtools_2.0.2    purrr_0.3.2      
+[25] xtable_1.8-4      scales_1.0.0      processx_3.3.1   
+[28] brew_1.0-6        whisker_0.3-2     later_0.8.0      
+[31] git2r_0.25.2      tibble_2.1.2      mgcv_1.8-28      
+[34] usethis_1.5.0     withr_2.1.2       lazyeval_0.2.2   
+[37] cli_1.1.0         crayon_1.3.4      mime_0.6         
+[40] memoise_1.1.0     evaluate_0.13     ps_1.3.0         
+[43] fs_1.3.1          nlme_3.1-139      MASS_7.3-51.3    
+[46] pkgbuild_1.0.3    Rook_1.1-1        tools_3.5.3      
+[49] prettyunits_1.0.2 stringr_1.4.0     munsell_0.5.0    
+[52] irlba_2.3.3       callr_3.2.0       compiler_3.5.3   
+[55] rlang_0.3.4       grid_3.5.3        rstudioapi_0.10  
+[58] rjson_0.2.20      labeling_0.3      base64enc_0.1-3  
+[61] rmarkdown_1.12    testthat_2.1.1    gtable_0.3.0     
+[64] R6_2.4.0          gridExtra_2.3     knitr_1.22       
+[67] workflowr_1.3.0   rprojroot_1.3-2   dendextend_1.12.0
+[70] desc_1.2.0        stringi_1.4.3     Rcpp_1.0.1       
+[73] tidyselect_0.2.5  xfun_0.6         </code></pre>
 </div>
 
 
