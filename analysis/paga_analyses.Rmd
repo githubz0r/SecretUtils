@@ -1,0 +1,74 @@
+---
+title: "paga_analyses"
+author: "githubz0r"
+date: "2019-20-6"
+output: workflowr::wflow_html
+---
+
+load teh data and packs
+
+```{r}
+library(conos)
+require(pagoda2)
+devtools::load_all('/home/larsc/SecretUtils')
+library(tidyverse)
+library(cowplot)
+```
+
+```{r}
+epilepsy_con <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
+epilepsy_annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
+```
+
+Fix annotation a little bit
+```{r}
+epilepsy_annot$cellid <- rownames(epilepsy_annot)
+```
+
+
+Read unaligned graph adj obtained with pagoda2 on the whole raw matrix
+```{r}
+eps_unaligned_adj <- readMM('/home/larsc/data/eps_unaligned_adj.mtx')
+```
+
+
+```{r}
+paga_subtype_condition <- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subtype, epilepsy_annot$condition,
+                                                     by.subtypes.condition = T)
+paga_subtype_condition$scatter.plot # not method, just object in list
+```
+
+
+Distance matrix tsne plot, using only a single n_sample x n_sample matrix. We use log scale.
+```{r}
+ 
+samples_connectivities <- GeneratePagaItems(eps_unaligned_adj, sample.vector=epilepsy_annot$sample, by.sample=T)
+SecretUtils::PlotDistanceMatRed(log(samples_connectivities$connectivities), epilepsy_annot$sample, epilepsy_annot$subtype,
+                                epilepsy_annot$sample, epilepsy_annot$cellid, epilepsy_annot$condition, perplexity=2, 
+                                max_iter=1e5, by.subtype=F)
+```
+
+
+Within conditions distances
+```{r}
+SecretUtils::ConditionDistanceDensity(samples_connectivities$connectivities, epilepsy_annot$sample, epilepsy_annot$subtype, 
+                                      epilepsy_annot$sample, epilepsy_annot$cellid, epilepsy_annot$condition, notch=F, by.subtype=F)
+```
+
+
+Using subtype-sample partitions
+```{r}
+paga_subtype_samples <- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subtype, epilepsy_annot$condition, 
+                                          epilepsy_annot$sample, by.subtypes.samples = T)
+
+paga_subtype_samples$sub.cond.plot
+```
+
+Deeper look at between distances (need better way to visualize this)
+```{r}
+paga_subtype_samples$paga.df %>% filter(condition=='between') %>%
+  ggplot(aes(x=subtype,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
+```
+

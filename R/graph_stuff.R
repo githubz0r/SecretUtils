@@ -84,17 +84,17 @@ GeneratePagaSubSampDFOld <- function(paga.connectivities, subtype.vector, sample
   }
 
   factor1.mats <- seq(1, length(sub.cond.indices), 2) %>%
-    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], connectivities);
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], paga.connectivities);
     rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i]]; return(sub.mat)})
   names(factor1.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
 
   factor2.mats <- seq(2, length(sub.cond.indices), 2) %>%
-    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], connectivities);
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], paga.connectivities);
     rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i]]; return(sub.mat)})
   names(factor2.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
 
   between.mats <- seq(1, length(sub.cond.indices), 2) %>%
-    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i+1]], connectivities);
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i+1]], paga.connectivities);
     rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i+1]]; return(sub.mat)})
   names(between.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
 
@@ -126,17 +126,17 @@ GeneratePagaSubSampDF <- function(paga.connectivities, subtype.vector, sample.ve
   }
 
   factor1.mats <- seq(1, length(sub.cond.indices), 2) %>%
-    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], connectivities) %>% as.matrix;
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], paga.connectivities) %>% as.matrix;
     rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i]]; return(sub.mat)})
   names(factor1.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
 
   factor2.mats <- seq(2, length(sub.cond.indices), 2) %>%
-    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], connectivities) %>% as.matrix;
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i]], paga.connectivities) %>% as.matrix;
     rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i]]; return(sub.mat)})
   names(factor2.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
 
   between.mats <- seq(1, length(sub.cond.indices), 2) %>%
-    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i+1]], connectivities) %>% as.matrix;
+    lapply(function(i){sub.mat <- GetSubConnectivity(sub.cond.indices[[i]], sub.cond.indices[[i+1]], paga.connectivities) %>% as.matrix;
     rownames(sub.mat) <- sub.samp.factor[[i]]; colnames(sub.mat) <- sub.samp.factor[[i+1]]; return(sub.mat)})
   names(between.mats) <- factor.vectors$subtypes %>% as.factor %>% levels
 
@@ -200,4 +200,39 @@ PadMatZeroes <- function(a.matrix, sample.list) {
   name.vector <- c(colnames(a.matrix), missing.samples)
   colnames(new.mat) <- name.vector; rownames(new.mat) <- name.vector
   return(new.mat[sample.list, sample.list])
+}
+
+
+
+
+GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=NULL, sample.vector=NULL,
+                              by.subtypes.condition=FALSE, by.subtypes.samples=FALSE, by.samples=FALSE){
+  if (by.subtypes.condition) {
+    subtype.condition <- paste0(subtype.vector, '-', condition.vector)
+    membership.vector <- as.numeric(factor(subtype.condition))
+    subtype.order <- (paste0(subtype.vector) %>% unique)[order(paste0(subtype.vector) %>% unique)]
+    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F)
+    statistics <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
+    paga.df <- bind_cols(statistics=statistics, subtype=subtype.order)
+    paga.df$ncells <- table(subtype.vector)[subtype.order] %>% as.numeric
+    p <- ggplot(paga.df, aes(y=statistics, x=subtype)) + geom_point()+
+      theme(axis.text.x = element_text(angle = -90, hjust = 1))
+    return(list(connectivities=connectivities, paga.df=paga.df, scatter.plot=p))
+  } else if (by.subtypes.samples) {
+    subtype.samples <- paste0(subtype.vector, '-', sample.vector)
+    membership.vec.subsamp <- as.numeric(factor(subtype.samples))
+    connectivities <- GetPagaMatrix(graph.adj, membership.vec.subsamp, scale=F)
+    paga.df <- GeneratePagaSubSampDF(connectivities, subtype.vector, sample.vector, condition.vector)
+    paga.df <- paga.df %>% mutate(statistics=value)
+    p <- paga.df %>% ggplot(aes(x=subtype, y=statistics ,dodge=condition,fill=condition))+
+      geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1),
+                             axis.text.y = element_text(angle = 90, hjust = 0.5))+theme(legend.position="top")
+    return(list(connectivities=connectivities, paga.df=paga.df, sub.cond.plot=p))
+  } else if (by.samples) {
+    membership.vector <- as.numeric(factor(sample.vector))
+    sample.order <- (paste0(sample.vector) %>% unique)[order(paste0(sample.vector) %>% unique)]
+    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F) %>% as.matrix
+    rownames(connectivities) <- sample.order; colnames(connectivities) <- sample.order
+    return(list(connectivities=connectivities))
+  }
 }

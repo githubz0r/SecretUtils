@@ -143,7 +143,7 @@ ConditionDistanceDensity <- function(sub.dist.mat.object, sample.vec, subtype.ve
   ts.within.fraction <- ggplot(na.omit(df.jsd),aes(x=condition1,y=value))+geom_boxplot(notch=notch,outlier.shape=NA,aes(fill=condition1))+
     geom_jitter(position=position_jitter(0.2), color=adjustcolor('black', alpha=0.2)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
-    guides(fill=FALSE) + xlab('') + ylab('inter-patient expression distance')
+    guides(fill=FALSE) + xlab('') + ylab('inter-patient distance')
   if(fraction.palette %>% is.null()==FALSE) {
     ts.within.fraction <- ts.within.fraction + scale_fill_manual(values=fraction.palette)
   }
