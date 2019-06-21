@@ -5,7 +5,7 @@ date: "2019-20-6"
 output: workflowr::wflow_html
 ---
 
-load teh data and packs
+load packages etc.
 
 ```{r}
 library(conos)
@@ -14,6 +14,7 @@ devtools::load_all('/home/larsc/SecretUtils')
 library(tidyverse)
 library(cowplot)
 ```
+## Epilepsy
 
 ```{r}
 epilepsy_con <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
@@ -23,6 +24,12 @@ epilepsy_annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_2
 Fix annotation a little bit
 ```{r}
 epilepsy_annot$cellid <- rownames(epilepsy_annot)
+```
+
+nr of cells in each subtype for each condition
+```{r}
+condition_split <- split(epilepsy_annot$subtype, epilepsy_annot$condition, drop=TRUE)
+condition_split %>% lapply(table)
 ```
 
 
@@ -35,15 +42,16 @@ eps_unaligned_adj <- readMM('/home/larsc/data/eps_unaligned_adj.mtx')
 ```{r}
 paga_subtype_condition <- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subtype, epilepsy_annot$condition,
                                                      by.subtypes.condition = T)
-paga_subtype_condition$scatter.plot # not method, just object in list
+paga_subtype_condition$scatter.plot # has matrix, data frame and plot
 ```
 
 
-Distance matrix tsne plot, using only a single n_sample x n_sample matrix. We use log scale.
+Distance matrix tsne plot, using only a single n_sample x n_sample matrix.
 ```{r}
  
 samples_connectivities <- GeneratePagaItems(eps_unaligned_adj, sample.vector=epilepsy_annot$sample, by.sample=T)
-SecretUtils::PlotDistanceMatRed(log(samples_connectivities$connectivities), epilepsy_annot$sample, epilepsy_annot$subtype,
+# put it in log scale for better visualization, so we add a small pseudo connectivity
+SecretUtils::PlotDistanceMatRed(log(samples_connectivities$connectivities+1e-6), epilepsy_annot$sample, epilepsy_annot$subtype,
                                 epilepsy_annot$sample, epilepsy_annot$cellid, epilepsy_annot$condition, perplexity=2, 
                                 max_iter=1e5, by.subtype=F)
 ```
@@ -64,11 +72,71 @@ paga_subtype_samples <- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subt
 paga_subtype_samples$sub.cond.plot
 ```
 
-Deeper look at between distances (need better way to visualize this)
+Deeper look at between distances (this is what the last function in the other script does, so we don't need it)
 ```{r}
 paga_subtype_samples$paga.df %>% filter(condition=='between') %>%
   ggplot(aes(x=subtype,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
     theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
     xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
+```
+
+## Pancreas indrop, 4 samples
+```{r}
+pancreas_con <- readRDS('/home/larsc/data/pancreas_indrop_conos_precced_graphed.rds')
+location_of_annot <- '/d0-mendel/home/viktor_petukhov/SmallProjects/conos/data/conditions/seurat_islets/indrop/design_info.csv'
+pancreas_annot <- location_of_annot %>% data.table::fread(sep=",",header=T) %>% as.data.frame()
+```
+
+nr of cells in each subtype for each condition, lots of very small partitions so they will be distorting the results
+```{r}
+condition_split <- split(pancreas_annot$CellType, pancreas_annot$Disease, drop=TRUE)
+condition_split %>% lapply(table)
+```
+
+Create unaligned matrix
+```{r}
+raw_pancreas <- RbindRaw(pancreas_con)
+unaligned_pancreas <- SecretUtils::GenerateUnalignedAdj(raw_pancreas, pancreas_annot$CellId)
+```
+
+Scatter plot of PAGA values for subtype-condition partitions
+```{r}
+paga_subtype_condition <- GeneratePagaItems(unaligned_pancreas, pancreas_annot$CellType, pancreas_annot$Disease,
+                                                     by.subtypes.condition = T)
+paga_subtype_condition$scatter.plot
+```
+
+Distance matrix tsne plot, using only a single n_sample x n_sample matrix.
+```{r}
+ 
+samples_connectivities <- GeneratePagaItems(unaligned_pancreas, sample.vector=pancreas_annot$Individual, by.sample=T)
+# put it in log scale for better visualization, so we add a small pseudo connectivity
+SecretUtils::PlotDistanceMatRed(log(samples_connectivities$connectivities+1e-6), pancreas_annot$Individual, pancreas_annot$CellType,
+                                pancreas_annot$Individual, pancreas_annot$CellId, pancreas_annot$Disease, perplexity=1, 
+                                max_iter=1e5, by.subtype=F)
+```
+
+Within conditions distances using same single sample x sample matrix (we only have 1 diseased sample/individual)
+```{r}
+SecretUtils::ConditionDistanceDensity(samples_connectivities$connectivities, pancreas_annot$Individual, pancreas_annot$CellType, 
+                                      pancreas_annot$Individual, pancreas_annot$CellId, pancreas_annot$Disease, notch=F,
+                                      by.subtype=F)
+```
+
+
+```{r}
+paga_subtype_samples <- GeneratePagaItems(unaligned_pancreas, pancreas_annot$CellType, pancreas_annot$Disease, 
+                                          pancreas_annot$Individual, by.subtypes.samples = T)
+
+paga_subtype_samples$sub.cond.plot
+```
+
+closer look at between distances
+```{r}
+paga_subtype_samples$paga.df %>% filter(condition=='between') %>%
+  ggplot(aes(x=subtype,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
+
 ```
 

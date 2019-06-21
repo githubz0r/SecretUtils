@@ -16,7 +16,7 @@ GetPagaMatrix <- function(dst.matrix, membership.vector, scale=F) {
     return(2*(sub.graph %>% gsize))
   }
   es.inner.cluster <- 1:length(vc) %>% lapply(getEsCount, vc, g) %>% unlist
-  cg1 <- contract(g, vc$membership, vertex.attr.comb = 'sum')
+  cg1 <- igraph::contract(g, vc$membership, vertex.attr.comb = 'sum')
   cg2 <- igraph::simplify(cg1, remove.multiple = F, remove.loops = T,
                   edge.attr.comb = igraph_opt("sum"))
   inter.es <- as_adj(cg2)
@@ -40,7 +40,7 @@ GenerateFactorVectors <- function(subtype.vector, sample.vector, condition.vecto
   samples <- gsub(".*-;;-", "", conc)
   samples <- gsub(';__;.*', "", samples)
   condition <- gsub('.*;__;', "", conc)
-  return(bind_cols(subtypes=subtypes, samples=samples, condition=condition, concatenated=conc))
+  return(dplyr::bind_cols(subtypes=subtypes, samples=samples, condition=condition, concatenated=conc))
 }
 
 MeltMatrix <- function(x, symmetric){
@@ -50,7 +50,7 @@ MeltMatrix <- function(x, symmetric){
   } else {
     df <- reshape2::melt(as.matrix(x))
   }
-  df <- bind_cols(value=df$value, comparison=paste0(df$Var1, '-', df$Var2))
+  df <- dplyr::bind_cols(value=df$value, comparison=paste0(df$Var1, '-', df$Var2))
   return(df)
 }
 
@@ -104,7 +104,7 @@ GeneratePagaSubSampDFOld <- function(paga.connectivities, subtype.vector, sample
   factor1.dfs <- MeltAndAppend(factor1.mats, factor1.identity)
   factor2.dfs <- MeltAndAppend(factor2.mats, factor2.identity)
   between.dfs <- MeltAndAppend(between.mats, 'between', symmetric = FALSE)
-  return(bind_rows(factor1.dfs, factor2.dfs, between.dfs))
+  return(dplyr::bind_rows(factor1.dfs, factor2.dfs, between.dfs))
 }
 
 GeneratePagaSubSampDF <- function(paga.connectivities, subtype.vector, sample.vector, condition.vector) {
@@ -156,7 +156,7 @@ GeneratePagaSubSampDF <- function(paga.connectivities, subtype.vector, sample.ve
     factor2.dfs <- NULL
   }
   between.dfs <- MeltAndAppend(between.mats, 'between', symmetric = FALSE)
-  return(bind_rows(factor1.dfs, factor2.dfs, between.dfs))
+  return(dplyr::bind_rows(factor1.dfs, factor2.dfs, between.dfs))
 }
 
 GenerateUnalignedAdjOld <- function(raw.count.mat, cellid.vector, k=15){
@@ -213,7 +213,7 @@ GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=N
     subtype.order <- (paste0(subtype.vector) %>% unique)[order(paste0(subtype.vector) %>% unique)]
     connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F)
     statistics <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
-    paga.df <- bind_cols(statistics=statistics, subtype=subtype.order)
+    paga.df <- dplyr::bind_cols(statistics=statistics, subtype=subtype.order)
     paga.df$ncells <- table(subtype.vector)[subtype.order] %>% as.numeric
     p <- ggplot(paga.df, aes(y=statistics, x=subtype)) + geom_point()+
       theme(axis.text.x = element_text(angle = -90, hjust = 1))

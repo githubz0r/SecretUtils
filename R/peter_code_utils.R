@@ -1,5 +1,5 @@
 FractionalPlot <- function(patient.vec, subtype.vec, condition.vec, fraction.palette=NULL, return.plot=TRUE){
-  annotation <- bind_cols(list(patient.vec, subtype.vec, condition.vec)) %>% as.data.frame
+  annotation <- dplyr::bind_cols(list(patient.vec, subtype.vec, condition.vec)) %>% as.data.frame
   sub.split <- split(annotation, annotation[, 2])
   sub.split <- sub.split %>% lapply(function(x){x <- mutate(x, pat.cond = paste(x[, 1], x[, 3], sep='-'))})
   CountPatConds <- function(annotation) {
@@ -58,7 +58,7 @@ Makesubdistmat <- function(con.object, sample.vec, subtype.vec, cellid.vec) {
 
 PlotDistanceMatRed <- function(sub.dist.mat.object, sample.vec, subtype.vec, patient.vec,
                                cellid.vec, condition.vec, perplexity, max_iter=1e3, get.mat=FALSE, by.subtype=TRUE) {
-  annotation <- bind_cols(list(sample.vec, subtype.vec, patient.vec, cellid.vec, condition.vec)) %>% as.data.frame
+  annotation <- dplyr::bind_cols(list(sample.vec, subtype.vec, patient.vec, cellid.vec, condition.vec)) %>% as.data.frame
   type.factor <- setNames(subtype.vec, cellid.vec) %>% as.factor
   samp.factor <- setNames(sample.vec, cellid.vec) %>% as.factor
   type.factor.count <- table(type.factor, samp.factor)
@@ -121,7 +121,7 @@ ConditionDistanceDensity <- function(sub.dist.mat.object, sample.vec, subtype.ve
   x <- agg.dist.mat; x[upper.tri(x)] <- NA; diag(x) <- NA
   df.jsd <- na.omit(melt(x))
 
-  annotation <- bind_cols(list(sample.vec, patient.vec, condition.vec)) %>% as.data.frame
+  annotation <- dplyr::bind_cols(list(sample.vec, patient.vec, condition.vec)) %>% as.data.frame
   sample.split <- split(annotation, sample.vec)
   GetPat <- function(x){
     samp.sub <- annotation[annotation[, 1]==x, ]
