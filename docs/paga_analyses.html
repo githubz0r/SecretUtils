@@ -446,7 +446,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-06-20
+<strong>Last updated:</strong> 2019-06-21
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -525,10 +525,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreee8e6689001a0828e5f13ec56f519ae6f520427c6targetblanke8e6689a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/e8e6689001a0828e5f13ec56f519ae6f520427c6" target="_blank">e8e6689</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree20d9d8bbd9768364f78e55ba7a623e1995f7848atargetblank20d9d8ba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/20d9d8bbd9768364f78e55ba7a623e1995f7848a" target="_blank">20d9d8b</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreee8e6689001a0828e5f13ec56f519ae6f520427c6targetblanke8e6689a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree20d9d8bbd9768364f78e55ba7a623e1995f7848atargetblank20d9d8ba" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -537,7 +537,6 @@ Great! You are using Git for version control. Tracking code development and conn
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-    Ignored:    analysis/figure/
 
 Untracked files:
     Untracked:  .Rbuildignore
@@ -566,6 +565,7 @@ Unstaged changes:
     Modified:   analysis/misc_metrics.Rmd
     Modified:   analysis/mouse_alzheimer_analysis.Rmd
     Modified:   analysis/paga2.Rmd
+    Modified:   analysis/pancreas_indrop.Rmd
     Modified:   analysis/subtype_distances3.Rmd
     Modified:   analysis/transmute_code_eps.Rmd
     Modified:   analysis/transmute_code_eps_2.Rmd
@@ -613,6 +613,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/20d9d8bbd9768364f78e55ba7a623e1995f7848a/analysis/paga_analyses.Rmd" target="_blank">20d9d8b</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-21
+</td>
+<td>
+paga analysis on eps and updating functions
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/e31dd10af2da0627a4cf204bf972e0e0e0e50bbb/docs/paga_analyses.html" target="_blank">e31dd10</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-20
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/githubz0r/SecretUtils/blob/e8e6689001a0828e5f13ec56f519ae6f520427c6/analysis/paga_analyses.Rmd" target="_blank">e8e6689</a>
 </td>
 <td>
@@ -632,7 +666,7 @@ paga analysis on eps and updating functions
 </div>
 </div>
 </div>
-<p>load teh data and packs</p>
+<p>load packages etc.</p>
 <pre class="r"><code>library(conos)</code></pre>
 <pre><code>Loading required package: Matrix</code></pre>
 <pre><code>Loading required package: igraph</code></pre>
@@ -673,38 +707,281 @@ Attaching package: &#39;cowplot&#39;</code></pre>
 <pre><code>The following object is masked from &#39;package:ggplot2&#39;:
 
     ggsave</code></pre>
+<div id="epilepsy" class="section level2">
+<h2>Epilepsy</h2>
 <pre class="r"><code>epilepsy_con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
 epilepsy_annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))</code></pre>
 <p>Fix annotation a little bit</p>
 <pre class="r"><code>epilepsy_annot$cellid &lt;- rownames(epilepsy_annot)</code></pre>
+<p>nr of cells in each subtype for each condition</p>
+<pre class="r"><code>condition_split &lt;- split(epilepsy_annot$subtype, epilepsy_annot$condition, drop=TRUE)
+condition_split %&gt;% lapply(table)</code></pre>
+<pre><code>$epilepsy
+
+     Id2_Nos1      Id2_Reln     L2/3_Cux2      L2_Lamp5     L3_Prss12 
+          497           947          1158          2224           284 
+      L4_Rorb     L5_Grin3a      L5_Htr2c      L6_Nr4a2       L6_Syn3 
+         3271          2431           518           508           714 
+      L6_Tle4     Pvalb_Crh    Pvalb_Nos1   Pvalb_Sulf1      Reln_Crh 
+          831           237           312          1444           442 
+    Sst_Calb1 Sst_Tac3_Lhx6       Vip_Crh     Vip_Nr2f2    Vip_Sema3c 
+         1354          1802          1811           914          1111 
+
+$healthy
+
+     Id2_Nos1      Id2_Reln     L2/3_Cux2      L2_Lamp5     L3_Prss12 
+          175           444           826          3067           136 
+      L4_Rorb     L5_Grin3a      L5_Htr2c      L6_Nr4a2       L6_Syn3 
+          915           463           109           120           219 
+      L6_Tle4     Pvalb_Crh    Pvalb_Nos1   Pvalb_Sulf1      Reln_Crh 
+          163            93            31           909           183 
+    Sst_Calb1 Sst_Tac3_Lhx6       Vip_Crh     Vip_Nr2f2    Vip_Sema3c 
+          654           642          1080           538           621 </code></pre>
 <p>Read unaligned graph adj obtained with pagoda2 on the whole raw matrix</p>
 <pre class="r"><code>eps_unaligned_adj &lt;- readMM(&#39;/home/larsc/data/eps_unaligned_adj.mtx&#39;)</code></pre>
 <pre class="r"><code>paga_subtype_condition &lt;- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subtype, epilepsy_annot$condition,
                                                      by.subtypes.condition = T)
-paga_subtype_condition$scatter.plot # not method, just object in list</code></pre>
-<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Distance matrix tsne plot, using only a single n_sample x n_sample matrix. We use log scale.</p>
+paga_subtype_condition$scatter.plot # has matrix, data frame and plot</code></pre>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
+Past versions of unnamed-chunk-6-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/e31dd10af2da0627a4cf204bf972e0e0e0e50bbb/docs/figure/paga_analyses.Rmd/unnamed-chunk-6-1.png" target="_blank">e31dd10</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-20
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Distance matrix tsne plot, using only a single n_sample x n_sample matrix.</p>
 <pre class="r"><code>samples_connectivities &lt;- GeneratePagaItems(eps_unaligned_adj, sample.vector=epilepsy_annot$sample, by.sample=T)
-SecretUtils::PlotDistanceMatRed(log(samples_connectivities$connectivities), epilepsy_annot$sample, epilepsy_annot$subtype,
+# put it in log scale for better visualization, so we add a small pseudo connectivity
+SecretUtils::PlotDistanceMatRed(log(samples_connectivities$connectivities+1e-6), epilepsy_annot$sample, epilepsy_annot$subtype,
                                 epilepsy_annot$sample, epilepsy_annot$cellid, epilepsy_annot$condition, perplexity=2, 
                                 max_iter=1e5, by.subtype=F)</code></pre>
-<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/e31dd10af2da0627a4cf204bf972e0e0e0e50bbb/docs/figure/paga_analyses.Rmd/unnamed-chunk-7-1.png" target="_blank">e31dd10</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-20
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Within conditions distances</p>
 <pre class="r"><code>SecretUtils::ConditionDistanceDensity(samples_connectivities$connectivities, epilepsy_annot$sample, epilepsy_annot$subtype, 
                                       epilepsy_annot$sample, epilepsy_annot$cellid, epilepsy_annot$condition, notch=F, by.subtype=F)</code></pre>
-<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
+Past versions of unnamed-chunk-8-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-8-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/e31dd10af2da0627a4cf204bf972e0e0e0e50bbb/docs/figure/paga_analyses.Rmd/unnamed-chunk-8-1.png" target="_blank">e31dd10</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-20
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Using subtype-sample partitions</p>
 <pre class="r"><code>paga_subtype_samples &lt;- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subtype, epilepsy_annot$condition, 
                                           epilepsy_annot$sample, by.subtypes.samples = T)
 
 paga_subtype_samples$sub.cond.plot</code></pre>
-<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Deeper look at between distances (need better way to visualize this)</p>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
+Past versions of unnamed-chunk-9-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-9-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/e31dd10af2da0627a4cf204bf972e0e0e0e50bbb/docs/figure/paga_analyses.Rmd/unnamed-chunk-9-1.png" target="_blank">e31dd10</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-20
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Deeper look at between distances (this is what the last function in the other script does, so we don’t need it)</p>
 <pre class="r"><code>paga_subtype_samples$paga.df %&gt;% filter(condition==&#39;between&#39;) %&gt;%
   ggplot(aes(x=subtype,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
     theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
     xlab(&quot;&quot;) +ylab(&quot;inter-patient expression distance&quot;)+ theme(legend.position=&quot;top&quot;)</code></pre>
-<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="pancreas-indrop-4-samples" class="section level2">
+<h2>Pancreas indrop, 4 samples</h2>
+<pre class="r"><code>pancreas_con &lt;- readRDS(&#39;/home/larsc/data/pancreas_indrop_conos_precced_graphed.rds&#39;)
+location_of_annot &lt;- &#39;/d0-mendel/home/viktor_petukhov/SmallProjects/conos/data/conditions/seurat_islets/indrop/design_info.csv&#39;
+pancreas_annot &lt;- location_of_annot %&gt;% data.table::fread(sep=&quot;,&quot;,header=T) %&gt;% as.data.frame()</code></pre>
+<p>nr of cells in each subtype for each condition, lots of very small partitions so they will be distorting the results</p>
+<pre class="r"><code>condition_split &lt;- split(pancreas_annot$CellType, pancreas_annot$Disease, drop=TRUE)
+condition_split %&gt;% lapply(table)</code></pre>
+<pre><code>$normal
+
+            acinar activated_stellate              alpha 
+               956                232               2042 
+              beta              delta             ductal 
+              2030                500                797 
+       endothelial            epsilon              gamma 
+               245                 17                192 
+        macrophage               mast quiescent_stellate 
+                45                 24                168 
+           schwann             t_cell 
+                12                  6 
+
+$`type II diabetes mellitus`
+
+            acinar activated_stellate              alpha 
+                 2                 52                284 
+              beta              delta             ductal 
+               495                101                280 
+       endothelial            epsilon              gamma 
+                 7                  1                 63 
+        macrophage               mast quiescent_stellate 
+                10                  1                  5 
+           schwann             t_cell 
+                 1                  1 </code></pre>
+<p>Create unaligned matrix</p>
+<pre class="r"><code>raw_pancreas &lt;- RbindRaw(pancreas_con)
+unaligned_pancreas &lt;- SecretUtils::GenerateUnalignedAdj(raw_pancreas, pancreas_annot$CellId)</code></pre>
+<pre><code>8569 cells, 20125 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 1221 overdispersed genes ... 1221 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<p>Scatter plot of PAGA values for subtype-condition partitions</p>
+<pre class="r"><code>paga_subtype_condition &lt;- GeneratePagaItems(unaligned_pancreas, pancreas_annot$CellType, pancreas_annot$Disease,
+                                                     by.subtypes.condition = T)
+paga_subtype_condition$scatter.plot</code></pre>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Distance matrix tsne plot, using only a single n_sample x n_sample matrix.</p>
+<pre class="r"><code>samples_connectivities &lt;- GeneratePagaItems(unaligned_pancreas, sample.vector=pancreas_annot$Individual, by.sample=T)
+# put it in log scale for better visualization, so we add a small pseudo connectivity
+SecretUtils::PlotDistanceMatRed(log(samples_connectivities$connectivities+1e-6), pancreas_annot$Individual, pancreas_annot$CellType,
+                                pancreas_annot$Individual, pancreas_annot$CellId, pancreas_annot$Disease, perplexity=1, 
+                                max_iter=1e5, by.subtype=F)</code></pre>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Within conditions distances using same single sample x sample matrix (we only have 1 diseased sample/individual)</p>
+<pre class="r"><code>SecretUtils::ConditionDistanceDensity(samples_connectivities$connectivities, pancreas_annot$Individual, pancreas_annot$CellType, 
+                                      pancreas_annot$Individual, pancreas_annot$CellId, pancreas_annot$Disease, notch=F,
+                                      by.subtype=F)</code></pre>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>paga_subtype_samples &lt;- GeneratePagaItems(unaligned_pancreas, pancreas_annot$CellType, pancreas_annot$Disease, 
+                                          pancreas_annot$Individual, by.subtypes.samples = T)
+
+paga_subtype_samples$sub.cond.plot</code></pre>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>closer look at between distances</p>
+<pre class="r"><code>paga_subtype_samples$paga.df %&gt;% filter(condition==&#39;between&#39;) %&gt;%
+  ggplot(aes(x=subtype,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab(&quot;&quot;) +ylab(&quot;inter-patient expression distance&quot;)+ theme(legend.position=&quot;top&quot;)</code></pre>
+<p><img src="figure/paga_analyses.Rmd/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -744,32 +1021,33 @@ loaded via a namespace (and not attached):
  [1] nlme_3.1-139      fs_1.3.1          usethis_1.5.0    
  [4] lubridate_1.7.4   devtools_2.0.2    httr_1.4.0       
  [7] rprojroot_1.3-2   tools_3.5.3       backports_1.1.4  
-[10] R6_2.4.0          irlba_2.3.3       lazyeval_0.2.2   
-[13] colorspace_1.4-1  withr_2.1.2       tidyselect_0.2.5 
-[16] gridExtra_2.3     prettyunits_1.0.2 processx_3.3.1   
-[19] compiler_3.5.3    git2r_0.25.2      rvest_0.3.4      
-[22] cli_1.1.0         xml2_1.2.0        desc_1.2.0       
-[25] labeling_0.3      triebeard_0.3.0   scales_1.0.0     
-[28] callr_3.2.0       digest_0.6.18     rmarkdown_1.12   
-[31] base64enc_0.1-3   pkgconfig_2.0.2   htmltools_0.3.6  
-[34] sessioninfo_1.1.1 readxl_1.3.1      rlang_0.3.4      
-[37] rstudioapi_0.10   shiny_1.3.2       generics_0.0.2   
-[40] jsonlite_1.6      dendextend_1.12.0 Rcpp_1.0.1       
-[43] munsell_0.5.0     abind_1.4-5       viridis_0.5.1    
-[46] stringi_1.4.3     whisker_0.3-2     yaml_2.2.0       
-[49] MASS_7.3-51.3     pkgbuild_1.0.3    Rtsne_0.15       
-[52] plyr_1.8.4        grid_3.5.3        parallel_3.5.3   
-[55] promises_1.0.1    crayon_1.3.4      lattice_0.20-38  
-[58] haven_2.1.0       hms_0.4.2         knitr_1.22       
-[61] ps_1.3.0          pillar_1.4.1      rjson_0.2.20     
-[64] pkgload_1.0.2     glue_1.3.1        evaluate_0.13    
-[67] data.table_1.12.2 remotes_2.0.4     modelr_0.1.4     
-[70] httpuv_1.5.1      urltools_1.7.3    cellranger_1.1.0 
-[73] testthat_2.1.1    gtable_0.3.0      assertthat_0.2.1 
-[76] xfun_0.6          mime_0.6          xtable_1.8-4     
-[79] broom_0.5.2       later_0.8.0       viridisLite_0.3.0
-[82] memoise_1.1.0     workflowr_1.3.0   Rook_1.1-1       
-[85] brew_1.0-6       </code></pre>
+[10] R6_2.4.0          irlba_2.3.3       mgcv_1.8-28      
+[13] lazyeval_0.2.2    colorspace_1.4-1  withr_2.1.2      
+[16] tidyselect_0.2.5  gridExtra_2.3     prettyunits_1.0.2
+[19] processx_3.3.1    compiler_3.5.3    git2r_0.25.2     
+[22] rvest_0.3.4       cli_1.1.0         xml2_1.2.0       
+[25] desc_1.2.0        labeling_0.3      triebeard_0.3.0  
+[28] scales_1.0.0      callr_3.2.0       digest_0.6.18    
+[31] rmarkdown_1.12    base64enc_0.1-3   pkgconfig_2.0.2  
+[34] htmltools_0.3.6   sessioninfo_1.1.1 readxl_1.3.1     
+[37] rlang_0.3.4       rstudioapi_0.10   shiny_1.3.2      
+[40] generics_0.0.2    jsonlite_1.6      dendextend_1.12.0
+[43] Rcpp_1.0.1        munsell_0.5.0     abind_1.4-5      
+[46] viridis_0.5.1     stringi_1.4.3     whisker_0.3-2    
+[49] yaml_2.2.0        MASS_7.3-51.3     pkgbuild_1.0.3   
+[52] Rtsne_0.15        plyr_1.8.4        grid_3.5.3       
+[55] parallel_3.5.3    promises_1.0.1    crayon_1.3.4     
+[58] lattice_0.20-38   splines_3.5.3     haven_2.1.0      
+[61] hms_0.4.2         knitr_1.22        ps_1.3.0         
+[64] pillar_1.4.1      rjson_0.2.20      pkgload_1.0.2    
+[67] glue_1.3.1        evaluate_0.13     data.table_1.12.2
+[70] remotes_2.0.4     modelr_0.1.4      httpuv_1.5.1     
+[73] urltools_1.7.3    cellranger_1.1.0  testthat_2.1.1   
+[76] gtable_0.3.0      assertthat_0.2.1  xfun_0.6         
+[79] mime_0.6          xtable_1.8-4      broom_0.5.2      
+[82] later_0.8.0       viridisLite_0.3.0 memoise_1.1.0    
+[85] workflowr_1.3.0   Rook_1.1-1        brew_1.0-6       </code></pre>
+</div>
 </div>
 
 
