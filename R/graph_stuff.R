@@ -1,4 +1,4 @@
-GetPagaMatrix <- function(dst.matrix, membership.vector, scale=F) {
+GetPagaMatrix <- function(dst.matrix, membership.vector, scale=F, linearize=T) {
   if (class(dst.matrix)!='dsTMatrix'){
     dst.matrix %<>% as('dgTMatrix') %>% as('symmetricMatrix')
   }
@@ -26,9 +26,15 @@ GetPagaMatrix <- function(dst.matrix, membership.vector, scale=F) {
   connectivities <- inter.es3
   inter.es4 <- inter.es3 %>% as('dgTMatrix')
   expected.random.null.vals <- (es[inter.es4@i + 1]*ns[inter.es4@j + 1] + es[inter.es4@j + 1]*ns[inter.es4@i + 1])/(n - 1)
-  scaled.values <- ifelse(expected.random.null.vals != 0, inter.es4@x / expected.random.null.vals, 1) %>% as.numeric
-  scale <- scale %>% rep(length(scaled.values))
-  scaled.values <- ifelse(scale, scaled.values[scaled.values>1]<-1, scaled.values)
+  if (!linearize) {
+    sd.random.null.vals <- (es[inter.es4@i + 1]*ns[inter.es4@j + 1]*(n-ns[inter.es4@j + 1]-1) +
+                              es[inter.es4@j + 1]*ns[inter.es4@i + 1])*(n-ns[inter.es4@i + 1]-1) / ((n - 1)^2)
+    scaled.values <- ifelse(sd.random.null.vals !=0, (inter.es4@x - expected.random.null.vals)/sd.random.null.vals, 0) %>% as.numeric
+  } else {
+    scaled.values <- ifelse(expected.random.null.vals != 0, inter.es4@x / expected.random.null.vals, 1) %>% as.numeric
+    scale <- scale %>% rep(length(scaled.values))
+    scaled.values <- ifelse(scale, scaled.values[scaled.values>1]<-1, scaled.values)
+  }
   connectivities <- inter.es4
   connectivities@x <- scaled.values
   return(connectivities)
@@ -206,33 +212,64 @@ PadMatZeroes <- function(a.matrix, sample.list) {
 
 
 GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=NULL, sample.vector=NULL,
-                              by.subtypes.condition=FALSE, by.subtypes.samples=FALSE, by.samples=FALSE){
+                              by.subtypes.condition=FALSE, by.subtypes.samples=FALSE, by.samples=FALSE,
+                              linearize=T, log.scale=F, pseudo.connectivity=1e-3){
   if (by.subtypes.condition) {
     subtype.condition <- paste0(subtype.vector, '-', condition.vector)
     membership.vector <- as.numeric(factor(subtype.condition))
     subtype.order <- (paste0(subtype.vector) %>% unique)[order(paste0(subtype.vector) %>% unique)]
-    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F)
+    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F, linearize=linearize)
     statistics <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
-    paga.df <- dplyr::bind_cols(statistics=statistics, subtype=subtype.order)
+    if (log.scale){
+      statistics <- log(statistics+pseudo.connectivity)
+    }
+    paga.df <- dplyr::bind_cols(paga.connectivity.value=statistics, subtype=subtype.order)
     paga.df$ncells <- table(subtype.vector)[subtype.order] %>% as.numeric
-    p <- ggplot(paga.df, aes(y=statistics, x=subtype)) + geom_point()+
+    p <- ggplot(paga.df, aes(y=paga.connectivity.value, x=subtype)) + geom_point()+
       theme(axis.text.x = element_text(angle = -90, hjust = 1))
     return(list(connectivities=connectivities, paga.df=paga.df, scatter.plot=p))
   } else if (by.subtypes.samples) {
     subtype.samples <- paste0(subtype.vector, '-', sample.vector)
     membership.vec.subsamp <- as.numeric(factor(subtype.samples))
-    connectivities <- GetPagaMatrix(graph.adj, membership.vec.subsamp, scale=F)
+    connectivities <- GetPagaMatrix(graph.adj, membership.vec.subsamp, scale=F, linearize=linearize)
     paga.df <- GeneratePagaSubSampDF(connectivities, subtype.vector, sample.vector, condition.vector)
-    paga.df <- paga.df %>% mutate(statistics=value)
-    p <- paga.df %>% ggplot(aes(x=subtype, y=statistics ,dodge=condition,fill=condition))+
-      geom_boxplot() + theme(axis.text.x = element_text(angle = 90, hjust = 1),
-                             axis.text.y = element_text(angle = 90, hjust = 0.5))+theme(legend.position="top")
+    paga.df <- paga.df %>% dplyr::rename(paga.connectivity.value=value)
+    if (log.scale){
+      paga.df$paga.connectivity.value <- log(paga.df$paga.connectivity.value+pseudo.connectivity)
+    }
+    p <- do.call(SecretUtils::GeneratePagaPlot, list(paga.df, subset=NULL))
     return(list(connectivities=connectivities, paga.df=paga.df, sub.cond.plot=p))
   } else if (by.samples) {
     membership.vector <- as.numeric(factor(sample.vector))
     sample.order <- (paste0(sample.vector) %>% unique)[order(paste0(sample.vector) %>% unique)]
-    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F) %>% as.matrix
+    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F, linearize=linearize) %>% as.matrix
     rownames(connectivities) <- sample.order; colnames(connectivities) <- sample.order
+    if (log.scale){
+      connectivities <- log(connectivities+pseudo.connectivity)
+    }
     return(list(connectivities=connectivities))
   }
+}
+
+GeneratePagaPlot <- function(paga.df, subset=NULL, geom.boxplot=T, geom.jitter=T) {
+  if (!is.null(subset)){
+    paga.df %<>% filter(condition==subset)
+    p <- paga.df %>% ggplot(aes(x=subtype, y=paga.connectivity.value)) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1),
+            axis.text.y = element_text(angle = 90, hjust = 0.5))+theme(legend.position="top")
+    if (geom.boxplot) {
+      p <- p+geom_boxplot(notch=FALSE, outlier.shape=NA)
+    }
+    if (geom.jitter) {
+      p <- p + geom_jitter(aes(col=comparison))
+    }
+
+  } else {
+    p <- paga.df %>% ggplot(aes(x=subtype, y=paga.connectivity.value, dodge=condition, fill=condition)) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1),
+            axis.text.y = element_text(angle = 90, hjust = 0.5))+theme(legend.position="top") +
+      geom_boxplot(notch=F)
+
+  }
+  return(p)
 }

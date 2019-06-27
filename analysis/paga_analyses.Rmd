@@ -46,6 +46,11 @@ paga_subtype_condition$scatter.plot # has matrix, data frame and plot
 ```
 
 
+```{r}
+paga_subtype_condition$paga.df %>% ggplot(aes(x=ncells, y=paga.connectivity.value, col=subtype))+geom_point()
+```
+
+
 Distance matrix tsne plot, using only a single n_sample x n_sample matrix.
 ```{r}
  
@@ -72,18 +77,25 @@ paga_subtype_samples <- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subt
 paga_subtype_samples$sub.cond.plot
 ```
 
-Deeper look at between distances (this is what the last function in the other script does, so we don't need it)
+Deeper look at between distances
 ```{r}
-paga_subtype_samples$paga.df %>% filter(condition=='between') %>%
-  ggplot(aes(x=subtype,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
-    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
-    xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
+GeneratePagaPlot(paga_subtype_samples$paga.df, subset='between')
 ```
+
+We can also use the unlinearized statistic as described in the paper and log scale
+```{r}
+paga_subtype_samples_unlin <- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subtype, epilepsy_annot$condition, 
+                                          epilepsy_annot$sample, by.subtypes.samples = T, log.scale=T, linearize=T)
+
+paga_subtype_samples_unlin$sub.cond.plot
+```
+
+
 
 ## Pancreas indrop, 4 samples
 ```{r}
 pancreas_con <- readRDS('/home/larsc/data/pancreas_indrop_conos_precced_graphed.rds')
-location_of_annot <- '/d0-mendel/home/viktor_petukhov/SmallProjects/conos/data/conditions/seurat_islets/indrop/design_info.csv'
+location_of_annot <- '/d0-mendel/home/viktor_petukhov/SmallProjects/conos_back/data/conditions/seurat_islets/indrop/design_info.csv'
 pancreas_annot <- location_of_annot %>% data.table::fread(sep=",",header=T) %>% as.data.frame()
 ```
 
@@ -133,10 +145,7 @@ paga_subtype_samples$sub.cond.plot
 
 closer look at between distances
 ```{r}
-paga_subtype_samples$paga.df %>% filter(condition=='between') %>%
-  ggplot(aes(x=subtype,y=value))+geom_boxplot(notch=FALSE)+geom_jitter(aes(col=comparison))+
-    theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
-    xlab("") +ylab("inter-patient expression distance")+ theme(legend.position="top")
-
+GeneratePagaPlot(paga_subtype_samples$paga.df, subset='between')
 ```
+
 
