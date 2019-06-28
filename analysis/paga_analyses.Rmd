@@ -46,10 +46,6 @@ paga_subtype_condition$scatter.plot # has matrix, data frame and plot
 ```
 
 
-```{r}
-paga_subtype_condition$paga.df %>% ggplot(aes(x=ncells, y=paga.connectivity.value, col=subtype))+geom_point()
-```
-
 
 Distance matrix tsne plot, using only a single n_sample x n_sample matrix.
 ```{r}
@@ -82,12 +78,14 @@ Deeper look at between distances
 GeneratePagaPlot(paga_subtype_samples$paga.df, subset='between')
 ```
 
-We can also use the unlinearized statistic as described in the paper and log scale
+log scale
 ```{r}
 paga_subtype_samples_unlin <- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subtype, epilepsy_annot$condition, 
-                                          epilepsy_annot$sample, by.subtypes.samples = T, log.scale=T, linearize=T)
+                                          epilepsy_annot$sample, by.subtypes.samples = T, log.scale=T, 
+                                          pseudo.connectivity=1e-3)
 
 paga_subtype_samples_unlin$sub.cond.plot
+GeneratePagaPlot(paga_subtype_samples_unlin$paga.df, subset='between')
 ```
 
 

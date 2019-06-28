@@ -61,7 +61,7 @@ MeltMatrix <- function(x, symmetric){
 }
 
 MeltAndAppend <- function(mat.list, factor.identity, symmetric=TRUE) {
-  molten.mats <- mat.list %>% lapply(MeltMatrix, symmetric)
+  molten.mats <- mat.list %>% lapply(SecretUtils::MeltMatrix, symmetric)
   AppendCols <- function(df, subtype.name, factor.identity){
     df$subtype = subtype.name
     df$condition = factor.identity
@@ -107,9 +107,9 @@ GeneratePagaSubSampDFOld <- function(paga.connectivities, subtype.vector, sample
   factor1.identity <- sub.cond.factor[[1]] %>% unique %>% as.character
   factor2.identity <- sub.cond.factor[[2]] %>% unique %>% as.character
 
-  factor1.dfs <- MeltAndAppend(factor1.mats, factor1.identity)
-  factor2.dfs <- MeltAndAppend(factor2.mats, factor2.identity)
-  between.dfs <- MeltAndAppend(between.mats, 'between', symmetric = FALSE)
+  factor1.dfs <- SecretUtils::MeltAndAppend(factor1.mats, factor1.identity)
+  factor2.dfs <- SecretUtils::MeltAndAppend(factor2.mats, factor2.identity)
+  between.dfs <- SecretUtils::MeltAndAppend(between.mats, 'between', symmetric = FALSE)
   return(dplyr::bind_rows(factor1.dfs, factor2.dfs, between.dfs))
 }
 
@@ -152,16 +152,16 @@ GeneratePagaSubSampDF <- function(paga.connectivities, subtype.vector, sample.ve
   factor2.identity <- sub.cond.factor[[2]] %>% unique %>% as.character
 
   if (factor1.count > 1) {
-    factor1.dfs <- MeltAndAppend(factor1.mats, factor1.identity)
+    factor1.dfs <- SecretUtils::MeltAndAppend(factor1.mats, factor1.identity)
   } else {
     factor1.dfs <- NULL
   }
   if (factor2.count > 1) {
-    factor2.dfs <- MeltAndAppend(factor2.mats, factor2.identity)
+    factor2.dfs <- SecretUtils::MeltAndAppend(factor2.mats, factor2.identity)
   } else {
     factor2.dfs <- NULL
   }
-  between.dfs <- MeltAndAppend(between.mats, 'between', symmetric = FALSE)
+  between.dfs <- SecretUtils::MeltAndAppend(between.mats, 'between', symmetric = FALSE)
   return(dplyr::bind_rows(factor1.dfs, factor2.dfs, between.dfs))
 }
 
