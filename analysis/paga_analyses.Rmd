@@ -41,18 +41,18 @@ eps_unaligned_adj <- readMM('/home/larsc/data/eps_unaligned_adj.mtx')
 
 ```{r}
 paga_subtype_condition <- GeneratePagaItems(eps_unaligned_adj, epilepsy_annot$subtype, epilepsy_annot$condition,
-                                                     by.subtypes.condition = T)
+                                                     by.subtypes.condition = T, log.scale=F)
 paga_subtype_condition$scatter.plot # has matrix, data frame and plot
 ```
 
 
 
-Distance matrix tsne plot, using only a single n_sample x n_sample matrix.
+Distance matrix tsne plot, using only a single n_sample x n_sample matrix, using log scale
 ```{r}
- 
-samples_connectivities <- GeneratePagaItems(eps_unaligned_adj, sample.vector=epilepsy_annot$sample, by.sample=T)
+samples_connectivities <- GeneratePagaItems(eps_unaligned_adj, sample.vector=epilepsy_annot$sample, by.sample=T, log.scale=T, 
+                                            pseudo.connectivity = 1e-3)
 # put it in log scale for better visualization, so we add a small pseudo connectivity
-SecretUtils::PlotDistanceMatRed(log(samples_connectivities$connectivities+1e-6), epilepsy_annot$sample, epilepsy_annot$subtype,
+SecretUtils::PlotDistanceMatRed(samples_connectivities$connectivities, epilepsy_annot$sample, epilepsy_annot$subtype,
                                 epilepsy_annot$sample, epilepsy_annot$cellid, epilepsy_annot$condition, perplexity=2, 
                                 max_iter=1e5, by.subtype=F)
 ```
@@ -60,6 +60,7 @@ SecretUtils::PlotDistanceMatRed(log(samples_connectivities$connectivities+1e-6),
 
 Within conditions distances
 ```{r}
+samples_connectivities <- GeneratePagaItems(eps_unaligned_adj, sample.vector=epilepsy_annot$sample, by.sample=T)
 SecretUtils::ConditionDistanceDensity(samples_connectivities$connectivities, epilepsy_annot$sample, epilepsy_annot$subtype, 
                                       epilepsy_annot$sample, epilepsy_annot$cellid, epilepsy_annot$condition, notch=F, by.subtype=F)
 ```
@@ -85,7 +86,7 @@ paga_subtype_samples_unlin <- GeneratePagaItems(eps_unaligned_adj, epilepsy_anno
                                           pseudo.connectivity=1e-3)
 
 paga_subtype_samples_unlin$sub.cond.plot
-GeneratePagaPlot(paga_subtype_samples_unlin$paga.df, subset='between')
+GeneratePagaPlot(paga_subtype_samples_unlin$paga.df, subset='between', log.scale=T)
 ```
 
 

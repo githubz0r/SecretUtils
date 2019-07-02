@@ -220,13 +220,15 @@ GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=N
     subtype.order <- (paste0(subtype.vector) %>% unique)[order(paste0(subtype.vector) %>% unique)]
     connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F, linearize=linearize)
     statistics <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
-    if (log.scale){
-      statistics <- log(statistics+pseudo.connectivity)
-    }
     paga.df <- dplyr::bind_cols(paga.connectivity.value=statistics, subtype=subtype.order)
     paga.df$ncells <- table(subtype.vector)[subtype.order] %>% as.numeric
     p <- ggplot(paga.df, aes(y=paga.connectivity.value, x=subtype)) + geom_point()+
       theme(axis.text.x = element_text(angle = -90, hjust = 1))
+    if (log.scale){
+      paga.df <- paga.df %>% mutate(log.paga.connectivity.value=log(paga.connectivity.value+pseudo.connectivity))
+      p <- ggplot(paga.df, aes(y=log.paga.connectivity.value, x=subtype)) + geom_point()+
+        theme(axis.text.x = element_text(angle = -90, hjust = 1))
+    }
     return(list(connectivities=connectivities, paga.df=paga.df, scatter.plot=p))
   } else if (by.subtypes.samples) {
     subtype.samples <- paste0(subtype.vector, '-', sample.vector)
@@ -236,8 +238,11 @@ GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=N
     paga.df <- paga.df %>% dplyr::rename(paga.connectivity.value=value)
     if (log.scale){
       paga.df$paga.connectivity.value <- log(paga.df$paga.connectivity.value+pseudo.connectivity)
+      p <- do.call(SecretUtils::GeneratePagaPlot, list(paga.df, subset=NULL, log.scale=T))
+    } else {
+      p <- do.call(SecretUtils::GeneratePagaPlot, list(paga.df, subset=NULL))
     }
-    p <- do.call(SecretUtils::GeneratePagaPlot, list(paga.df, subset=NULL))
+
     return(list(connectivities=connectivities, paga.df=paga.df, sub.cond.plot=p))
   } else if (by.samples) {
     membership.vector <- as.numeric(factor(sample.vector))
@@ -251,7 +256,7 @@ GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=N
   }
 }
 
-GeneratePagaPlot <- function(paga.df, subset=NULL, geom.boxplot=T, geom.jitter=T) {
+GeneratePagaPlot <- function(paga.df, subset=NULL, geom.boxplot=T, geom.jitter=T, log.scale=F) {
   if (!is.null(subset)){
     paga.df %<>% filter(condition==subset)
     p <- paga.df %>% ggplot(aes(x=subtype, y=paga.connectivity.value)) +
@@ -269,7 +274,9 @@ GeneratePagaPlot <- function(paga.df, subset=NULL, geom.boxplot=T, geom.jitter=T
       theme(axis.text.x = element_text(angle = 90, hjust = 1),
             axis.text.y = element_text(angle = 90, hjust = 0.5))+theme(legend.position="top") +
       geom_boxplot(notch=F)
-
+  }
+  if (log.scale) {
+    p <- p+ggplot2::ylab('log.paga.connectivity.value')
   }
   return(p)
 }
