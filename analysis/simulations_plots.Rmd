@@ -1,0 +1,83 @@
+---
+title: "simulations_plots"
+author: "githubz0r"
+date: "2019-07-12"
+output: workflowr::wflow_html
+---
+
+```{r}
+library(conos)
+library(tidyverse)
+devtools::load_all('/home/larsc/SecretUtils')
+library(cowplot)
+library(splatter)
+devtools::load_all('/home/viktor_petukhov/Copenhagen/NeuronalMaturation')
+```
+Load data
+
+```{r}
+gene_names <- paste0('Gene', '', 1:10000)
+gene_names2 <- paste0('Gene', '', 1:20000)
+
+cellcm1 <- readMM('/home/larsc/data/cell1cm.mtx') %>% as('dgCMatrix')
+cellcm2 <- readMM('/home/larsc/data/cell1cm.mtx') %>% as('dgCMatrix')
+cellcm3 <- readMM('/home/larsc/data/cell1cm.mtx') %>% as('dgCMatrix')
+cellannot1 <- read_csv('/home/larsc/data/cell1annot.csv')
+cellannot2 <- read_csv('/home/larsc/data/cell2annot.csv')
+cellannot3 <- read_csv('/home/larsc/data/cell3annot.csv')
+rownames(cellcm1) <- cellannot1$cellid; colnames(cellcm1) <- gene_names
+rownames(cellcm2) <- cellannot2$cellid; colnames(cellcm2) <- gene_names
+rownames(cellcm3) <- cellannot3$cellid; colnames(cellcm3) <- gene_names
+
+covercm1 <- readMM('/home/larsc/data/cover1cm.mtx') %>% as('dgCMatrix')
+covercm2 <- readMM('/home/larsc/data/cover2cm.mtx') %>% as('dgCMatrix')
+covercm3 <- readMM('/home/larsc/data/cover3cm.mtx') %>% as('dgCMatrix')
+coverannot1 <- read_csv('/home/larsc/data/cover1annot.csv')
+coverannot2 <- read_csv('/home/larsc/data/cover2annot.csv')
+coverannot3 <- read_csv('/home/larsc/data/cover3annot.csv')
+rownames(covercm1) <- coverannot1$cellid; colnames(covercm1) <- gene_names
+rownames(covercm2) <- coverannot2$cellid; colnames(covercm2) <- gene_names
+rownames(covercm3) <- coverannot3$cellid; colnames(covercm3) <- gene_names
+
+genecm1 <- readMM('/home/larsc/data/gene1cm.mtx') %>% as('dgCMatrix')
+genecm2 <- readMM('/home/larsc/data/gene2cm.mtx') %>% as('dgCMatrix')
+genecm3 <- readMM('/home/larsc/data/gene3cm.mtx') %>% as('dgCMatrix')
+geneannot1 <- read_csv('/home/larsc/data/gene1annot.csv')
+geneannot2 <- read_csv('/home/larsc/data/gene2annot.csv')
+geneannot3 <- read_csv('/home/larsc/data/gene3annot.csv')
+rownames(genecm1) <- geneannot1$cellid; colnames(genecm1) <- gene_names2
+rownames(genecm2) <- geneannot2$cellid; colnames(genecm2) <- gene_names2
+rownames(genecm3) <- geneannot3$cellid; colnames(genecm3) <- gene_names2
+```
+
+start with PAGA
+```{r}
+#cellpaga1 <- MakeSimRepPaga(cellannot1, cellcm1, varied.factor='ncells')
+#cellpaga2 <- MakeSimRepPaga(cellannot2, cellcm2, varied.factor='ncells')
+#cellpaga3 <- MakeSimRepPaga(cellannot3, cellcm3, varied.factor='ncells')
+#bound_cellpaga <- bind_rows(cellpaga1, cellpaga2, cellpaga3)
+#saveRDS(bound_cellpaga, '/home/larsc/data/simcellpagadf.rds')
+bound_cellpaga <- readRDS('/home/larsc/data/simcellpagadf.rds')
+bound_cellpaga %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.prob))+geom_jitter()
+```
+  
+the mean shape vector associated with the lib.loc vector is meanshapevec <- c(0.1, 0.2, 0.3, 0.4, 0.5)
+```{r}
+#coverpaga1 <- MakeSimRepPaga(coverannot1, covercm1, varied.factor='cover')
+#coverpaga2 <- MakeSimRepPaga(coverannot2, covercm2, varied.factor='cover')
+#coverpaga3 <- MakeSimRepPaga(coverannot3, covercm3, varied.factor='cover')
+#bound_coverpaga <- bind_rows(coverpaga1, coverpaga2, coverpaga3)
+#saveRDS(bound_coverpaga, '/home/larsc/data/simcoverpagadf.rds')
+bound_coverpaga <- readRDS('/home/larsc/data/simcoverpagadf.rds')
+bound_coverpaga %>% ggplot(aes(x=lib.loc, y=paga.connectivity.value, col=de.prob))+geom_jitter()
+```
+
+```{r}
+genepaga1 <- MakeSimRepPaga(geneannot1, genecm1, varied.factor='ngenes')
+genepaga2 <- MakeSimRepPaga(geneannot2, genecm2, varied.factor='ngenes')
+genepaga3 <- MakeSimRepPaga(geneannot3, genecm3, varied.factor='ngenes')
+bound_genepaga <- bind_rows(genepaga1, genepaga2, genepaga3)
+saveRDS(bound_genepaga, '/home/larsc/data/simgenepagadf.rds')
+bound_genepaga %>% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.prob))+geom_jitter()
+```
+

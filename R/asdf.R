@@ -4,13 +4,19 @@
 #' @param annotation annotation file
 #' @param cat.col column number specifying sample identity in annotation
 #' @return A panel, i.e. a list of count matrices for each sample.
-Panelize <- function(count.mat, annotation, cat.col) {
+PanelizeOld <- function(count.mat, annotation, cat.col) {
   samples <- unique(annotation[,cat.col])
   # might need to sort annot and countmat if order of cellids differ between annotation and countmat
   sample.inds <- samples %>% lapply(function(cat, annotation, cat.col){return(annotation[,cat.col]==cat)}, annotation, cat.col)
   panel <- sample.inds %>% lapply(function(inds, count.mat){return(count.mat[, inds])}, count.mat)
   names(panel) = samples
   return(panel)
+}
+
+Panelize <- function(a.matrix, cell.ids, sample.ids) { # replace old panelize with this
+  inds <- split(cell.ids, sample.ids)
+  submats <- inds %>% lapply(function(x){a.matrix[x,]})
+  return(submats)
 }
 
 #' Get unique samples for a category in annotation
@@ -48,6 +54,11 @@ RbindPanel <- function(con.panel) {
   count.list <- con.panel$samples %>% lapply(function(x){return(x$counts)}) #%>% Reduce(rbind,.)
   return(do.call(rbind, count.list))
   #return(count.list)
+}
+
+RbindRaw <- function(con.object){
+  count.list <- con.object$samples %>% lapply(function(x){return(x$misc$rawCounts)})
+  return(do.call(rbind, count.list))
 }
 
 GetColMeans <- function(cluster.array) {
@@ -174,8 +185,28 @@ GetAllProbs <- function(annotation, rbound.panel, samp.col, sub.col, cellid.col,
   prob.dist <- first.split %>% lapply(GetSampProbs, rbound.panel, genes, cellid.col, pseudo.count)
 }
 
-GetSubMatrices <- function(list.of.cats, rbound.panel, genes, cellid.col) {
+GetSubMatricesOld <- function(list.of.cats, rbound.panel, genes, cellid.col, avg=F) {
   exps.list <- list.of.cats %>% lapply(function(x){rbound.panel[x[,cellid.col], genes]})
+  if (avg){
+    return(exps.list %>% lapply(GetColMeans))
+  } else {
+    return(exps.list)
+  }
+}
+
+GetSubMatrices <- function(subtype.vector, cellid.vector, condition.vector, count.matrix, genes, avg=T) {
+  sub.cell.df <- dplyr::bind_cols(subtype.vector=subtype.vector, cellid.vector=cellid.vector)
+  condition.split <- split(sub.cell.df, condition.vector)
+  subtype.splits <- condition.split %>% lapply(function(x){split(x, x$subtype.vector)})
+  obtainSubMats <- function(subtype.cellid.annot, count.matrix, genes, avg){
+    sub.cond.vals <- count.matrix[subtype.cellid.annot$cellid.vector, genes]
+    if (avg) {
+      sub.cond.vals <- sub.cond.vals %>% Matrix::colMeans()
+    }
+    return(sub.cond.vals)
+  }
+  sub.mats <- subtype.splits %>% lapply(function(x){x %>% lapply(obtainSubMats, count.matrix, genes, avg)})
+  return(sub.mats)
 }
 
 GetSubSampMats <- function(annotation, rbound.panel, samp.col, sub.col, cellid.col, genes, pseudo.count=0){
@@ -209,7 +240,7 @@ CalculateAllJSD <- function(list1, list2) {
 
 CalculateAllCor <- function(list1, list2) {
   CalculateCor <- function(x, a.list) {
-    a.list %>% lapply(function(y,x){1-cor(x,y)},x)
+    a.list %>% lapply(function(a,b){return(1-cor(a,b))},x)
   }
   alldists<- list1 %>% lapply(CalculateCor, list2)
   return(unlist(alldists))
@@ -335,8 +366,8 @@ AddPseudo <- function(matrix, pseudo.count=1e-4){
 
 countzerocols <- function(mat){
   mat <- as.matrix(mat)
-  shape <- mat[, apply(mat, 2, sum)==0] %>% dim
-  return(shape[2])
+  n.zerocol <- sum((mat %>% apply(2, sum))==0)
+  return(n.zerocol)
 }
 
 removezerocols <- function(mat) {
@@ -362,3 +393,14 @@ ComputeCor <- function(mat1, mat2) { # makes sure both matrices have the same co
   return(list(mat1, mat2) %>% lapply(cor))
 }
 
+PadGenesRows <- function(a.matrix, gene.vector) {
+  N <- gene.vector %>% length
+  Nold <- dim(a.matrix)[1]
+  M <- dim(a.matrix)[2]
+  new.mat <- matrix(0L, nrow = N, ncol = M)
+  new.mat[1:Nold, 1:M] <- a.matrix %>% as.vector
+  missing.genes<- setdiff(gene.vector, rownames(a.matrix))
+  name.vector <- c(rownames(a.matrix), missing.genes)
+  colnames(new.mat) <- colnames(a.matrix); rownames(new.mat) <- name.vector
+  return(new.mat[gene.vector,])
+}

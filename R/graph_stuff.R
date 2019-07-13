@@ -175,7 +175,7 @@ GenerateUnalignedAdjOld <- function(raw.count.mat, cellid.vector, k=15){
 }
 
 GenerateUnalignedAdj <- function(raw.count.mat, cellid.vector, k=15){
-  p2 <- Matrix::t(raw.count.mat) %>% basicP2proc(n.cores=1, min.cells.per.gene=0, n.odgenes=3e3,
+  p2 <- Matrix::t(raw.count.mat) %>% pagoda2::basicP2proc(n.cores=1, min.cells.per.gene=0, n.odgenes=3e3,
                                                  get.largevis=FALSE, make.geneknn=FALSE, get.tsne=FALSE)
   p2$makeKnnGraph(k=k,type='PCA',center=T,distance='angular')
   unaligned.graph.adj <- igraph::as_adjacency_matrix(p2$graphs$PCA, attr="weight")[cellid.vector, cellid.vector]
