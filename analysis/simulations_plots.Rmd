@@ -15,69 +15,162 @@ devtools::load_all('/home/viktor_petukhov/Copenhagen/NeuronalMaturation')
 ```
 Load data
 
-```{r}
+```{r, message=FALSE}
 gene_names <- paste0('Gene', '', 1:10000)
 gene_names2 <- paste0('Gene', '', 1:20000)
 
-cellcm1 <- readMM('/home/larsc/data/cell1cm.mtx') %>% as('dgCMatrix')
-cellcm2 <- readMM('/home/larsc/data/cell1cm.mtx') %>% as('dgCMatrix')
-cellcm3 <- readMM('/home/larsc/data/cell1cm.mtx') %>% as('dgCMatrix')
-cellannot1 <- read_csv('/home/larsc/data/cell1annot.csv')
-cellannot2 <- read_csv('/home/larsc/data/cell2annot.csv')
-cellannot3 <- read_csv('/home/larsc/data/cell3annot.csv')
+cellcm1 <- readMM('/home/larsc/data/splatter_data/cell1cm.mtx') %>% as('dgCMatrix')
+cellcm2 <- readMM('/home/larsc/data/splatter_data/cell2cm.mtx') %>% as('dgCMatrix')
+cellcm3 <- readMM('/home/larsc/data/splatter_data/cell3cm.mtx') %>% as('dgCMatrix')
+cellannot1 <- read_csv('/home/larsc/data/splatter_data/cell1annot.csv')
+cellannot2 <- read_csv('/home/larsc/data/splatter_data/cell2annot.csv')
+cellannot3 <- read_csv('/home/larsc/data/splatter_data/cell3annot.csv')
 rownames(cellcm1) <- cellannot1$cellid; colnames(cellcm1) <- gene_names
 rownames(cellcm2) <- cellannot2$cellid; colnames(cellcm2) <- gene_names
 rownames(cellcm3) <- cellannot3$cellid; colnames(cellcm3) <- gene_names
 
-covercm1 <- readMM('/home/larsc/data/cover1cm.mtx') %>% as('dgCMatrix')
-covercm2 <- readMM('/home/larsc/data/cover2cm.mtx') %>% as('dgCMatrix')
-covercm3 <- readMM('/home/larsc/data/cover3cm.mtx') %>% as('dgCMatrix')
-coverannot1 <- read_csv('/home/larsc/data/cover1annot.csv')
-coverannot2 <- read_csv('/home/larsc/data/cover2annot.csv')
-coverannot3 <- read_csv('/home/larsc/data/cover3annot.csv')
+covercm1 <- readMM('/home/larsc/data/splatter_data/cover1cm.mtx') %>% as('dgCMatrix')
+covercm2 <- readMM('/home/larsc/data/splatter_data/cover2cm.mtx') %>% as('dgCMatrix')
+covercm3 <- readMM('/home/larsc/data/splatter_data/cover3cm.mtx') %>% as('dgCMatrix')
+coverannot1 <- read_csv('/home/larsc/data/splatter_data/cover1annot.csv')
+coverannot2 <- read_csv('/home/larsc/data/splatter_data/cover2annot.csv')
+coverannot3 <- read_csv('/home/larsc/data/splatter_data/cover3annot.csv')
 rownames(covercm1) <- coverannot1$cellid; colnames(covercm1) <- gene_names
 rownames(covercm2) <- coverannot2$cellid; colnames(covercm2) <- gene_names
 rownames(covercm3) <- coverannot3$cellid; colnames(covercm3) <- gene_names
 
-genecm1 <- readMM('/home/larsc/data/gene1cm.mtx') %>% as('dgCMatrix')
-genecm2 <- readMM('/home/larsc/data/gene2cm.mtx') %>% as('dgCMatrix')
-genecm3 <- readMM('/home/larsc/data/gene3cm.mtx') %>% as('dgCMatrix')
-geneannot1 <- read_csv('/home/larsc/data/gene1annot.csv')
-geneannot2 <- read_csv('/home/larsc/data/gene2annot.csv')
-geneannot3 <- read_csv('/home/larsc/data/gene3annot.csv')
+genecm1 <- readMM('/home/larsc/data/splatter_data/gene1cm.mtx') %>% as('dgCMatrix')
+genecm2 <- readMM('/home/larsc/data/splatter_data/gene2cm.mtx') %>% as('dgCMatrix')
+genecm3 <- readMM('/home/larsc/data/splatter_data/gene3cm.mtx') %>% as('dgCMatrix')
+geneannot1 <- read_csv('/home/larsc/data/splatter_data/gene1annot.csv')
+geneannot2 <- read_csv('/home/larsc/data/splatter_data/gene2annot.csv')
+geneannot3 <- read_csv('/home/larsc/data/splatter_data/gene3annot.csv')
 rownames(genecm1) <- geneannot1$cellid; colnames(genecm1) <- gene_names2
 rownames(genecm2) <- geneannot2$cellid; colnames(genecm2) <- gene_names2
 rownames(genecm3) <- geneannot3$cellid; colnames(genecm3) <- gene_names2
 ```
 
-start with PAGA
-```{r}
-#cellpaga1 <- MakeSimRepPaga(cellannot1, cellcm1, varied.factor='ncells')
-#cellpaga2 <- MakeSimRepPaga(cellannot2, cellcm2, varied.factor='ncells')
-#cellpaga3 <- MakeSimRepPaga(cellannot3, cellcm3, varied.factor='ncells')
-#bound_cellpaga <- bind_rows(cellpaga1, cellpaga2, cellpaga3)
-#saveRDS(bound_cellpaga, '/home/larsc/data/simcellpagadf.rds')
-bound_cellpaga <- readRDS('/home/larsc/data/simcellpagadf.rds')
-bound_cellpaga %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.prob))+geom_jitter()
-```
-  
-the mean shape vector associated with the lib.loc vector is meanshapevec <- c(0.1, 0.2, 0.3, 0.4, 0.5)
-```{r}
-#coverpaga1 <- MakeSimRepPaga(coverannot1, covercm1, varied.factor='cover')
-#coverpaga2 <- MakeSimRepPaga(coverannot2, covercm2, varied.factor='cover')
-#coverpaga3 <- MakeSimRepPaga(coverannot3, covercm3, varied.factor='cover')
-#bound_coverpaga <- bind_rows(coverpaga1, coverpaga2, coverpaga3)
-#saveRDS(bound_coverpaga, '/home/larsc/data/simcoverpagadf.rds')
-bound_coverpaga <- readRDS('/home/larsc/data/simcoverpagadf.rds')
-bound_coverpaga %>% ggplot(aes(x=lib.loc, y=paga.connectivity.value, col=de.prob))+geom_jitter()
+First make pagoda objects with reductions and graphs
+```{r, message=FALSE}
+cell1p2 <- NeuronalMaturation::GetPagoda(Matrix::t(cellcm1), n.odgenes=3000, embeding.type=NULL)
+cell2p2 <- NeuronalMaturation::GetPagoda(Matrix::t(cellcm2), n.odgenes=3000, embeding.type=NULL)
+cell3p2 <- NeuronalMaturation::GetPagoda(Matrix::t(cellcm3), n.odgenes=3000, embeding.type=NULL)
+saveRDS(cell1p2, '/home/larsc/data/splatter_data/cell1p2.rds')
+saveRDS(cell2p2, '/home/larsc/data/splatter_data/cell2p2.rds')
+saveRDS(cell3p2, '/home/larsc/data/splatter_data/cell3p2.rds')
+
+cover1p2 <- NeuronalMaturation::GetPagoda(Matrix::t(covercm1), n.odgenes=3000, embeding.type=NULL)
+cover2p2 <- NeuronalMaturation::GetPagoda(Matrix::t(covercm2), n.odgenes=3000, embeding.type=NULL)
+cover3p2 <- NeuronalMaturation::GetPagoda(Matrix::t(covercm3), n.odgenes=3000, embeding.type=NULL)
+saveRDS(cover1p2, '/home/larsc/data/splatter_data/cover1p2.rds')
+saveRDS(cover2p2, '/home/larsc/data/splatter_data/cover2p2.rds')
+saveRDS(cover3p2, '/home/larsc/data/splatter_data/cover3p2.rds')
+
+gene1p2 <- NeuronalMaturation::GetPagoda(Matrix::t(genecm1), n.odgenes=3000, embeding.type=NULL)
+gene2p2 <- NeuronalMaturation::GetPagoda(Matrix::t(genecm2), n.odgenes=3000, embeding.type=NULL)
+gene3p2 <- NeuronalMaturation::GetPagoda(Matrix::t(genecm3), n.odgenes=3000, embeding.type=NULL)
+saveRDS(gene1p2, '/home/larsc/data/splatter_data/gene1p2.rds')
+saveRDS(gene2p2, '/home/larsc/data/splatter_data/gene2p2.rds')
+saveRDS(gene3p2, '/home/larsc/data/splatter_data/gene3p2.rds')
 ```
 
+
 ```{r}
-genepaga1 <- MakeSimRepPaga(geneannot1, genecm1, varied.factor='ngenes')
-genepaga2 <- MakeSimRepPaga(geneannot2, genecm2, varied.factor='ngenes')
-genepaga3 <- MakeSimRepPaga(geneannot3, genecm3, varied.factor='ngenes')
+cellpaga1 <- MakeSimRepPaga(cellannot1, cell1p2, varied.factor='ncells')
+cellpaga2 <- MakeSimRepPaga(cellannot2, cell2p2, varied.factor='ncells')
+cellpaga3 <- MakeSimRepPaga(cellannot3, cell3p2, varied.factor='ncells')
+bound_cellpaga <- bind_rows(cellpaga1, cellpaga2, cellpaga3)
+#bound_cellpaga <- readRDS('/home/larsc/data/simcellpagadf.rds')
+bound_cellpaga %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.prob))+
+  geom_jitter(size=1, alpha=0.9)
+cellpaga2 %>% filter(ncell==500) %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.prob))+geom_point(size=1, alpha=0.9)
+```
+
+the mean shape vector associated with the lib.loc vector is meanshapevec <- c(0.1, 0.2, 0.3, 0.4, 0.5)
+```{r}
+coverpaga1 <- MakeSimRepPaga(coverannot1, cover1p2, varied.factor='cover')
+coverpaga2 <- MakeSimRepPaga(coverannot2, cover2p2, varied.factor='cover')
+coverpaga3 <- MakeSimRepPaga(coverannot3, cover3p2, varied.factor='cover')
+bound_coverpaga <- bind_rows(coverpaga1, coverpaga2, coverpaga3)
+
+bound_coverpaga %>% ggplot(aes(x=lib.loc, y=paga.connectivity.value, col=de.prob))+geom_jitter(size=1, alpha=0.9)
+coverpaga1 %>% filter(lib.loc==8) %>% ggplot(aes(x=lib.loc, y=paga.connectivity.value, col=de.prob))+
+  geom_point(size=1, alpha=0.9)
+```
+Something strange might be happening here. We select select lib.loc 8 of one of the replicates and perform this one separately.
+```{r}
+covertestannot <- (coverannot2 %>% split(coverannot2$lib.loc))$`8`
+cover8test <- covercm2[covertestannot$cellid, ]
+covertestpaga <- MakeSimRepPaga(covertestannot, cover8test, varied.factor='cover')
+covertestpaga %>% ggplot(aes(x=lib.loc, y=paga.connectivity.value, col=de.prob))+geom_point() # looks correct
+```
+
+
+
+```{r}
+genepaga1 <- MakeSimRepPaga(geneannot1, gene1p2, varied.factor='ngenes')
+genepaga2 <- MakeSimRepPaga(geneannot2, gene2p2, varied.factor='ngenes')
+genepaga3 <- MakeSimRepPaga(geneannot3, gene3p2, varied.factor='ngenes')
 bound_genepaga <- bind_rows(genepaga1, genepaga2, genepaga3)
-saveRDS(bound_genepaga, '/home/larsc/data/simgenepagadf.rds')
-bound_genepaga %>% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.prob))+geom_jitter()
+
+bound_genepaga %>% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.prob))+geom_jitter(size=1, alpha=0.9)
+genepaga1 %>% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.prob))+geom_point(size=1, alpha=0.9)
+```
+
+Correlation
+```{r}
+cec1 <- cell1p2$reductions$PCA; pca_genes <- cec1 %>% colnames
+cec2 <- cell2p2$reductions$PCA
+cec3 <- cell3p2$reductions$PCA
+coc1 <- cover1p2$reductions$PCA
+coc2 <- cover2p2$reductions$PCA
+coc3 <- cover3p2$reductions$PCA
+gec1 <- gene1p2$reductions$PCA
+gec2 <- gene2p2$reductions$PCA
+gec3 <- gene3p2$reductions$PCA
+
+cellmats <- list(cec1, cec2, cec3)
+cellannots <- list(cellannot1, cellannot2, cellannot3)
+covmats <- list(coc1, coc2, coc3)
+covannots <- list(coverannot1, coverannot2, coverannot3)
+genemats <- list(gec1, gec2, gec3)
+geneannots <- list(geneannot1, geneannot2, geneannot3)
+
+docorr <- function(a.mat, an.annot){
+  corr <- performDistance(an.annot$subtype, an.annot$cellid, an.annot$condition, a.mat, pca_genes)
+}
+corrall <- function(mat.list, annot.list, factor.identity) {
+  cors <- Map(docorr, mat.list, annot.list)
+  cors.all <- dplyr::bind_rows(cors)
+  if (factor.identity!='coverage'){
+    cors.all %<>% mutate(varied.factor=as.factor(as.numeric(gsub(' .*', '', subtype))), 
+                       de.prob=as.factor(as.numeric(gsub('.* ', '', subtype))))
+    cors.all %<>% dplyr::rename(!!factor.identity:=varied.factor)
+  } else {
+    cors.all %<>% mutate(varied.factor=gsub(' .*', '', subtype), 
+                       de.prob=as.factor(as.numeric(gsub('.* ', '', subtype))))
+    cors.all %<>% dplyr::rename(!!factor.identity:=varied.factor)
+  }
+  return(cors.all)
+}
+
+cellcor <- corrall(cellmats, cellannots, factor.identity='ncell')
+covcor <- corrall(covmats, covannots, factor.identity='coverage')
+genecor <- corrall(genemats, geneannots, factor.identity='ngenes')
+
+cellcor %>% ggplot(aes(x=ncell, y=correlation.distance, col=de.prob))+geom_point(size=1, alpha=0.9)
+cellcor %>% filter(ncell==1000) %>% ggplot(aes(x=ncell, y=correlation.distance, col=de.prob))+geom_jitter(size=1, alpha=0.9)
+covcor %>% ggplot(aes(x=coverage, y=correlation.distance, col=de.prob))+geom_jitter(size=1, alpha=0.9)
+covcor %>% filter(coverage=='8_0.4') %>% ggplot(aes(x=coverage, y=correlation.distance, col=de.prob))+geom_point(size=1, alpha=0.9)
+genecor %>% ggplot(aes(x=ngenes, y=correlation.distance, col=de.prob))+geom_point(size=1, alpha=0.9)
+genecor %>% filter(ngenes==1000) %>% ggplot(aes(x=ngenes, y=correlation.distance, col=de.prob))+geom_jitter(size=1, alpha=0.9)
+```
+
+That lib.loc=8 coverage is still bothing me.
+```{r}
+covtestcmp2 <- cover8test %>% Matrix::t() %>% NeuronalMaturation::GetPagoda(n.odgenes=3000, embeding.type=NULL)
+covtestpca <- covtestcmp2$reductions$PCA
+testcorr <- corrall(list(covtestpca), list(covertestannot), 'coverage')
+testcorr %>% ggplot(aes(x=coverage, y=correlation.distance, col=de.prob))+geom_point(size=1, alpha=0.9)
 ```
 

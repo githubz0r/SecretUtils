@@ -29,15 +29,15 @@ Selectsimcons <- function(connectivity.mat, de.prob.vec, n.batch.vec) {
   return(comp.dfs)
 }
 
-SimulateGroups <- function(splatter.params, n.cells, de.probabilities = de_prob, group.prob = group_prob,
-                           n.genes, lib.loc, mean.shape=0.414, seed=22071) {
+SimulateGroups <- function(splatter.params, n.cells, de.probabilities = c(0, 0, 0, 0.2, 0, 0.3, 0, 0.4, 0, 0.5),
+                           group.prob = c(rep(1/10, 10)), n.genes, lib.loc, mean.shape=0.4, seed=22071) {
   sim.result <- splatSimulateGroups(splatter.params, group.prob = group.prob, dropout.type='experiment', mean.shape=mean.shape,
                                     de.prob = de.probabilities, nGenes=n.genes, batchCells=n.cells*10, lib.loc=lib.loc,
                                     verbose = FALSE, seed=seed)
   #browser()
   sim.annot <- sim.result@colData %>% as.data.frame
   nrowann <- dim(sim.annot)[1]
-  sim.annot %<>% mutate(ncell=rep(n.cells, nrowann))
+  sim.annot %<>% mutate(ncell=rep(n.cells, nrowann), mean.shape=as.numeric(rep(mean.shape, nrowann)))
   sim.annot %<>% mutate(ngenes=rep(n.genes, nrowann), lib.loc=rep(lib.loc, nrowann))
   sim.annot %<>% mutate(cellid = paste0(sim.annot$Cell, '-', n.cells, '.', n.genes, ' ', lib.loc))
   sim.cm <- counts(sim.result)
@@ -80,7 +80,12 @@ lapplyCover <- function(lib.loc.vec, mean.shape.vec, seed, n.genes=10000, n.cell
   return(return(list(cm=boundcm, annot=boundannot)))
 }
 
+
 annotSubtypeCondition <- function(simannot, arrange.factor){
+  simannot$ngenes <- as.numeric(simannot$ngenes)
+  simannot$group <- as.numeric(simannot$group)
+  simannot$lib.loc <- as.numeric(simannot$lib.loc)
+  simannot$ncell <- as.numeric(simannot$ncell)
   if (arrange.factor=='ncell') {
     simannot %<>% arrange(ncell, group)
   } else if (arrange.factor=='ngenes') {
@@ -88,7 +93,6 @@ annotSubtypeCondition <- function(simannot, arrange.factor){
   } else if (arrange.factor=='cover') {
     simannot %<>% arrange(lib.loc, group)
   }
-  #simannot %<>% arrange(ncell, group)
   simannot$Cell <- as.character(simannot$Cell)
   de.test.level <- c(0, 0, 0.2, 0.2, 0.3, 0.3, 0.4, 0.4, 0.5, 0.5)
   condition.level <- rep(c('healthy', 'diseased'), 5)
@@ -100,16 +104,21 @@ annotSubtypeCondition <- function(simannot, arrange.factor){
   } else if (arrange.factor=='ngenes') {
     simannot %<>% mutate(subtype=paste(ngenes, de.level))
   } else if (arrange.factor=='cover') {
-    simannot %<>% mutate(subtype=paste(lib.loc, de.level))
+    simannot %<>% mutate(subtype=paste0(lib.loc, '_', mean.shape,  ' ', de.level))
   }
   return(simannot)
 }
 
-MakeSimRepPaga <- function(rep.annot, rep.cm, varied.factor) {
-  rep.cm <- rep.cm[rep.annot$cellid, ]
-  rep.annot$Cell <- rep.annot$Cell %>% as.character
-  batch.p2 <- NeuronalMaturation::GetPagoda(Matrix::t(rep.cm), n.odgenes=2000)
-  batch.knn <- igraph::as_adjacency_matrix(batch.p2$graphs$PCA, attr='weight')[rep.annot$cellid, rep.annot$cellid]
+MakeSimRepPaga <- function(rep.annot, rep.cm, varied.factor, n.odgenes=3000, embedding.type=NULL) {
+  #browser()
+  if (class(rep.cm)!='Pagoda2') {
+    rep.cm <- rep.cm[rep.annot$cellid, ]
+    rep.annot$Cell <- rep.annot$Cell %>% as.character
+    batch.p2 <- NeuronalMaturation::GetPagoda(Matrix::t(rep.cm), n.odgenes=n.odgenes, embeding.type=embedding.type)
+    batch.knn <- igraph::as_adjacency_matrix(batch.p2$graphs$PCA, attr='weight')[rep.annot$cellid, rep.annot$cellid]
+  } else {
+    batch.knn <- igraph::as_adjacency_matrix(rep.cm$graphs$PCA, attr='weight')[rep.annot$cellid, rep.annot$cellid]
+  }
   paga.batch <- GeneratePagaItems(batch.knn, rep.annot$subtype, rep.annot$condition, by.subtypes.condition=T)
   n.cellmatch <- sum(rep.annot$cellid %in% rownames(batch.knn))
   if(n.cellmatch != nrow(rep.annot)) {
@@ -123,8 +132,28 @@ MakeSimRepPaga <- function(rep.annot, rep.cm, varied.factor) {
     paga.df.batch %<>% mutate(ngenes=gsub(' .*', '', subtype), de.prob = gsub('.* ', '', subtype))
     paga.df.batch$ngenes <- paga.df.batch$ngenes %>% as.numeric %>% as.factor
   } else if (varied.factor=='cover') {
-    paga.df.batch %<>% mutate(lib.loc=gsub(' .*', '', subtype), de.prob = gsub('.* ', '', subtype))
+    paga.df.batch %<>% mutate(cover=gsub(' .*', '', subtype), de.prob = gsub('.* ', '', subtype))
+    paga.df.batch %<>% mutate(cover=gsub(' .*', '', subtype), de.prob = gsub('.* ', '', subtype))
+    paga.df.batch %<>% mutate(lib.loc=gsub('_.*', '', cover), mean.shape=gsub('.*_', '', cover))
     paga.df.batch$lib.loc <- paga.df.batch$lib.loc %>% as.numeric %>% as.factor
   }
   return(paga.df.batch)
+}
+
+ProcessGeneSim <- function(genesim, gene.name.vec){
+  #browser()
+  annot <- do.call(rbind, genesim %>% lapply(function(x){x$sim.annot}))
+  cms <- genesim %>% lapply(function(x){x$cm})
+  cms <- cms %>% lapply(Matrix::t) %>% lapply(PadGenesRows, gene.name.vec) %>% lapply(Matrix::t)
+  annot %<>% mutate(group=gsub('Group', '', Group))
+  cmbound <- do.call(rbind, cms)
+  return(list(cm=cmbound, annot=annot))
+}
+
+performDistance <- function(subtype.vector, cellid.vector, condition.vector, count.matrix, genes){
+  sub.mats <- GetSubMatrices(subtype.vector, cellid.vector, condition.vector, count.matrix, genes, avg=T)
+  corr.dists <- Map(function(x,y){1-cor(x,y)}, sub.mats[[1]], sub.mats[[2]])
+  names(corr.dists) <- names(sub.mats[[1]])
+  ncells <- table(subtype.vector)[names(sub.mats[[1]])]
+  return(dplyr::bind_cols(correlation.distance=unlist(corr.dists), subtype=names(sub.mats[[1]]), ncells=ncells))
 }
