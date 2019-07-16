@@ -447,7 +447,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-07-13
+<strong>Last updated:</strong> 2019-07-15
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -526,10 +526,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree077331905e688aab06a283b7e6b3918092d7069btargetblank0773319a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/077331905e688aab06a283b7e6b3918092d7069b" target="_blank">0773319</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree34027963ff4bd2fff83b12846ca1c9dea0cccf25targetblank3402796a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/34027963ff4bd2fff83b12846ca1c9dea0cccf25" target="_blank">3402796</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree077331905e688aab06a283b7e6b3918092d7069btargetblank0773319a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree34027963ff4bd2fff83b12846ca1c9dea0cccf25targetblank3402796a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -612,6 +612,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/34027963ff4bd2fff83b12846ca1c9dea0cccf25/analysis/simulations_plots.Rmd" target="_blank">3402796</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-07-15
+</td>
+<td>
+paga on simulataed data+corr
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/98d4795b24260fc5c4b724c7e18b2eb758c73c24/docs/simulations_plots.html" target="_blank">98d4795</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-07-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -783,207 +817,256 @@ Attaching package: &#39;DelayedArray&#39;</code></pre>
 <pre class="r"><code>gene_names &lt;- paste0(&#39;Gene&#39;, &#39;&#39;, 1:10000)
 gene_names2 &lt;- paste0(&#39;Gene&#39;, &#39;&#39;, 1:20000)
 
-cellcm1 &lt;- readMM(&#39;/home/larsc/data/cell1cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
-cellcm2 &lt;- readMM(&#39;/home/larsc/data/cell1cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
-cellcm3 &lt;- readMM(&#39;/home/larsc/data/cell1cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
-cellannot1 &lt;- read_csv(&#39;/home/larsc/data/cell1annot.csv&#39;)</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  Cell = col_character(),
-  Batch = col_character(),
-  Group = col_character(),
-  ExpLibSize = col_double(),
-  ncell = col_double(),
-  ngenes = col_double(),
-  lib.loc = col_double(),
-  cellid = col_character(),
-  group = col_double(),
-  de.level = col_double(),
-  condition = col_character(),
-  subtype = col_character()
-)</code></pre>
-<pre class="r"><code>cellannot2 &lt;- read_csv(&#39;/home/larsc/data/cell2annot.csv&#39;)</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  Cell = col_character(),
-  Batch = col_character(),
-  Group = col_character(),
-  ExpLibSize = col_double(),
-  ncell = col_double(),
-  ngenes = col_double(),
-  lib.loc = col_double(),
-  cellid = col_character(),
-  group = col_double(),
-  de.level = col_double(),
-  condition = col_character(),
-  subtype = col_character()
-)</code></pre>
-<pre class="r"><code>cellannot3 &lt;- read_csv(&#39;/home/larsc/data/cell3annot.csv&#39;)</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  Cell = col_character(),
-  Batch = col_character(),
-  Group = col_character(),
-  ExpLibSize = col_double(),
-  ncell = col_double(),
-  ngenes = col_double(),
-  lib.loc = col_double(),
-  cellid = col_character(),
-  group = col_double(),
-  de.level = col_double(),
-  condition = col_character(),
-  subtype = col_character()
-)</code></pre>
-<pre class="r"><code>rownames(cellcm1) &lt;- cellannot1$cellid; colnames(cellcm1) &lt;- gene_names
+cellcm1 &lt;- readMM(&#39;/home/larsc/data/splatter_data/cell1cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
+cellcm2 &lt;- readMM(&#39;/home/larsc/data/splatter_data/cell2cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
+cellcm3 &lt;- readMM(&#39;/home/larsc/data/splatter_data/cell3cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
+cellannot1 &lt;- read_csv(&#39;/home/larsc/data/splatter_data/cell1annot.csv&#39;)
+cellannot2 &lt;- read_csv(&#39;/home/larsc/data/splatter_data/cell2annot.csv&#39;)
+cellannot3 &lt;- read_csv(&#39;/home/larsc/data/splatter_data/cell3annot.csv&#39;)
+rownames(cellcm1) &lt;- cellannot1$cellid; colnames(cellcm1) &lt;- gene_names
 rownames(cellcm2) &lt;- cellannot2$cellid; colnames(cellcm2) &lt;- gene_names
 rownames(cellcm3) &lt;- cellannot3$cellid; colnames(cellcm3) &lt;- gene_names
 
-covercm1 &lt;- readMM(&#39;/home/larsc/data/cover1cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
-covercm2 &lt;- readMM(&#39;/home/larsc/data/cover2cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
-covercm3 &lt;- readMM(&#39;/home/larsc/data/cover3cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
-coverannot1 &lt;- read_csv(&#39;/home/larsc/data/cover1annot.csv&#39;)</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  Cell = col_character(),
-  Batch = col_character(),
-  Group = col_character(),
-  ExpLibSize = col_double(),
-  ncell = col_double(),
-  ngenes = col_double(),
-  lib.loc = col_double(),
-  cellid = col_character(),
-  group = col_double(),
-  de.level = col_double(),
-  condition = col_character(),
-  subtype = col_character()
-)</code></pre>
-<pre class="r"><code>coverannot2 &lt;- read_csv(&#39;/home/larsc/data/cover2annot.csv&#39;)</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  Cell = col_character(),
-  Batch = col_character(),
-  Group = col_character(),
-  ExpLibSize = col_double(),
-  ncell = col_double(),
-  ngenes = col_double(),
-  lib.loc = col_double(),
-  cellid = col_character(),
-  group = col_double(),
-  de.level = col_double(),
-  condition = col_character(),
-  subtype = col_character()
-)</code></pre>
-<pre class="r"><code>coverannot3 &lt;- read_csv(&#39;/home/larsc/data/cover3annot.csv&#39;)</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  Cell = col_character(),
-  Batch = col_character(),
-  Group = col_character(),
-  ExpLibSize = col_double(),
-  ncell = col_double(),
-  ngenes = col_double(),
-  lib.loc = col_double(),
-  cellid = col_character(),
-  group = col_double(),
-  de.level = col_double(),
-  condition = col_character(),
-  subtype = col_character()
-)</code></pre>
-<pre class="r"><code>rownames(covercm1) &lt;- coverannot1$cellid; colnames(covercm1) &lt;- gene_names
+covercm1 &lt;- readMM(&#39;/home/larsc/data/splatter_data/cover1cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
+covercm2 &lt;- readMM(&#39;/home/larsc/data/splatter_data/cover2cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
+covercm3 &lt;- readMM(&#39;/home/larsc/data/splatter_data/cover3cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
+coverannot1 &lt;- read_csv(&#39;/home/larsc/data/splatter_data/cover1annot.csv&#39;)
+coverannot2 &lt;- read_csv(&#39;/home/larsc/data/splatter_data/cover2annot.csv&#39;)
+coverannot3 &lt;- read_csv(&#39;/home/larsc/data/splatter_data/cover3annot.csv&#39;)
+rownames(covercm1) &lt;- coverannot1$cellid; colnames(covercm1) &lt;- gene_names
 rownames(covercm2) &lt;- coverannot2$cellid; colnames(covercm2) &lt;- gene_names
 rownames(covercm3) &lt;- coverannot3$cellid; colnames(covercm3) &lt;- gene_names
 
-genecm1 &lt;- readMM(&#39;/home/larsc/data/gene1cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
-genecm2 &lt;- readMM(&#39;/home/larsc/data/gene2cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
-genecm3 &lt;- readMM(&#39;/home/larsc/data/gene3cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
-geneannot1 &lt;- read_csv(&#39;/home/larsc/data/gene1annot.csv&#39;)</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  Cell = col_character(),
-  Batch = col_character(),
-  Group = col_character(),
-  ExpLibSize = col_double(),
-  ncell = col_double(),
-  ngenes = col_double(),
-  lib.loc = col_double(),
-  cellid = col_character(),
-  group = col_double(),
-  de.level = col_double(),
-  condition = col_character(),
-  subtype = col_character()
-)</code></pre>
-<pre class="r"><code>geneannot2 &lt;- read_csv(&#39;/home/larsc/data/gene2annot.csv&#39;)</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  Cell = col_character(),
-  Batch = col_character(),
-  Group = col_character(),
-  ExpLibSize = col_double(),
-  ncell = col_double(),
-  ngenes = col_double(),
-  lib.loc = col_double(),
-  cellid = col_character(),
-  group = col_double(),
-  de.level = col_double(),
-  condition = col_character(),
-  subtype = col_character()
-)</code></pre>
-<pre class="r"><code>geneannot3 &lt;- read_csv(&#39;/home/larsc/data/gene3annot.csv&#39;)</code></pre>
-<pre><code>Parsed with column specification:
-cols(
-  Cell = col_character(),
-  Batch = col_character(),
-  Group = col_character(),
-  ExpLibSize = col_double(),
-  ncell = col_double(),
-  ngenes = col_double(),
-  lib.loc = col_double(),
-  cellid = col_character(),
-  group = col_double(),
-  de.level = col_double(),
-  condition = col_character(),
-  subtype = col_character()
-)</code></pre>
-<pre class="r"><code>rownames(genecm1) &lt;- geneannot1$cellid; colnames(genecm1) &lt;- gene_names2
+genecm1 &lt;- readMM(&#39;/home/larsc/data/splatter_data/gene1cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
+genecm2 &lt;- readMM(&#39;/home/larsc/data/splatter_data/gene2cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
+genecm3 &lt;- readMM(&#39;/home/larsc/data/splatter_data/gene3cm.mtx&#39;) %&gt;% as(&#39;dgCMatrix&#39;)
+geneannot1 &lt;- read_csv(&#39;/home/larsc/data/splatter_data/gene1annot.csv&#39;)
+geneannot2 &lt;- read_csv(&#39;/home/larsc/data/splatter_data/gene2annot.csv&#39;)
+geneannot3 &lt;- read_csv(&#39;/home/larsc/data/splatter_data/gene3annot.csv&#39;)
+rownames(genecm1) &lt;- geneannot1$cellid; colnames(genecm1) &lt;- gene_names2
 rownames(genecm2) &lt;- geneannot2$cellid; colnames(genecm2) &lt;- gene_names2
 rownames(genecm3) &lt;- geneannot3$cellid; colnames(genecm3) &lt;- gene_names2</code></pre>
-<p>start with PAGA</p>
-<pre class="r"><code>#cellpaga1 &lt;- MakeSimRepPaga(cellannot1, cellcm1, varied.factor=&#39;ncells&#39;)
-#cellpaga2 &lt;- MakeSimRepPaga(cellannot2, cellcm2, varied.factor=&#39;ncells&#39;)
-#cellpaga3 &lt;- MakeSimRepPaga(cellannot3, cellcm3, varied.factor=&#39;ncells&#39;)
-#bound_cellpaga &lt;- bind_rows(cellpaga1, cellpaga2, cellpaga3)
-#saveRDS(bound_cellpaga, &#39;/home/larsc/data/simcellpagadf.rds&#39;)
-bound_cellpaga &lt;- readRDS(&#39;/home/larsc/data/simcellpagadf.rds&#39;)
-bound_cellpaga %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.prob))+geom_jitter()</code></pre>
-<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>the mean shape vector associated with the lib.loc vector is meanshapevec &lt;- c(0.1, 0.2, 0.3, 0.4, 0.5)</p>
-<pre class="r"><code>#coverpaga1 &lt;- MakeSimRepPaga(coverannot1, covercm1, varied.factor=&#39;cover&#39;)
-#coverpaga2 &lt;- MakeSimRepPaga(coverannot2, covercm2, varied.factor=&#39;cover&#39;)
-#coverpaga3 &lt;- MakeSimRepPaga(coverannot3, covercm3, varied.factor=&#39;cover&#39;)
-#bound_coverpaga &lt;- bind_rows(coverpaga1, coverpaga2, coverpaga3)
-#saveRDS(bound_coverpaga, &#39;/home/larsc/data/simcoverpagadf.rds&#39;)
-bound_coverpaga &lt;- readRDS(&#39;/home/larsc/data/simcoverpagadf.rds&#39;)
-bound_coverpaga %&gt;% ggplot(aes(x=lib.loc, y=paga.connectivity.value, col=de.prob))+geom_jitter()</code></pre>
-<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>genepaga1 &lt;- MakeSimRepPaga(geneannot1, genecm1, varied.factor=&#39;ngenes&#39;)</code></pre>
+<p>First make pagoda objects with reductions and graphs</p>
+<pre class="r"><code>cell1p2 &lt;- NeuronalMaturation::GetPagoda(Matrix::t(cellcm1), n.odgenes=3000, embeding.type=NULL)</code></pre>
+<pre><code>18300 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 340 overdispersed genes ... 340 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>cell2p2 &lt;- NeuronalMaturation::GetPagoda(Matrix::t(cellcm2), n.odgenes=3000, embeding.type=NULL)</code></pre>
+<pre><code>18300 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 355 overdispersed genes ... 355 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>cell3p2 &lt;- NeuronalMaturation::GetPagoda(Matrix::t(cellcm3), n.odgenes=3000, embeding.type=NULL)</code></pre>
+<pre><code>18300 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 341 overdispersed genes ... 341 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>saveRDS(cell1p2, &#39;/home/larsc/data/splatter_data/cell1p2.rds&#39;)
+saveRDS(cell2p2, &#39;/home/larsc/data/splatter_data/cell2p2.rds&#39;)
+saveRDS(cell3p2, &#39;/home/larsc/data/splatter_data/cell3p2.rds&#39;)
+
+cover1p2 &lt;- NeuronalMaturation::GetPagoda(Matrix::t(covercm1), n.odgenes=3000, embeding.type=NULL)</code></pre>
+<pre><code>20000 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 2544 overdispersed genes ... 2544 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>cover2p2 &lt;- NeuronalMaturation::GetPagoda(Matrix::t(covercm2), n.odgenes=3000, embeding.type=NULL)</code></pre>
+<pre><code>20000 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 2516 overdispersed genes ... 2516 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>cover3p2 &lt;- NeuronalMaturation::GetPagoda(Matrix::t(covercm3), n.odgenes=3000, embeding.type=NULL)</code></pre>
+<pre><code>20000 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 2484 overdispersed genes ... 2484 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>saveRDS(cover1p2, &#39;/home/larsc/data/splatter_data/cover1p2.rds&#39;)
+saveRDS(cover2p2, &#39;/home/larsc/data/splatter_data/cover2p2.rds&#39;)
+saveRDS(cover3p2, &#39;/home/larsc/data/splatter_data/cover3p2.rds&#39;)
+
+gene1p2 &lt;- NeuronalMaturation::GetPagoda(Matrix::t(genecm1), n.odgenes=3000, embeding.type=NULL)</code></pre>
 <pre><code>20000 cells, 20000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
-calculating variance fit ... using gam 162 overdispersed genes ... 162 persisting ... done.
-running PCA using 2000 OD genes .... done
-calculating distance ... pearson ...running tSNE using 30 cores:</code></pre>
-<pre class="r"><code>genepaga2 &lt;- MakeSimRepPaga(geneannot2, genecm2, varied.factor=&#39;ngenes&#39;)</code></pre>
+calculating variance fit ... using gam 161 overdispersed genes ... 161 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>gene2p2 &lt;- NeuronalMaturation::GetPagoda(Matrix::t(genecm2), n.odgenes=3000, embeding.type=NULL)</code></pre>
 <pre><code>20000 cells, 20000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
-calculating variance fit ... using gam 171 overdispersed genes ... 171 persisting ... done.
-running PCA using 2000 OD genes .... done
-calculating distance ... pearson ...running tSNE using 30 cores:</code></pre>
-<pre class="r"><code>genepaga3 &lt;- MakeSimRepPaga(geneannot3, genecm3, varied.factor=&#39;ngenes&#39;)</code></pre>
+calculating variance fit ... using gam 144 overdispersed genes ... 144 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>gene3p2 &lt;- NeuronalMaturation::GetPagoda(Matrix::t(genecm3), n.odgenes=3000, embeding.type=NULL)</code></pre>
 <pre><code>20000 cells, 20000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
 calculating variance fit ... using gam 181 overdispersed genes ... 181 persisting ... done.
-running PCA using 2000 OD genes .... done
-calculating distance ... pearson ...running tSNE using 30 cores:</code></pre>
-<pre class="r"><code>bound_genepaga &lt;- bind_rows(genepaga1, genepaga2, genepaga3)
-saveRDS(bound_genepaga, &#39;/home/larsc/data/simgenepagadf.rds&#39;)
-bound_genepaga %&gt;% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.prob))+geom_jitter()</code></pre>
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>saveRDS(gene1p2, &#39;/home/larsc/data/splatter_data/gene1p2.rds&#39;)
+saveRDS(gene2p2, &#39;/home/larsc/data/splatter_data/gene2p2.rds&#39;)
+saveRDS(gene3p2, &#39;/home/larsc/data/splatter_data/gene3p2.rds&#39;)</code></pre>
+<pre class="r"><code>cellpaga1 &lt;- MakeSimRepPaga(cellannot1, cell1p2, varied.factor=&#39;ncells&#39;)
+cellpaga2 &lt;- MakeSimRepPaga(cellannot2, cell2p2, varied.factor=&#39;ncells&#39;)
+cellpaga3 &lt;- MakeSimRepPaga(cellannot3, cell3p2, varied.factor=&#39;ncells&#39;)
+bound_cellpaga &lt;- bind_rows(cellpaga1, cellpaga2, cellpaga3)
+#bound_cellpaga &lt;- readRDS(&#39;/home/larsc/data/simcellpagadf.rds&#39;)
+bound_cellpaga %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.prob))+
+  geom_jitter(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/98d4795b24260fc5c4b724c7e18b2eb758c73c24/docs/figure/simulations_plots.Rmd/unnamed-chunk-4-1.png" target="_blank">98d4795</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-07-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>cellpaga2 %&gt;% filter(ncell==500) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.prob))+geom_point(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>the mean shape vector associated with the lib.loc vector is meanshapevec &lt;- c(0.1, 0.2, 0.3, 0.4, 0.5)</p>
+<pre class="r"><code>coverpaga1 &lt;- MakeSimRepPaga(coverannot1, cover1p2, varied.factor=&#39;cover&#39;)
+coverpaga2 &lt;- MakeSimRepPaga(coverannot2, cover2p2, varied.factor=&#39;cover&#39;)
+coverpaga3 &lt;- MakeSimRepPaga(coverannot3, cover3p2, varied.factor=&#39;cover&#39;)
+bound_coverpaga &lt;- bind_rows(coverpaga1, coverpaga2, coverpaga3)
+
+bound_coverpaga %&gt;% ggplot(aes(x=lib.loc, y=paga.connectivity.value, col=de.prob))+geom_jitter(size=1, alpha=0.9)</code></pre>
 <p><img src="figure/simulations_plots.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/98d4795b24260fc5c4b724c7e18b2eb758c73c24/docs/figure/simulations_plots.Rmd/unnamed-chunk-5-1.png" target="_blank">98d4795</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-07-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>coverpaga1 %&gt;% filter(lib.loc==8) %&gt;% ggplot(aes(x=lib.loc, y=paga.connectivity.value, col=de.prob))+
+  geom_point(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /> Something strange might be happening here. We select select lib.loc 8 of one of the replicates and perform this one separately.</p>
+<pre class="r"><code>covertestannot &lt;- (coverannot2 %&gt;% split(coverannot2$lib.loc))$`8`
+cover8test &lt;- covercm2[covertestannot$cellid, ]
+covertestpaga &lt;- MakeSimRepPaga(covertestannot, cover8test, varied.factor=&#39;cover&#39;)</code></pre>
+<pre><code>4000 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 25 overdispersed genes ... 25 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>covertestpaga %&gt;% ggplot(aes(x=lib.loc, y=paga.connectivity.value, col=de.prob))+geom_point() # looks correct</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>genepaga1 &lt;- MakeSimRepPaga(geneannot1, gene1p2, varied.factor=&#39;ngenes&#39;)
+genepaga2 &lt;- MakeSimRepPaga(geneannot2, gene2p2, varied.factor=&#39;ngenes&#39;)
+genepaga3 &lt;- MakeSimRepPaga(geneannot3, gene3p2, varied.factor=&#39;ngenes&#39;)
+bound_genepaga &lt;- bind_rows(genepaga1, genepaga2, genepaga3)
+
+bound_genepaga %&gt;% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.prob))+geom_jitter(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>genepaga1 %&gt;% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.prob))+geom_point(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Correlation</p>
+<pre class="r"><code>cec1 &lt;- cell1p2$reductions$PCA; pca_genes &lt;- cec1 %&gt;% colnames
+cec2 &lt;- cell2p2$reductions$PCA
+cec3 &lt;- cell3p2$reductions$PCA
+coc1 &lt;- cover1p2$reductions$PCA
+coc2 &lt;- cover2p2$reductions$PCA
+coc3 &lt;- cover3p2$reductions$PCA
+gec1 &lt;- gene1p2$reductions$PCA
+gec2 &lt;- gene2p2$reductions$PCA
+gec3 &lt;- gene3p2$reductions$PCA
+
+cellmats &lt;- list(cec1, cec2, cec3)
+cellannots &lt;- list(cellannot1, cellannot2, cellannot3)
+covmats &lt;- list(coc1, coc2, coc3)
+covannots &lt;- list(coverannot1, coverannot2, coverannot3)
+genemats &lt;- list(gec1, gec2, gec3)
+geneannots &lt;- list(geneannot1, geneannot2, geneannot3)
+
+docorr &lt;- function(a.mat, an.annot){
+  corr &lt;- performDistance(an.annot$subtype, an.annot$cellid, an.annot$condition, a.mat, pca_genes)
+}
+corrall &lt;- function(mat.list, annot.list, factor.identity) {
+  cors &lt;- Map(docorr, mat.list, annot.list)
+  cors.all &lt;- dplyr::bind_rows(cors)
+  if (factor.identity!=&#39;coverage&#39;){
+    cors.all %&lt;&gt;% mutate(varied.factor=as.factor(as.numeric(gsub(&#39; .*&#39;, &#39;&#39;, subtype))), 
+                       de.prob=as.factor(as.numeric(gsub(&#39;.* &#39;, &#39;&#39;, subtype))))
+    cors.all %&lt;&gt;% dplyr::rename(!!factor.identity:=varied.factor)
+  } else {
+    cors.all %&lt;&gt;% mutate(varied.factor=gsub(&#39; .*&#39;, &#39;&#39;, subtype), 
+                       de.prob=as.factor(as.numeric(gsub(&#39;.* &#39;, &#39;&#39;, subtype))))
+    cors.all %&lt;&gt;% dplyr::rename(!!factor.identity:=varied.factor)
+  }
+  return(cors.all)
+}
+
+cellcor &lt;- corrall(cellmats, cellannots, factor.identity=&#39;ncell&#39;)
+covcor &lt;- corrall(covmats, covannots, factor.identity=&#39;coverage&#39;)
+genecor &lt;- corrall(genemats, geneannots, factor.identity=&#39;ngenes&#39;)
+
+cellcor %&gt;% ggplot(aes(x=ncell, y=correlation.distance, col=de.prob))+geom_point(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cellcor %&gt;% filter(ncell==1000) %&gt;% ggplot(aes(x=ncell, y=correlation.distance, col=de.prob))+geom_jitter(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-8-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>covcor %&gt;% ggplot(aes(x=coverage, y=correlation.distance, col=de.prob))+geom_jitter(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-8-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>covcor %&gt;% filter(coverage==&#39;8_0.4&#39;) %&gt;% ggplot(aes(x=coverage, y=correlation.distance, col=de.prob))+geom_point(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-8-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>genecor %&gt;% ggplot(aes(x=ngenes, y=correlation.distance, col=de.prob))+geom_point(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-8-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>genecor %&gt;% filter(ngenes==1000) %&gt;% ggplot(aes(x=ngenes, y=correlation.distance, col=de.prob))+geom_jitter(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-8-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>That lib.loc=8 coverage is still bothing me.</p>
+<pre class="r"><code>covtestcmp2 &lt;- cover8test %&gt;% Matrix::t() %&gt;% NeuronalMaturation::GetPagoda(n.odgenes=3000, embeding.type=NULL)</code></pre>
+<pre><code>4000 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 25 overdispersed genes ... 25 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>covtestpca &lt;- covtestcmp2$reductions$PCA
+testcorr &lt;- corrall(list(covtestpca), list(covertestannot), &#39;coverage&#39;)
+testcorr %&gt;% ggplot(aes(x=coverage, y=correlation.distance, col=de.prob))+geom_point(size=1, alpha=0.9)</code></pre>
+<p><img src="figure/simulations_plots.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
