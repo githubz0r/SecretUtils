@@ -1,0 +1,102 @@
+---
+title: "simulations_plots2"
+author: "githubz0r"
+date: "2019-07-20"
+output: workflowr::wflow_html
+---
+
+```{r, message=F}
+library(conos)
+library(tidyverse)
+devtools::load_all('/home/larsc/SecretUtils')
+library(cowplot)
+library(splatter)
+devtools::load_all('/home/viktor_petukhov/Copenhagen/NeuronalMaturation')
+params <- readRDS('/home/larsc/data/splatter_lamp5_params.rds')
+```
+
+Make data
+```{r}
+group_prob <- rep(1/6, 6)
+de_prob <- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
+ncellvec <- c(30, 100, 200, 500, 1000)
+ngenevec <- c(100, 1000, 5000, 10000, 20000)
+de_prob <- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
+liblocvec <- c(6.5, 7, 7.5, 8, 8.5)
+seeds <- c(22071, 666, 9001)
+#ncellsims <- seeds %>% pbapply::pblapply(function(x){lapplyCells(ncellvec, x, de.probs=de_prob)}, cl=6)
+#ngenesims <- seeds %>% pbapply::pblapply(function(x){lapplyGenes(ngenevec, x, de.probs=de_prob)}, cl=6)
+#liblocsims <- seeds %>% pbapply::pblapply(function(x){lapplyLibloc(liblocvec, x, de.probs=de_prob)}, cl=6)
+```
+Generate paga dfs and p2 objects
+```{r}
+#cellpagas_p2s <- ncellsims %>% pbapply::pblapply(SimPagaFactor, 'ncell', return.p2=T, cl=1)
+#genepagas_p2s <- ngenesims %>% pbapply::pblapply(SimPagaFactor, 'ngenes', return.p2=T, cl=1)
+#liblocpagas_p2s <- liblocsims %>% pbapply::pblapply(SimPagaFactor, 'libloc', return.p2=T, cl=1)
+```
+Save objects in convenient form
+```{r}
+bindp2annot <- function(p2.paga.list, cm.annot.list) {
+  p2s <- p2.paga.list$p2s; annots <- cm.annot.list$annots
+  return(list(p2s=p2s, annots=annots))
+}
+#cellp2s_anns_unbound <- Map(bindp2annot, cellpagas_p2s, ncellsims); names(cellp2s_anns_unbound) <- seeds
+#genep2s_anns_unbound <- Map(bindp2annot, genepagas_p2s, ngenesims); names(genep2s_anns_unbound) <- seeds
+#liblocp2s_anns_unbound <- Map(bindp2annot, liblocpagas_p2s, liblocsims); names(liblocp2s_anns_unbound) <- seeds
+#saveRDS(cellp2s_anns_unbound, '/home/larsc/data/splatter_data/cellp2s_anns_unbound.rds')
+#saveRDS(genep2s_anns_unbound, '/home/larsc/data/splatter_data/genep2s_anns_unbound.rds')
+#saveRDS(liblocp2s_anns_unbound, '/home/larsc/data/splatter_data/liblocp2s_anns_unbound.rds')
+
+cellp2s_anns_unbound <- readRDS('/home/larsc/data/splatter_data/cellp2s_anns_unbound.rds')
+genep2s_anns_unbound <- readRDS('/home/larsc/data/splatter_data/genep2s_anns_unbound.rds')
+liblocp2s_anns_unbound <- readRDS('/home/larsc/data/splatter_data/liblocp2s_anns_unbound.rds')
+
+cellbound <- cellp2s_anns_unbound %>% lapply(SimPagaFactor, 'ncell') %>% bind_rows
+genebound <- genep2s_anns_unbound %>% lapply(SimPagaFactor, 'ngenes') %>% bind_rows
+liblocbound <- liblocp2s_anns_unbound %>%  lapply(SimPagaFactor, 'libloc') %>% bind_rows
+```
+
+
+```{r}
+#cellbound <- cellpagas_p2s %>% lapply(function(x){x$paga.df}) %>% bind_rows
+#genebound <- genepagas_p2s %>% lapply(function(x){x$paga.df}) %>% bind_rows
+#liblocbound <- liblocpagas_p2s %>% lapply(function(x){x$paga.df}) %>% bind_rows
+
+
+cellbound %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+genebound %>% filter(de.levels!='ref') %>% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+liblocbound %>% filter(de.levels!='ref') %>% ggplot(aes(x=libloc, y=paga.connectivity.value, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+```
+
+Correlation
+```{r}
+getpcacorperseed <- function(p2s.anns, factor.class){
+  pca.cms <- p2s.anns$p2s %>% lapply(function(x){x$reductions$PCA})
+  cor.dist.df <- doSimCor(pca.cms, p2s.anns$annots, factor.class)
+}
+cellcordists <- cellp2s_anns_unbound %>% lapply(getpcacorperseed, 'ncell') %>% bind_rows
+genecordists <- genep2s_anns_unbound %>% lapply(getpcacorperseed, 'ngenes') %>% bind_rows
+libloccordists <- liblocp2s_anns_unbound %>% lapply(getpcacorperseed, 'libloc') %>% bind_rows
+
+cellcordists %>% filter(de.probs!='ref') %>% ggplot(aes(x=ncell, y=correlation.distance, col=de.probs))+
+  geom_point(size=1, alpha=0.8)
+genecordists %>% filter(de.probs!='ref') %>% ggplot(aes(x=ngenes, y=correlation.distance, col=de.probs))+
+  geom_point(size=1, alpha=0.8)
+libloccordists %>% filter(de.probs!='ref') %>% ggplot(aes(x=libloc, y=correlation.distance, col=de.probs))+
+  geom_point(size=1, alpha=0.8)
+```
+
+testing corr
+```{r}
+testcellcor <- cellp2s_anns_unbound$`22071`
+testcm <- testcellcor$p2s$`500`$reductions$PCA
+testannot <- testcellcor$annots$`500` %>% ExtendFactorAnnot(500, 'ncell')
+testsplit <- testannot$cellid %>% split(testannot$de.level)
+all.equal(testcm %>% rownames, testannot$cellid)
+submats <- testsplit %>% lapply(function(x){testcm[x,]}) %>% lapply(Matrix::colMeans)
+testcors <- submats %>% lapply(function(x,reference){1-cor(x,reference)}, reference=submats$ref)
+```
+

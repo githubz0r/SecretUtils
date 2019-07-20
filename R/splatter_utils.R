@@ -30,10 +30,10 @@ Selectsimcons <- function(connectivity.mat, de.prob.vec, n.batch.vec) {
 }
 
 SimulateGroups <- function(splatter.params, n.cells, de.probabilities = c(0, 0, 0, 0.2, 0, 0.3, 0, 0.4, 0, 0.5),
-                           group.prob = c(rep(1/10, 10)), n.genes, lib.loc, mean.shape=0.4, seed=22071) {
-  sim.result <- splatSimulateGroups(splatter.params, group.prob = group.prob, dropout.type='experiment', mean.shape=mean.shape,
-                                    de.prob = de.probabilities, nGenes=n.genes, batchCells=n.cells*10, lib.loc=lib.loc,
-                                    verbose = FALSE, seed=seed)
+                           group.prob = c(rep(1/10, 10)), n.genes, lib.loc, mean.shape=0.414, seed=22071, dropout.type='none') {
+  sim.result <- splatSimulateGroups(splatter.params, group.prob = group.prob, dropout.type=dropout.type, mean.shape=mean.shape,
+                                    de.prob = de.probabilities, nGenes=n.genes, batchCells=n.cells*length(group.prob),
+                                    lib.loc=lib.loc, verbose = FALSE, seed=seed)
   #browser()
   sim.annot <- sim.result@colData %>% as.data.frame
   nrowann <- dim(sim.annot)[1]
@@ -47,22 +47,77 @@ SimulateGroups <- function(splatter.params, n.cells, de.probabilities = c(0, 0, 
   return(list(cm=t(sim.cm), sim.annot=sim.annot, whole.result=sim.result))
 }
 
-lapplyCells <- function(n.cell.vec, seed, lib.loc=8, n.genes=10000) {
-
+lapplyCells <- function(n.cell.vec, seed, lib.loc=8, n.genes=10000,  de.probs, bind=F) {
+  group.probs <- rep(1/length(de.probs), length(de.probs))
   results <- n.cell.vec %>% lapply(function(x){
-    a.sim <- SimulateGroups(params, seed=seed, n.cells=x, n.genes=n.genes, lib.loc=lib.loc)
+    a.sim <- SimulateGroups(params, seed=seed, n.cells=x, n.genes=n.genes, lib.loc=lib.loc, de.probabilities=de.probs,
+                            group.prob=group.probs)
     return(a.sim)
   })
-  boundcm <- do.call(rbind, results %>% lapply(function(x){x$cm}))
-  boundannot <- do.call(rbind, results %>% lapply(function(x){x$sim.annot}))
-  boundannot %<>% mutate(group=as.numeric(gsub('Group', '', Group)))
-  #names(results) <- n.cell.vec %>% as.character()
-  return(return(list(cm=boundcm, annot=boundannot)))
+  if (bind) {
+    boundcm <- do.call(rbind, results %>% lapply(function(x){x$cm}))
+    boundannot <- do.call(rbind, results %>% lapply(function(x){x$sim.annot}))
+    boundannot %<>% mutate(group=as.numeric(gsub('Group', '', Group)))
+    return.value <- list(cm=boundcm, annot=boundannot)
+  } else {
+    cms <- results %>% lapply(function(x){x$cm})
+    annots <- results %>% lapply(function(x){x$sim.annot})
+    annots <- annots %>% lapply(function(x){x %<>% mutate(group=as.numeric(gsub('Group', '', Group)))})
+    names(cms) <- n.cell.vec -> names(annots)
+    return.value <- list(cms=cms, annots=annots)
+  }
+  return(return.value)
 }
 
-lapplyGenes <- function(n.gene.vec, seed, n.cells=400, lib.loc=8) {
+lapplyLibloc <- function(lib.loc.vec, seed, n.cells=500, n.genes=10000,  de.probs, bind=F) {
+  group.probs <- rep(1/length(de.probs), length(de.probs))
+  results <- lib.loc.vec %>% lapply(function(x){
+    a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=n.genes, lib.loc=x, de.probabilities=de.probs,
+                            group.prob=group.probs)
+    return(a.sim)
+  })
+  if (bind) {
+    boundcm <- do.call(rbind, results %>% lapply(function(x){x$cm}))
+    boundannot <- do.call(rbind, results %>% lapply(function(x){x$sim.annot}))
+    boundannot %<>% mutate(group=as.numeric(gsub('Group', '', Group)))
+    return.value <- list(cm=boundcm, annot=boundannot)
+  } else {
+    cms <- results %>% lapply(function(x){x$cm})
+    annots <- results %>% lapply(function(x){x$sim.annot})
+    annots <- annots %>% lapply(function(x){x %<>% mutate(group=as.numeric(gsub('Group', '', Group)))})
+    names(cms) <- lib.loc.vec -> names(annots)
+    return.value <- list(cms=cms, annots=annots)
+  }
+  return(return.value)
+}
+
+lapplyGenes <- function(n.gene.vec, seed, n.cells=500, lib.loc=8,  de.probs, bind=F) {
+  #browser()
+  group.probs <- rep(1/length(de.probs), length(de.probs))
   results <- n.gene.vec %>% lapply(function(x){
-    a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=x, lib.loc=lib.loc)
+    a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=x, lib.loc=lib.loc,
+                            group.prob=group.probs, de.probabilities=de.probs)
+    return(a.sim)
+  })
+  if (bind) {
+    boundcm <- do.call(rbind, results %>% lapply(function(x){x$cm}))
+    boundannot <- do.call(rbind, results %>% lapply(function(x){x$sim.annot}))
+    boundannot %<>% mutate(group=as.numeric(gsub('Group', '', Group)))
+    return.value <- list(cm=boundcm, annot=boundannot)
+  } else {
+    cms <- results %>% lapply(function(x){x$cm})
+    annots <- results %>% lapply(function(x){x$sim.annot})
+    annots <- annots %>% lapply(function(x){x %<>% mutate(group=as.numeric(gsub('Group', '', Group)))})
+    names(cms) <- n.gene.vec -> names(annots)
+    return.value <- list(cms=cms, annots=annots)
+  }
+  return(return.value)
+}
+
+lapplyGenesOld <- function(n.gene.vec, seed, n.cells=500, lib.loc=8,  de.probs, bind=F) {
+  results <- n.gene.vec %>% lapply(function(x){
+    a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=x, lib.loc=lib.loc,
+                            group.prob=group.probs)
     return(a.sim)
   })
   names(results) <- n.gene.vec %>% as.character()
@@ -156,4 +211,81 @@ performDistance <- function(subtype.vector, cellid.vector, condition.vector, cou
   names(corr.dists) <- names(sub.mats[[1]])
   ncells <- table(subtype.vector)[names(sub.mats[[1]])]
   return(dplyr::bind_cols(correlation.distance=unlist(corr.dists), subtype=names(sub.mats[[1]]), ncells=ncells))
+}
+
+ExtendFactorAnnot <- function(factor.annot, factor.name, factor.class){
+  de.switch <- setNames(c('ref', 0, 2, 3, 4, 5), (factor.annot$Group %>% unique %>% sort))
+  factor.annot %<>% dplyr::mutate(de.level=de.switch[factor.annot$Group],
+                                  factor.name=as.numeric(rep(factor.name, nrow(factor.annot))))
+  factor.annot %<>% dplyr::rename(!!factor.class:=factor.name)
+  return(factor.annot)
+}
+
+SimPaga3 <- function(factor.cm, factor.annot.extended, factor.iteration, factor.identity, static.factors=NULL, return.p2=F){
+  #browser()
+  factor.annot <- factor.annot.extended
+  if (class(factor.cm)!='Pagoda2') {
+    p2 <- NeuronalMaturation::GetPagoda(Matrix::t(factor.cm), n.odgenes=3000, embeding.type = NULL)
+    graph <- igraph::as_adjacency_matrix(p2$graphs$PCA, attr='weight')[factor.annot$cellid, factor.annot$cellid]
+  } else {
+    graph <- igraph::as_adjacency_matrix(factor.cm$graphs$PCA, attr='weight')[factor.annot$cellid, factor.annot$cellid]
+  }
+  sample.connectivity <- GeneratePagaItems(graph, sample.vector=factor.annot.extended$de.level, by.sample=T)
+  connectivity.mat <- sample.connectivity$connectivities
+  de.levels <- (paste0(factor.annot$de.level) %>% unique)[order(paste0(factor.annot$de.level) %>% unique)]
+  n.levels <- length(de.levels)
+  comparisons <- connectivity.mat[n.levels, ] %>% setNames(de.levels)
+  ncell.delevels <- factor.annot$cellid %>% split(factor.annot$de.level) %>% lapply(length) %>% unlist
+  ncell.true <- ncell.delevels+ncell.delevels[n.levels]
+  df <- dplyr::bind_cols(paga.connectivity.value=comparisons, de.levels=de.levels, ncell.comparison=ncell.true,
+                         which.factor=rep(factor.iteration, n.levels))
+  df %<>% dplyr::rename(!!factor.identity:=which.factor)
+  if (return.p2) {
+    return(list(p2=p2, paga.df=df))
+  } else {
+    return(df)
+  }
+}
+
+SimPagaFactor <- function(factor.list, factor.class, return.p2=F){
+  #browser()
+  if (names(factor.list)[1]=='p2s') {
+    names(factor.list)[1]='cms'
+  }
+  factor.names <- names(factor.list$cms)
+  factor.class.vector <- rep(factor.class, length(factor.names))
+  extended.annots <- Map(ExtendFactorAnnot, factor.list$annots, factor.names, factor.class.vector)
+  paga.results <- Map(SimPaga3, factor.list$cms, extended.annots, factor.names, factor.class.vector,
+                      MoreArgs=list(return.p2=return.p2))
+  if (return.p2==F) {
+    paga.df <- dplyr::bind_rows(paga.results)
+    paga.df[[factor.class]] <- paga.df[[factor.class]] %>% as.numeric %>% as.factor
+    return(paga.df)
+  } else {
+    p2s <- paga.results %>% lapply(function(x){x$p2})
+    paga.dfs <- paga.results %>% lapply(function(x){x$paga.df})
+    paga.df <- dplyr::bind_rows(paga.dfs)
+    paga.df[[factor.class]] <- paga.df[[factor.class]] %>% as.numeric %>% as.factor
+    return(list(paga.df=paga.df, p2s=p2s))
+  }
+}
+
+SimCor <- function(cm, annot, factor.iteration, factor.class){
+  submats <- annot$cellid %>% split(annot$de.level) %>% lapply(function(x){cm[x, ]}) %>% lapply(Matrix::colMeans)
+  n.de.levels <- length(submats)
+  ref.mat <- submats[[n.de.levels]]
+  cor.dists <- submats %>% lapply(function(x){1-cor(x,ref.mat)}) %>% unlist
+  df <- dplyr::bind_cols(correlation.distance=cor.dists, de.probs=names(submats))
+  df %<>% dplyr::mutate(which.factor = rep(factor.iteration, n.de.levels))
+  df %<>% dplyr::rename(!!factor.class:=which.factor)
+  return(df)
+}
+
+doSimCor <- function(cms, annots, factor.class){
+  extended.annots <- Map(ExtendFactorAnnot, annots, names(annots), factor.class)
+  factor.iterations <- names(annots)
+  dfs <- Map(SimCor, cms, extended.annots, factor.iterations, MoreArgs=list(factor.class=factor.class))
+  df <- dplyr::bind_rows(dfs)
+  df[[factor.class]] <- df[[factor.class]] %>% as.numeric %>% as.factor
+  return(df)
 }
