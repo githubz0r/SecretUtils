@@ -11,9 +11,9 @@
 
 <meta name="author" content="githubz0r" />
 
-<meta name="date" content="2019-07-20" />
+<meta name="date" content="2019-07-25" />
 
-<title>simulations_plots2</title>
+<title>simulations_plots3</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -420,9 +420,9 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">simulations_plots2</h1>
+<h1 class="title toc-ignore">simulations_plots3</h1>
 <h4 class="author">githubz0r</h4>
-<h4 class="date">2019-07-20</h4>
+<h4 class="date">2019-07-25</h4>
 
 </div>
 
@@ -538,6 +538,7 @@ Great! You are using Git for version control. Tracking code development and conn
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    analysis/figure/
 
 Untracked files:
     Untracked:  .Rbuildignore
@@ -559,7 +560,6 @@ Untracked files:
     Untracked:  analysis/test_output.Rmd
     Untracked:  analysis/transmute_peters_code.Rmd
     Untracked:  docs/figure/paga.Rmd/
-    Untracked:  docs/figure/simulations_plots3.Rmd/
     Untracked:  man/
 
 Unstaged changes:
@@ -615,36 +615,19 @@ Message
 <tbody>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/4b9798b04d986d84d7d5cbd482f6a6a40d726b6f/docs/simulations_plots2.html" target="_blank">4b9798b</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-07-20
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/f5fbc776d981224508fee3e9e481272c9a64c250/analysis/simulations_plots2.Rmd" target="_blank">f5fbc77</a>
+<a href="https://github.com/githubz0r/SecretUtils/blob/9ba1082ecfd397fb90d80040e7dbec5d321235e5/analysis/simulations_plots3.Rmd" target="_blank">9ba1082</a>
 </td>
 <td>
 githubz0r
 </td>
 <td>
-2019-07-20
+2019-07-25
 </td>
 <td>
-nonbound matrices
+new htmls just to safekeep
 </td>
 </tr>
 </tbody>
@@ -661,181 +644,32 @@ library(cowplot)
 library(splatter)
 devtools::load_all(&#39;/home/viktor_petukhov/Copenhagen/NeuronalMaturation&#39;)
 params &lt;- readRDS(&#39;/home/larsc/data/splatter_lamp5_params.rds&#39;)</code></pre>
-<p>Make data</p>
+<p>Vectors used for making the data</p>
 <pre class="r"><code>group_prob &lt;- rep(1/6, 6)
 de_prob &lt;- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
 ncellvec &lt;- c(30, 100, 200, 500, 1000)
 ngenevec &lt;- c(100, 1000, 5000, 10000, 20000)
 de_prob &lt;- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
 liblocvec &lt;- c(6.5, 7, 7.5, 8, 8.5)
-seeds &lt;- c(22071, 666, 9001)
-#ncellsims &lt;- seeds %&gt;% pbapply::pblapply(function(x){lapplyCells(ncellvec, x, de.probs=de_prob)}, cl=6)
-#ngenesims &lt;- seeds %&gt;% pbapply::pblapply(function(x){lapplyGenes(ngenevec, x, de.probs=de_prob)}, cl=6)
-#liblocsims &lt;- seeds %&gt;% pbapply::pblapply(function(x){lapplyLibloc(liblocvec, x, de.probs=de_prob)}, cl=6)</code></pre>
-<p>Generate paga dfs and p2 objects</p>
-<pre class="r"><code>#cellpagas_p2s &lt;- ncellsims %&gt;% pbapply::pblapply(SimPagaFactor, &#39;ncell&#39;, return.p2=T, cl=1)
-#genepagas_p2s &lt;- ngenesims %&gt;% pbapply::pblapply(SimPagaFactor, &#39;ngenes&#39;, return.p2=T, cl=1)
-#liblocpagas_p2s &lt;- liblocsims %&gt;% pbapply::pblapply(SimPagaFactor, &#39;libloc&#39;, return.p2=T, cl=1)</code></pre>
-<p>Save objects in convenient form</p>
-<pre class="r"><code>bindp2annot &lt;- function(p2.paga.list, cm.annot.list) {
-  p2s &lt;- p2.paga.list$p2s; annots &lt;- cm.annot.list$annots
-  return(list(p2s=p2s, annots=annots))
-}
-#cellp2s_anns_unbound &lt;- Map(bindp2annot, cellpagas_p2s, ncellsims); names(cellp2s_anns_unbound) &lt;- seeds
-#genep2s_anns_unbound &lt;- Map(bindp2annot, genepagas_p2s, ngenesims); names(genep2s_anns_unbound) &lt;- seeds
-#liblocp2s_anns_unbound &lt;- Map(bindp2annot, liblocpagas_p2s, liblocsims); names(liblocp2s_anns_unbound) &lt;- seeds
-#saveRDS(cellp2s_anns_unbound, &#39;/home/larsc/data/splatter_data/cellp2s_anns_unbound.rds&#39;)
-#saveRDS(genep2s_anns_unbound, &#39;/home/larsc/data/splatter_data/genep2s_anns_unbound.rds&#39;)
-#saveRDS(liblocp2s_anns_unbound, &#39;/home/larsc/data/splatter_data/liblocp2s_anns_unbound.rds&#39;)
-
-cellp2s_anns_unbound &lt;- readRDS(&#39;/home/larsc/data/splatter_data/cellp2s_anns_unbound.rds&#39;)
+seeds &lt;- c(22071, 666, 9001)</code></pre>
+<p>Loading data, lists of p2s and annots. Also generate PAGA results.</p>
+<pre class="r"><code>cellp2s_anns_unbound &lt;- readRDS(&#39;/home/larsc/data/splatter_data/cellp2s_anns_unbound.rds&#39;)
 genep2s_anns_unbound &lt;- readRDS(&#39;/home/larsc/data/splatter_data/genep2s_anns_unbound.rds&#39;)
 liblocp2s_anns_unbound &lt;- readRDS(&#39;/home/larsc/data/splatter_data/liblocp2s_anns_unbound.rds&#39;)
 
 cellbound &lt;- cellp2s_anns_unbound %&gt;% lapply(SimPagaFactor, &#39;ncell&#39;) %&gt;% bind_rows
 genebound &lt;- genep2s_anns_unbound %&gt;% lapply(SimPagaFactor, &#39;ngenes&#39;) %&gt;% bind_rows
 liblocbound &lt;- liblocp2s_anns_unbound %&gt;%  lapply(SimPagaFactor, &#39;libloc&#39;) %&gt;% bind_rows</code></pre>
-<p>checking that low libloc has higher dropout</p>
-<pre class="r"><code>liblocp2s_anns_unbound$`22071`$p2s %&gt;% lapply(function(x){x$misc$rawCounts %&gt;% countzerocols})</code></pre>
-<pre><code>$`6.5`
-[1] 957
-
-$`7`
-[1] 800
-
-$`7.5`
-[1] 664
-
-$`8`
-[1] 514
-
-$`8.5`
-[1] 451</code></pre>
-<pre class="r"><code>#cellbound &lt;- cellpagas_p2s %&gt;% lapply(function(x){x$paga.df}) %&gt;% bind_rows
-#genebound &lt;- genepagas_p2s %&gt;% lapply(function(x){x$paga.df}) %&gt;% bind_rows
-#liblocbound &lt;- liblocpagas_p2s %&gt;% lapply(function(x){x$paga.df}) %&gt;% bind_rows
-
-
-cellbound %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
+<p>Plot PAGA results</p>
+<pre class="r"><code>cellbound %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
   geom_point(size=1, alpha=0.8)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
-Past versions of unnamed-chunk-6-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-6-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/4b9798b04d986d84d7d5cbd482f6a6a40d726b6f/docs/figure/simulations_plots2.Rmd/unnamed-chunk-6-1.png" target="_blank">4b9798b</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-07-20
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>genebound %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.levels))+
   geom_point(size=1, alpha=0.8)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-2">
-Past versions of unnamed-chunk-6-2.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-6-2" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/4b9798b04d986d84d7d5cbd482f6a6a40d726b6f/docs/figure/simulations_plots2.Rmd/unnamed-chunk-6-2.png" target="_blank">4b9798b</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-07-20
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>liblocbound %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=libloc, y=paga.connectivity.value, col=de.levels))+
   geom_point(size=1, alpha=0.8)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-6-3.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-3">
-Past versions of unnamed-chunk-6-3.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-6-3" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/4b9798b04d986d84d7d5cbd482f6a6a40d726b6f/docs/figure/simulations_plots2.Rmd/unnamed-chunk-6-3.png" target="_blank">4b9798b</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-07-20
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-4-3.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Correlation</p>
 <pre class="r"><code>getpcacorperseed &lt;- function(p2s.anns, factor.class){
   pca.cms &lt;- p2s.anns$p2s %&gt;% lapply(function(x){x$reductions$PCA})
@@ -847,48 +681,18 @@ libloccordists &lt;- liblocp2s_anns_unbound %&gt;% lapply(getpcacorperseed, &#39
 
 cellcordists %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=correlation.distance, col=de.levels))+
   geom_point(size=1, alpha=0.8)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>genecordists %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ngenes, y=correlation.distance, col=de.levels))+
   geom_point(size=1, alpha=0.8)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>libloccordists %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=libloc, y=correlation.distance, col=de.levels))+
   geom_point(size=1, alpha=0.8)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-7-3.png" width="672" style="display: block; margin: auto;" /></p>
-<p>testing corr</p>
-<pre class="r"><code>testcellcor &lt;- cellp2s_anns_unbound$`22071`
-testcm &lt;- testcellcor$p2s$`500`$reductions$PCA
-testannot &lt;- testcellcor$annots$`500` %&gt;% ExtendFactorAnnot(500, &#39;ncell&#39;)
-testsplit &lt;- testannot$cellid %&gt;% split(testannot$de.level)
-all.equal(testcm %&gt;% rownames, testannot$cellid)</code></pre>
-<pre><code>[1] TRUE</code></pre>
-<pre class="r"><code>submatscor &lt;- testsplit %&gt;% lapply(function(x){testcm[x,]}) %&gt;% lapply(Matrix::colMeans)
-testcors &lt;- submatscor %&gt;% lapply(function(x,reference){1-cor(x,reference)}, reference=submatscor$ref)
-cor_500_from_test &lt;- testcors %&gt;% unlist
-cor_500_from_function &lt;- filter(cellcordists, ncell==500)$correlation.distance[1:6]
-all.equal(cor_500_from_function, cor_500_from_test %&gt;% unname)</code></pre>
-<pre><code>[1] TRUE</code></pre>
-<pre class="r"><code># still looks suspicious
-testcm2 &lt;- cellp2s_anns_unbound$`22071`$p2s$`30`$reductions$PCA
-testannot2 &lt;- cellp2s_anns_unbound$`22071`$annots$`30`
-testannot2_2 &lt;- testannot2 %&gt;% ExtendFactorAnnot(30, &#39;ncell&#39;)
-testsplit2 &lt;- testannot2_2 %&gt;% split(testannot2_2$de.level)
-submatscor2 &lt;- testsplit2 %&gt;% lapply(function(x){testcm2[x$cellid,]}) %&gt;% lapply(Matrix::colMeans)
-submatscor2 %&gt;% lapply(function(x, reference=submatscor2$ref){1-cor(x,reference)}) %&gt;% unlist</code></pre>
-<pre><code>           0          0.2          0.3          0.4          0.5 
-1.038014e+00 1.158562e+00 1.228583e+00 1.206554e+00 1.241582e+00 
-         ref 
-1.110223e-16 </code></pre>
-<p>Sanity check for PAGA, bind the cell mat and plot</p>
-<pre class="r"><code>cellrep1 &lt;- cellp2s_anns_unbound$`22071`
-mats &lt;- cellrep1$p2s %&gt;% lapply(function(x){x$misc$rawCounts}) %&gt;% do.call(rbind,.)
-boundp2 &lt;- t(mats) %&gt;% NeuronalMaturation::GetPagoda(n.odgenes=3000)</code></pre>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-5-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Check bound PAGA</p>
+<pre class="r"><code>testqq &lt;- PairwiseComparisonsFullMat(cellp2s_anns_unbound$`22071`$p2s, cellp2s_anns_unbound$`22071`$annots, &#39;ncell&#39;)</code></pre>
 <pre><code>10980 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
 calculating variance fit ... using gam 513 overdispersed genes ... 513 persisting ... done.
-running PCA using 3000 OD genes .... done
-calculating distance ... pearson ...running tSNE using 30 cores:</code></pre>
-<pre class="r"><code>ncell_levels &lt;- (cellrep1$annots %&gt;% lapply(function(x){x$ncell %&gt;% unique})) %&gt;% unlist
-annots_extended &lt;- Map(ExtendFactorAnnot, cellrep1$annots, ncell_levels, MoreArgs=(list(&#39;ncell&#39;)))
-boundannot &lt;- annots_extended %&gt;% bind_rows</code></pre>
+running PCA using 3000 OD genes .... done</code></pre>
 <pre><code>Warning in bind_rows_(x, .id): Unequal factor levels: coercing to character</code></pre>
 <pre><code>Warning in bind_rows_(x, .id): binding character and factor vector,
 coercing into character vector
@@ -904,48 +708,18 @@ coercing into character vector
 
 Warning in bind_rows_(x, .id): binding character and factor vector,
 coercing into character vector</code></pre>
-<pre class="r"><code>partitions &lt;- paste0(boundannot$ncell, &#39;_&#39;, boundannot$de.level) %&gt;% str_sort(numeric=TRUE) %&gt;% unique
+<pre class="r"><code>#all.equal(testqq$bound.annot[,1:10], cellp2s_anns_unbound$`22701`$annots %&gt;% bind_rows)
+#testlibloc &lt;- PairwiseComparisonsFullMat(liblocp2s_anns_unbound$`666`$p2s, liblocp2s_anns_unbound$`666`$annots, &#39;lib.loc&#39;)
+#all.equal(testlibloc$bound.annot[,1:10], liblocp2s_anns_unbound$`666`$annots %&gt;% bind_rows)
+#testgenes&lt;- PairwiseComparisonsFullMat(genep2s_anns_unbound$`666`$p2s, genep2s_anns_unbound$`666`$annots, &#39;ngenes&#39;)
+#all.equal(testgenes$bound.annot[,1:10], genep2s_anns_unbound$`666`$annots %&gt;% bind_rows)
 
-boundannot$partitions &lt;- factor(paste0(boundannot$ncell, &#39;_&#39;, boundannot$de.level), levels=partitions)
-#boundannot$partitions &lt;- factor(paste0(boundannot$ncell, &#39;_&#39;, boundannot$de.level))
-adjgraph &lt;- igraph::as_adjacency_matrix(boundp2$graphs$PCA, attr=&#39;weight&#39;)[boundannot$cellid, boundannot$cellid]
-connectivities &lt;- GeneratePagaItems(adjgraph, sample.vector=boundannot$partitions, by.samples=T)
-connectivities &lt;- connectivities$connectivities#[partitions, partitions]
-connectivities2 &lt;- GetPagaMatrix(adjgraph, boundannot$partitions %&gt;% as.numeric)
-inds &lt;- 1:30 %&gt;% split(seq(1,30, by=5)) %&gt;% as.data.frame %&gt;% t %&gt;% as.matrix %&gt;% as.data.frame
-submats &lt;- inds %&gt;% lapply(function(x){connectivities[x, x]})
-names(submats) &lt;- ncell_levels
-cons &lt;- Map(SimPaga4, submats, annots_extended, ncell_levels, MoreArgs=list(&#39;ncell&#39;))
-cons %&gt;% bind_rows %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
+paga_res_bound_cell &lt;- PagaForBound(testqq$p2, testqq$bound.annot, &#39;ncell&#39;)
+paga_res_bound_cell %&gt;% bind_rows %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
   geom_point(size=1, alpha=0.8)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>groupgroup &lt;- setNames(boundannot$Group, boundannot$cellid)
-degroup &lt;- setNames(boundannot$de.level, boundannot$cellid)
-partitiongrp &lt;- setNames(boundannot$partitions, boundannot$cellid)
-conos:::plotSamples(list(boundp2), groups=groupgroup, shuffle.colors=T, font.size=c(2,5),
-                    show.legend=T, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-9-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># could also try correlation
-boundpcamat &lt;- boundp2$reductions$PCA
-boundpcasplits &lt;- annots_extended %&gt;% lapply(function(x){boundpcamat[x$cellid,]})
-boundcorsplits &lt;- doSimCor(boundpcasplits, cellrep1$annots, &#39;ncell&#39;)
-
-
-cons %&gt;% bind_rows %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
-  geom_point(size=1, alpha=0.8)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-9-3.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>boundcorsplits %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=correlation.distance, col=de.levels))+
-  geom_point(size=1, alpha=0.8)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-9-4.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>conos:::plotSamples(list(boundp2), groups=groupgroup, shuffle.colors=T, font.size=c(2,5),
-                    show.legend=T, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-9-5.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>#connectivities
-#connectivities2
-#cons %&gt;% bind_rows %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
-  #geom_point(size=1, alpha=0.8)</code></pre>
-<p>Let’s take a quick look at the tsnes of one of the cell reps and compare with the bound tsne (in final report we should probably do this for all the combinations)</p>
-<pre class="r"><code># unbound
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Let’s take a quick look at the tsnes of one of the cell reps and compare with the bound tsne</p>
+<pre class="r"><code># unbound tsne
 testp2s &lt;- cellp2s_anns_unbound$`22071`$p2s
 for (x in testp2s){x$getEmbedding(type = &quot;PCA&quot;, perplexity = 30, embeddingType = &quot;tSNE&quot;,
                    max_iter = 1000, distance = &#39;cosine&#39;)}</code></pre>
@@ -973,147 +747,42 @@ coercing into character vector</code></pre>
 <pre class="r"><code>grpgrp &lt;- setNames(testannot$Group, testannot$cellid)
 
 # bound tsne 
-boundp2$getEmbedding(type = &quot;PCA&quot;, perplexity = 30, embeddingType = &quot;tSNE&quot;,
+testqq$p2$getEmbedding(type = &quot;PCA&quot;, perplexity = 30, embeddingType = &quot;tSNE&quot;,
                    max_iter = 1000, distance = &#39;cosine&#39;)</code></pre>
 <pre><code>calculating distance ... pearson ...running tSNE using 30 cores:</code></pre>
 <pre class="r"><code>ncellgrp &lt;- setNames(testannot$ncell, testannot$cellid)
-conos:::plotSamples(testp2s, groups=ncellgrp, shuffle.colors=F, font.size=c(3),
-                    show.legend=F, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>conos:::plotSamples(list(boundp2), groups=ncellgrp, shuffle.colors=F, font.size=c(3),
-                    show.legend=F, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-11-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>conos:::plotSamples(testp2s, groups=grpgrp, shuffle.colors=F, font.size=c(3),
-                    show.legend=F, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-11-3.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>conos:::plotSamples(list(boundp2), groups=grpgrp, shuffle.colors=F, font.size=c(3),
-                    show.legend=F, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-11-4.png" width="672" style="display: block; margin: auto;" /></p>
-<p>Let’s see if this difference in dependency between unbound matrices and separate matrices PCA’d persists using batches splatSimulateGroups has 3 methods, single, groups and paths</p>
-<pre class="r"><code># test
-# Simulation with big batch effects
-batch_faclocs &lt;- c(0, 0, 0.1, 0.15, 0.2, 0.25) # batch 1 is reference
-ncellbatch &lt;- c(30,100,200,500,1000)
-#sim2 &lt;- splatSimulateGroups(params, batchCells = c(1830, 1830, 1830, 1830, 1830, 1830), group.prob=c(30,100,200,500,1000)/1830,
-                      #batch.facLoc = c(0, 0, 0.1, 0.15, 0.2, 0.25), batch.facScale = c(0.001, 0.001, 0.1, 0.1, 0.1, 0.1), 
-                      #de.prob=rep(0,5), verbose = FALSE)
-
-#sim2 &lt;- scater::normalize(sim2)
-#scater::plotPCA(sim2, colour_by = &quot;Batch&quot;) + ggtitle(&quot;Big batch effects&quot;)
-
-#batchcm &lt;- counts(sim2)
-#batchannot &lt;- sim2@colData
-#batchannot$Cell &lt;- batchannot$Cell %&gt;% as.character # always remember this bullshit1
-# extend annotation and make sub matrices
-ExtendBatchAnnot &lt;- function(annot, facloc.vec, ncell.vec){
-  #browser()
-  facloc.switch &lt;- setNames(facloc.vec, annot$Batch %&gt;% unique %&gt;% sort)
-  batchcell.switch &lt;- setNames(ncell.vec, annot$Group %&gt;% unique %&gt;% sort)
-  faclocs &lt;- facloc.switch[annot$Batch]
-  ncells &lt;- batchcell.switch[annot$Group]
-  annot$faclocs &lt;- faclocs
-  annot$ncell &lt;- ncells
-  return(annot)
-}
-#batchannot_ext &lt;- ExtendBatchAnnot(batchannot, batch_faclocs, ncellbatch)
-#batch_cellsplits &lt;- batchannot_ext %&gt;% split(batchannot_ext$ncell)
-#batchsubmats &lt;- batch_cellsplits %&gt;% lapply(function(x){batchcm[, x$Cell]})
-
-# generate p2s
-#batchfullp2 &lt;- NeuronalMaturation::GetPagoda(batchcm, n.odgenes=3000)
-#batchsubp2s &lt;- batchsubmats %&gt;% lapply(function(x){x %&gt;% NeuronalMaturation::GetPagoda(n.odgenes=3000)})
-
-# save objects
-#saveRDS(batchfullp2, &#39;/home/larsc/data/splatter_data/batchvalidfullp2.rds&#39;)
-#saveRDS(batchsubp2s, &#39;/home/larsc/data/splatter_data/batchvalidsubp2s.rds&#39;)
-#saveRDS(batchannot_ext, &#39;/home/larsc/data/splatter_data/batchvalidannot.rds&#39;)
-
-batchfullp2 &lt;- readRDS(&#39;/home/larsc/data/splatter_data/batchvalidfullp2.rds&#39;)
-batchsubp2s &lt;- readRDS(&#39;/home/larsc/data/splatter_data/batchvalidsubp2s.rds&#39;)
-batchannot_ext &lt;- readRDS(&#39;/home/larsc/data/splatter_data/batchvalidannot.rds&#39;)
-batch_cellsplits &lt;- batchannot_ext %&gt;% split(batchannot_ext$ncell)
 
 # plot
-batchgrp &lt;- setNames(batchannot_ext$Batch, batchannot_ext$Cell)
-ncellgrp &lt;- setNames(batchannot_ext$ncell, batchannot_ext$Cell)
-#conos:::plotSamples(list(batchfullp2), groups=batchgrp, shuffle.colors=T, font.size=c(2,5),
-                    #show.legend=T, size=0.4)
-#conos:::plotSamples(batchsubp2s, groups=batchgrp, shuffle.colors=T, font.size=c(2,5),
-                    #show.legend=F, size=0.4)
-#conos:::plotSamples(list(batchfullp2), groups=ncellgrp, shuffle.colors=T, font.size=c(2,5),
-                    #show.legend=T, size=0.4)
-#conos:::plotSamples(batchsubp2s, groups=ncellgrp, shuffle.colors=F, font.size=c(2,5),
-                    #show.legend=F, size=0.4)
-
-
-SimPagaForSubs &lt;- function(graph, annot, is.connectivity=F){
-  if (!is.connectivity) {
-    sample.connectivity &lt;- GeneratePagaItems(graph, sample.vector=annot$Batch, by.sample=T)
-    connectivity.mat &lt;- sample.connectivity$connectivities
-  } else {
-    connectivity.mat &lt;- graph
-  }
-  batch.levels &lt;- (paste0(annot$Batch) %&gt;% unique)[order(paste0(annot$Batch) %&gt;% unique)]
-  n.levels &lt;- length(batch.levels)
-  comparisons &lt;- connectivity.mat[1, ] %&gt;% setNames(n.levels)
-  ncell.batchlevels &lt;- annot$Batch %&gt;% split(annot$Batch) %&gt;% lapply(length) %&gt;% unlist
-  ncell.true &lt;- ncell.batchlevels+ncell.batchlevels[1]
-  df &lt;- dplyr::bind_cols(paga.connectivity.value=comparisons, batch=batch.levels, ncell.comparison=ncell.true,
-                         ncell=rep(annot$ncell %&gt;% unique, n.levels))
-  return(df)
-}
-
-
-
-# quick sanity check with paga
-#(paste0(batch_cellsplits$`30`$Batch) %&gt;% unique)[order(paste0(batch_cellsplits$`30`$Batch) %&gt;% unique)]
-#testgraph &lt;- igraph::as_adjacency_matrix(batchsubp2s$`1000`$graphs$PCA,
-                                         #attr=&#39;weight&#39;)[batch_cellsplits$`1000`$Cell,batch_cellsplits$`1000`$Cell]
-#funcres &lt;- SimPagaForSubs(testgraph, batch_cellsplits$`1000`)
-#testannot1000 &lt;- batch_cellsplits$`1000`
-#membershiptest &lt;- testannot1000$Batch %&gt;% as.factor %&gt;% as.numeric
-#testannot1000$Batch %&gt;% as.factor %&gt;% levels # correct
-#testcon1000 &lt;- GetPagaMatrix(testgraph, membershiptest)
-#testcon1000[1,] # correct
-
-# let&#39;s do the full mat first
-batchfullgraph &lt;- igraph::as_adjacency_matrix(batchfullp2$graphs$PCA,
-                                         attr=&#39;weight&#39;)[batchannot_ext$Cell,batchannot_ext$Cell]
-batchfulllevels &lt;- paste(batchannot_ext$ncell, batchannot_ext$Batch) %&gt;% str_sort(numeric=TRUE) %&gt;% unique
-batchfullpartition &lt;- factor(paste(batchannot_ext$ncell, batchannot_ext$Batch), levels=batchfulllevels)
-batchfullmem &lt;- batchfullpartition %&gt;% as.numeric
-batchpaga_full &lt;- GetPagaMatrix(batchfullgraph, batchfullmem)
-inds &lt;- 1:30 %&gt;% split(seq(1,30, by=5)) %&gt;% as.data.frame %&gt;% t %&gt;% as.matrix %&gt;% as.data.frame %&gt;% as.list
-batchpagafullsubmats &lt;- inds %&gt;% lapply(function(x){batchpaga_full[x,x]}) 
-names(batchpagafullsubmats) &lt;- batchannot_ext$ncell %&gt;% unique %&gt;% as.numeric %&gt;% sort
-
-# individual mats now
-SubBatchCons &lt;- function(p2, annot){
-  graph &lt;- igraph::as_adjacency_matrix(p2$graphs$PCA, attr=&#39;weight&#39;)[annot$Cell, annot$Cell]
-  membership.vec &lt;- annot$Batch %&gt;% as.factor %&gt;% as.numeric
-  paga.con &lt;- GetPagaMatrix(graph, membership.vec)
-  return(paga.con)
-}
-batchsubcons &lt;- Map(SubBatchCons, batchsubp2s, batch_cellsplits)
-
-pagas_onemat &lt;- Map(SimPagaForSubs, batchpagafullsubmats, batch_cellsplits, MoreArgs=list(is.connectivity=T)) %&gt;% bind_rows
-pagas_manymats &lt;- Map(SimPagaForSubs, batchsubcons, batch_cellsplits, MoreArgs=list(is.connectivity=T)) %&gt;% bind_rows
-pagas_onemat %&gt;% filter(batch!=&#39;Batch1&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, color=batch))+geom_point()</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>pagas_manymats %&gt;% filter(batch!=&#39;Batch1&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, color=batch))+geom_point()</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-12-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>conos:::plotSamples(list(batchfullp2), groups=batchgrp, shuffle.colors=T, font.size=c(2,5),
-                    show.legend=T, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-12-3.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>conos:::plotSamples(batchsubp2s, groups=batchgrp, shuffle.colors=T, font.size=c(2,5),
+conos:::plotSamples(testp2s, groups=ncellgrp, shuffle.colors=F, font.size=c(3),
                     show.legend=F, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-12-4.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>conos:::plotSamples(list(batchfullp2), groups=ncellgrp, shuffle.colors=T, font.size=c(2,5),
-                    show.legend=T, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-12-5.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>conos:::plotSamples(batchsubp2s, groups=ncellgrp, shuffle.colors=F, font.size=c(2,5),
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>conos:::plotSamples(list(testqq$p2), groups=ncellgrp, shuffle.colors=F, font.size=c(3),
                     show.legend=F, size=0.4)</code></pre>
-<p><img src="figure/simulations_plots2.Rmd/unnamed-chunk-12-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>conos:::plotSamples(testp2s, groups=grpgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)</code></pre>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-7-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>conos:::plotSamples(list(testqq$p2), groups=grpgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)</code></pre>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-7-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>JSD</p>
+<pre class="r"><code>#testdists &lt;- cellp2s_anns_unbound %&gt;% lapply(GetProbDistPerSeed, factor.class=&#39;ncell&#39;) %&gt;% bind_rows # testing with corr
+#all.equal(testdists %&gt;% bind_rows, cellcordists)
+
+#test JSD
+cell_jsd &lt;- cellp2s_anns_unbound %&gt;% lapply(GetProbDistPerSeed, factor.class=&#39;ncell&#39;, distance=&#39;jensen_shannon&#39;) %&gt;% bind_rows
+gene_jsd &lt;- genep2s_anns_unbound %&gt;% lapply(GetProbDistPerSeed, factor.class=&#39;ngenes&#39;, distance=&#39;jensen_shannon&#39;) %&gt;% bind_rows
+libloc_jsd &lt;- liblocp2s_anns_unbound %&gt;% lapply(GetProbDistPerSeed, factor.class=&#39;lib.loc&#39;, distance=&#39;jensen_shannon&#39;) %&gt;% bind_rows
+
+cell_jsd %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=jensen_shannon, col=de.levels))+
+  geom_point(size=1, alpha=0.8)</code></pre>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>gene_jsd %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ngenes, y=jensen_shannon, col=de.levels))+
+  geom_point(size=1, alpha=0.8)</code></pre>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-8-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>libloc_jsd %&gt;% filter(de.levels!=&#39;ref&#39;) %&gt;% ggplot(aes(x=lib.loc, y=jensen_shannon, col=de.levels))+
+  geom_point(size=1, alpha=0.8)</code></pre>
+<p><img src="figure/simulations_plots3.Rmd/unnamed-chunk-8-3.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
