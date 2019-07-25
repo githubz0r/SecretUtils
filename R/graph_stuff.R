@@ -217,7 +217,7 @@ GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=N
   if (by.subtypes.condition) {
     subtype.condition <- paste0(subtype.vector, '-', condition.vector)
     membership.vector <- as.numeric(factor(subtype.condition))
-    subtype.order <- (paste0(subtype.vector) %>% unique)[order(paste0(subtype.vector) %>% unique)]
+    subtype.order <- (paste0(subtype.vector) %>% unique)[order(paste0(subtype.vector) %>% unique)] # for appending to the DF
     connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F, linearize=linearize)
     statistics <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
     paga.df <- dplyr::bind_cols(paga.connectivity.value=statistics, subtype=subtype.order)

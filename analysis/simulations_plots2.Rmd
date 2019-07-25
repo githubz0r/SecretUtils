@@ -56,6 +56,11 @@ genebound <- genep2s_anns_unbound %>% lapply(SimPagaFactor, 'ngenes') %>% bind_r
 liblocbound <- liblocp2s_anns_unbound %>%  lapply(SimPagaFactor, 'libloc') %>% bind_rows
 ```
 
+checking that low libloc has higher dropout
+```{r}
+liblocp2s_anns_unbound$`22071`$p2s %>% lapply(function(x){x$misc$rawCounts %>% countzerocols})
+```
+
 
 ```{r}
 #cellbound <- cellpagas_p2s %>% lapply(function(x){x$paga.df}) %>% bind_rows
@@ -81,11 +86,11 @@ cellcordists <- cellp2s_anns_unbound %>% lapply(getpcacorperseed, 'ncell') %>% b
 genecordists <- genep2s_anns_unbound %>% lapply(getpcacorperseed, 'ngenes') %>% bind_rows
 libloccordists <- liblocp2s_anns_unbound %>% lapply(getpcacorperseed, 'libloc') %>% bind_rows
 
-cellcordists %>% filter(de.probs!='ref') %>% ggplot(aes(x=ncell, y=correlation.distance, col=de.probs))+
+cellcordists %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=correlation.distance, col=de.levels))+
   geom_point(size=1, alpha=0.8)
-genecordists %>% filter(de.probs!='ref') %>% ggplot(aes(x=ngenes, y=correlation.distance, col=de.probs))+
+genecordists %>% filter(de.levels!='ref') %>% ggplot(aes(x=ngenes, y=correlation.distance, col=de.levels))+
   geom_point(size=1, alpha=0.8)
-libloccordists %>% filter(de.probs!='ref') %>% ggplot(aes(x=libloc, y=correlation.distance, col=de.probs))+
+libloccordists %>% filter(de.levels!='ref') %>% ggplot(aes(x=libloc, y=correlation.distance, col=de.levels))+
   geom_point(size=1, alpha=0.8)
 ```
 
@@ -96,7 +101,217 @@ testcm <- testcellcor$p2s$`500`$reductions$PCA
 testannot <- testcellcor$annots$`500` %>% ExtendFactorAnnot(500, 'ncell')
 testsplit <- testannot$cellid %>% split(testannot$de.level)
 all.equal(testcm %>% rownames, testannot$cellid)
-submats <- testsplit %>% lapply(function(x){testcm[x,]}) %>% lapply(Matrix::colMeans)
-testcors <- submats %>% lapply(function(x,reference){1-cor(x,reference)}, reference=submats$ref)
+submatscor <- testsplit %>% lapply(function(x){testcm[x,]}) %>% lapply(Matrix::colMeans)
+testcors <- submatscor %>% lapply(function(x,reference){1-cor(x,reference)}, reference=submatscor$ref)
+cor_500_from_test <- testcors %>% unlist
+cor_500_from_function <- filter(cellcordists, ncell==500)$correlation.distance[1:6]
+all.equal(cor_500_from_function, cor_500_from_test %>% unname)
+
+# still looks suspicious
+testcm2 <- cellp2s_anns_unbound$`22071`$p2s$`30`$reductions$PCA
+testannot2 <- cellp2s_anns_unbound$`22071`$annots$`30`
+testannot2_2 <- testannot2 %>% ExtendFactorAnnot(30, 'ncell')
+testsplit2 <- testannot2_2 %>% split(testannot2_2$de.level)
+submatscor2 <- testsplit2 %>% lapply(function(x){testcm2[x$cellid,]}) %>% lapply(Matrix::colMeans)
+submatscor2 %>% lapply(function(x, reference=submatscor2$ref){1-cor(x,reference)}) %>% unlist
+
+```
+
+
+Sanity check for PAGA, bind the cell mat and plot
+```{r}
+cellrep1 <- cellp2s_anns_unbound$`22071`
+mats <- cellrep1$p2s %>% lapply(function(x){x$misc$rawCounts}) %>% do.call(rbind,.)
+boundp2 <- t(mats) %>% NeuronalMaturation::GetPagoda(n.odgenes=3000)
+ncell_levels <- (cellrep1$annots %>% lapply(function(x){x$ncell %>% unique})) %>% unlist
+annots_extended <- Map(ExtendFactorAnnot, cellrep1$annots, ncell_levels, MoreArgs=(list('ncell')))
+boundannot <- annots_extended %>% bind_rows
+partitions <- paste0(boundannot$ncell, '_', boundannot$de.level) %>% str_sort(numeric=TRUE) %>% unique
+
+boundannot$partitions <- factor(paste0(boundannot$ncell, '_', boundannot$de.level), levels=partitions)
+#boundannot$partitions <- factor(paste0(boundannot$ncell, '_', boundannot$de.level))
+adjgraph <- igraph::as_adjacency_matrix(boundp2$graphs$PCA, attr='weight')[boundannot$cellid, boundannot$cellid]
+connectivities <- GeneratePagaItems(adjgraph, sample.vector=boundannot$partitions, by.samples=T)
+connectivities <- connectivities$connectivities#[partitions, partitions]
+connectivities2 <- GetPagaMatrix(adjgraph, boundannot$partitions %>% as.numeric)
+inds <- 1:30 %>% split(seq(1,30, by=5)) %>% as.data.frame %>% t %>% as.matrix %>% as.data.frame
+submats <- inds %>% lapply(function(x){connectivities[x, x]})
+names(submats) <- ncell_levels
+cons <- Map(SimPaga4, submats, annots_extended, ncell_levels, MoreArgs=list('ncell'))
+cons %>% bind_rows %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+
+groupgroup <- setNames(boundannot$Group, boundannot$cellid)
+degroup <- setNames(boundannot$de.level, boundannot$cellid)
+partitiongrp <- setNames(boundannot$partitions, boundannot$cellid)
+conos:::plotSamples(list(boundp2), groups=groupgroup, shuffle.colors=T, font.size=c(2,5),
+                    show.legend=T, size=0.4)
+
+# could also try correlation
+boundpcamat <- boundp2$reductions$PCA
+boundpcasplits <- annots_extended %>% lapply(function(x){boundpcamat[x$cellid,]})
+boundcorsplits <- doSimCor(boundpcasplits, cellrep1$annots, 'ncell')
+
+
+cons %>% bind_rows %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+boundcorsplits %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=correlation.distance, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+conos:::plotSamples(list(boundp2), groups=groupgroup, shuffle.colors=T, font.size=c(2,5),
+                    show.legend=T, size=0.4)
+```
+
+```{r}
+#connectivities
+#connectivities2
+#cons %>% bind_rows %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
+  #geom_point(size=1, alpha=0.8)
+```
+
+Let's take a quick look at the tsnes of one of the cell reps and compare with the bound tsne (in final report we should probably do this for all the combinations)
+```{r}
+# unbound
+testp2s <- cellp2s_anns_unbound$`22071`$p2s
+for (x in testp2s){x$getEmbedding(type = "PCA", perplexity = 30, embeddingType = "tSNE",
+                   max_iter = 1000, distance = 'cosine')}
+testannot <- cellp2s_anns_unbound$`22071`$annots %>% bind_rows
+grpgrp <- setNames(testannot$Group, testannot$cellid)
+
+# bound tsne 
+boundp2$getEmbedding(type = "PCA", perplexity = 30, embeddingType = "tSNE",
+                   max_iter = 1000, distance = 'cosine')
+ncellgrp <- setNames(testannot$ncell, testannot$cellid)
+conos:::plotSamples(testp2s, groups=ncellgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)
+conos:::plotSamples(list(boundp2), groups=ncellgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)
+conos:::plotSamples(testp2s, groups=grpgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)
+conos:::plotSamples(list(boundp2), groups=grpgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)
+```
+
+Let's see if this difference in dependency between unbound matrices and separate matrices PCA'd persists using batches
+splatSimulateGroups has 3 methods, single, groups and paths
+```{r}
+# test
+# Simulation with big batch effects
+batch_faclocs <- c(0, 0, 0.1, 0.15, 0.2, 0.25) # batch 1 is reference
+ncellbatch <- c(30,100,200,500,1000)
+#sim2 <- splatSimulateGroups(params, batchCells = c(1830, 1830, 1830, 1830, 1830, 1830), group.prob=c(30,100,200,500,1000)/1830,
+                      #batch.facLoc = c(0, 0, 0.1, 0.15, 0.2, 0.25), batch.facScale = c(0.001, 0.001, 0.1, 0.1, 0.1, 0.1), 
+                      #de.prob=rep(0,5), verbose = FALSE)
+
+#sim2 <- scater::normalize(sim2)
+#scater::plotPCA(sim2, colour_by = "Batch") + ggtitle("Big batch effects")
+
+#batchcm <- counts(sim2)
+#batchannot <- sim2@colData
+#batchannot$Cell <- batchannot$Cell %>% as.character # always remember this bullshit1
+# extend annotation and make sub matrices
+ExtendBatchAnnot <- function(annot, facloc.vec, ncell.vec){
+  #browser()
+  facloc.switch <- setNames(facloc.vec, annot$Batch %>% unique %>% sort)
+  batchcell.switch <- setNames(ncell.vec, annot$Group %>% unique %>% sort)
+  faclocs <- facloc.switch[annot$Batch]
+  ncells <- batchcell.switch[annot$Group]
+  annot$faclocs <- faclocs
+  annot$ncell <- ncells
+  return(annot)
+}
+#batchannot_ext <- ExtendBatchAnnot(batchannot, batch_faclocs, ncellbatch)
+#batch_cellsplits <- batchannot_ext %>% split(batchannot_ext$ncell)
+#batchsubmats <- batch_cellsplits %>% lapply(function(x){batchcm[, x$Cell]})
+
+# generate p2s
+#batchfullp2 <- NeuronalMaturation::GetPagoda(batchcm, n.odgenes=3000)
+#batchsubp2s <- batchsubmats %>% lapply(function(x){x %>% NeuronalMaturation::GetPagoda(n.odgenes=3000)})
+
+# save objects
+#saveRDS(batchfullp2, '/home/larsc/data/splatter_data/batchvalidfullp2.rds')
+#saveRDS(batchsubp2s, '/home/larsc/data/splatter_data/batchvalidsubp2s.rds')
+#saveRDS(batchannot_ext, '/home/larsc/data/splatter_data/batchvalidannot.rds')
+
+batchfullp2 <- readRDS('/home/larsc/data/splatter_data/batchvalidfullp2.rds')
+batchsubp2s <- readRDS('/home/larsc/data/splatter_data/batchvalidsubp2s.rds')
+batchannot_ext <- readRDS('/home/larsc/data/splatter_data/batchvalidannot.rds')
+batch_cellsplits <- batchannot_ext %>% split(batchannot_ext$ncell)
+
+# plot
+batchgrp <- setNames(batchannot_ext$Batch, batchannot_ext$Cell)
+ncellgrp <- setNames(batchannot_ext$ncell, batchannot_ext$Cell)
+#conos:::plotSamples(list(batchfullp2), groups=batchgrp, shuffle.colors=T, font.size=c(2,5),
+                    #show.legend=T, size=0.4)
+#conos:::plotSamples(batchsubp2s, groups=batchgrp, shuffle.colors=T, font.size=c(2,5),
+                    #show.legend=F, size=0.4)
+#conos:::plotSamples(list(batchfullp2), groups=ncellgrp, shuffle.colors=T, font.size=c(2,5),
+                    #show.legend=T, size=0.4)
+#conos:::plotSamples(batchsubp2s, groups=ncellgrp, shuffle.colors=F, font.size=c(2,5),
+                    #show.legend=F, size=0.4)
+
+
+SimPagaForSubs <- function(graph, annot, is.connectivity=F){
+  if (!is.connectivity) {
+    sample.connectivity <- GeneratePagaItems(graph, sample.vector=annot$Batch, by.sample=T)
+    connectivity.mat <- sample.connectivity$connectivities
+  } else {
+    connectivity.mat <- graph
+  }
+  batch.levels <- (paste0(annot$Batch) %>% unique)[order(paste0(annot$Batch) %>% unique)]
+  n.levels <- length(batch.levels)
+  comparisons <- connectivity.mat[1, ] %>% setNames(n.levels)
+  ncell.batchlevels <- annot$Batch %>% split(annot$Batch) %>% lapply(length) %>% unlist
+  ncell.true <- ncell.batchlevels+ncell.batchlevels[1]
+  df <- dplyr::bind_cols(paga.connectivity.value=comparisons, batch=batch.levels, ncell.comparison=ncell.true,
+                         ncell=rep(annot$ncell %>% unique, n.levels))
+  return(df)
+}
+
+
+
+# quick sanity check with paga
+#(paste0(batch_cellsplits$`30`$Batch) %>% unique)[order(paste0(batch_cellsplits$`30`$Batch) %>% unique)]
+#testgraph <- igraph::as_adjacency_matrix(batchsubp2s$`1000`$graphs$PCA,
+                                         #attr='weight')[batch_cellsplits$`1000`$Cell,batch_cellsplits$`1000`$Cell]
+#funcres <- SimPagaForSubs(testgraph, batch_cellsplits$`1000`)
+#testannot1000 <- batch_cellsplits$`1000`
+#membershiptest <- testannot1000$Batch %>% as.factor %>% as.numeric
+#testannot1000$Batch %>% as.factor %>% levels # correct
+#testcon1000 <- GetPagaMatrix(testgraph, membershiptest)
+#testcon1000[1,] # correct
+
+# let's do the full mat first
+batchfullgraph <- igraph::as_adjacency_matrix(batchfullp2$graphs$PCA,
+                                         attr='weight')[batchannot_ext$Cell,batchannot_ext$Cell]
+batchfulllevels <- paste(batchannot_ext$ncell, batchannot_ext$Batch) %>% str_sort(numeric=TRUE) %>% unique
+batchfullpartition <- factor(paste(batchannot_ext$ncell, batchannot_ext$Batch), levels=batchfulllevels)
+batchfullmem <- batchfullpartition %>% as.numeric
+batchpaga_full <- GetPagaMatrix(batchfullgraph, batchfullmem)
+inds <- 1:30 %>% split(seq(1,30, by=5)) %>% as.data.frame %>% t %>% as.matrix %>% as.data.frame %>% as.list
+batchpagafullsubmats <- inds %>% lapply(function(x){batchpaga_full[x,x]}) 
+names(batchpagafullsubmats) <- batchannot_ext$ncell %>% unique %>% as.numeric %>% sort
+
+# individual mats now
+SubBatchCons <- function(p2, annot){
+  graph <- igraph::as_adjacency_matrix(p2$graphs$PCA, attr='weight')[annot$Cell, annot$Cell]
+  membership.vec <- annot$Batch %>% as.factor %>% as.numeric
+  paga.con <- GetPagaMatrix(graph, membership.vec)
+  return(paga.con)
+}
+batchsubcons <- Map(SubBatchCons, batchsubp2s, batch_cellsplits)
+
+pagas_onemat <- Map(SimPagaForSubs, batchpagafullsubmats, batch_cellsplits, MoreArgs=list(is.connectivity=T)) %>% bind_rows
+pagas_manymats <- Map(SimPagaForSubs, batchsubcons, batch_cellsplits, MoreArgs=list(is.connectivity=T)) %>% bind_rows
+pagas_onemat %>% filter(batch!='Batch1') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, color=batch))+geom_point()
+pagas_manymats %>% filter(batch!='Batch1') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, color=batch))+geom_point()
+
+conos:::plotSamples(list(batchfullp2), groups=batchgrp, shuffle.colors=T, font.size=c(2,5),
+                    show.legend=T, size=0.4)
+conos:::plotSamples(batchsubp2s, groups=batchgrp, shuffle.colors=T, font.size=c(2,5),
+                    show.legend=F, size=0.4)
+conos:::plotSamples(list(batchfullp2), groups=ncellgrp, shuffle.colors=T, font.size=c(2,5),
+                    show.legend=T, size=0.4)
+conos:::plotSamples(batchsubp2s, groups=ncellgrp, shuffle.colors=F, font.size=c(2,5),
+                    show.legend=F, size=0.4)
 ```
 

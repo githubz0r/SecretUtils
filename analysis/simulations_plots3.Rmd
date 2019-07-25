@@ -1,0 +1,130 @@
+---
+title: "simulations_plots3"
+author: "githubz0r"
+date: "2019-07-25"
+output: workflowr::wflow_html
+---
+
+```{r, message=F}
+library(conos)
+library(tidyverse)
+devtools::load_all('/home/larsc/SecretUtils')
+library(cowplot)
+library(splatter)
+devtools::load_all('/home/viktor_petukhov/Copenhagen/NeuronalMaturation')
+params <- readRDS('/home/larsc/data/splatter_lamp5_params.rds')
+```
+
+Vectors used for making the data
+```{r}
+group_prob <- rep(1/6, 6)
+de_prob <- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
+ncellvec <- c(30, 100, 200, 500, 1000)
+ngenevec <- c(100, 1000, 5000, 10000, 20000)
+de_prob <- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
+liblocvec <- c(6.5, 7, 7.5, 8, 8.5)
+seeds <- c(22071, 666, 9001)
+
+```
+
+Loading data, lists of p2s and annots. Also generate PAGA results.
+```{r, message=F}
+cellp2s_anns_unbound <- readRDS('/home/larsc/data/splatter_data/cellp2s_anns_unbound.rds')
+genep2s_anns_unbound <- readRDS('/home/larsc/data/splatter_data/genep2s_anns_unbound.rds')
+liblocp2s_anns_unbound <- readRDS('/home/larsc/data/splatter_data/liblocp2s_anns_unbound.rds')
+
+cellbound <- cellp2s_anns_unbound %>% lapply(SimPagaFactor, 'ncell') %>% bind_rows
+genebound <- genep2s_anns_unbound %>% lapply(SimPagaFactor, 'ngenes') %>% bind_rows
+liblocbound <- liblocp2s_anns_unbound %>%  lapply(SimPagaFactor, 'libloc') %>% bind_rows
+```
+
+Plot PAGA results
+```{r}
+cellbound %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+genebound %>% filter(de.levels!='ref') %>% ggplot(aes(x=ngenes, y=paga.connectivity.value, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+liblocbound %>% filter(de.levels!='ref') %>% ggplot(aes(x=libloc, y=paga.connectivity.value, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+```
+
+Correlation
+```{r}
+getpcacorperseed <- function(p2s.anns, factor.class){
+  pca.cms <- p2s.anns$p2s %>% lapply(function(x){x$reductions$PCA})
+  cor.dist.df <- doSimCor(pca.cms, p2s.anns$annots, factor.class)
+}
+cellcordists <- cellp2s_anns_unbound %>% lapply(getpcacorperseed, 'ncell') %>% bind_rows
+genecordists <- genep2s_anns_unbound %>% lapply(getpcacorperseed, 'ngenes') %>% bind_rows
+libloccordists <- liblocp2s_anns_unbound %>% lapply(getpcacorperseed, 'libloc') %>% bind_rows
+
+cellcordists %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=correlation.distance, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+genecordists %>% filter(de.levels!='ref') %>% ggplot(aes(x=ngenes, y=correlation.distance, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+libloccordists %>% filter(de.levels!='ref') %>% ggplot(aes(x=libloc, y=correlation.distance, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+```
+
+
+Check bound PAGA
+```{r}
+
+testqq <- PairwiseComparisonsFullMat(cellp2s_anns_unbound$`22071`$p2s, cellp2s_anns_unbound$`22071`$annots, 'ncell')
+#all.equal(testqq$bound.annot[,1:10], cellp2s_anns_unbound$`22701`$annots %>% bind_rows)
+#testlibloc <- PairwiseComparisonsFullMat(liblocp2s_anns_unbound$`666`$p2s, liblocp2s_anns_unbound$`666`$annots, 'lib.loc')
+#all.equal(testlibloc$bound.annot[,1:10], liblocp2s_anns_unbound$`666`$annots %>% bind_rows)
+#testgenes<- PairwiseComparisonsFullMat(genep2s_anns_unbound$`666`$p2s, genep2s_anns_unbound$`666`$annots, 'ngenes')
+#all.equal(testgenes$bound.annot[,1:10], genep2s_anns_unbound$`666`$annots %>% bind_rows)
+
+paga_res_bound_cell <- PagaForBound(testqq$p2, testqq$bound.annot, 'ncell')
+paga_res_bound_cell %>% bind_rows %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+
+```
+
+
+
+Let's take a quick look at the tsnes of one of the cell reps and compare with the bound tsne
+```{r}
+# unbound tsne
+testp2s <- cellp2s_anns_unbound$`22071`$p2s
+for (x in testp2s){x$getEmbedding(type = "PCA", perplexity = 30, embeddingType = "tSNE",
+                   max_iter = 1000, distance = 'cosine')}
+testannot <- cellp2s_anns_unbound$`22071`$annots %>% bind_rows
+grpgrp <- setNames(testannot$Group, testannot$cellid)
+
+# bound tsne 
+testqq$p2$getEmbedding(type = "PCA", perplexity = 30, embeddingType = "tSNE",
+                   max_iter = 1000, distance = 'cosine')
+ncellgrp <- setNames(testannot$ncell, testannot$cellid)
+
+# plot
+conos:::plotSamples(testp2s, groups=ncellgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)
+conos:::plotSamples(list(testqq$p2), groups=ncellgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)
+conos:::plotSamples(testp2s, groups=grpgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)
+conos:::plotSamples(list(testqq$p2), groups=grpgrp, shuffle.colors=F, font.size=c(3),
+                    show.legend=F, size=0.4)
+```
+
+JSD
+```{r}
+#testdists <- cellp2s_anns_unbound %>% lapply(GetProbDistPerSeed, factor.class='ncell') %>% bind_rows # testing with corr
+#all.equal(testdists %>% bind_rows, cellcordists)
+
+#test JSD
+cell_jsd <- cellp2s_anns_unbound %>% lapply(GetProbDistPerSeed, factor.class='ncell', distance='jensen_shannon') %>% bind_rows
+gene_jsd <- genep2s_anns_unbound %>% lapply(GetProbDistPerSeed, factor.class='ngenes', distance='jensen_shannon') %>% bind_rows
+libloc_jsd <- liblocp2s_anns_unbound %>% lapply(GetProbDistPerSeed, factor.class='lib.loc', distance='jensen_shannon') %>% bind_rows
+
+cell_jsd %>% filter(de.levels!='ref') %>% ggplot(aes(x=ncell, y=jensen_shannon, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+gene_jsd %>% filter(de.levels!='ref') %>% ggplot(aes(x=ngenes, y=jensen_shannon, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+libloc_jsd %>% filter(de.levels!='ref') %>% ggplot(aes(x=lib.loc, y=jensen_shannon, col=de.levels))+
+  geom_point(size=1, alpha=0.8)
+```
+

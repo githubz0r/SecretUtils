@@ -214,7 +214,7 @@ performDistance <- function(subtype.vector, cellid.vector, condition.vector, cou
 }
 
 ExtendFactorAnnot <- function(factor.annot, factor.name, factor.class){
-  de.switch <- setNames(c('ref', 0, 2, 3, 4, 5), (factor.annot$Group %>% unique %>% sort))
+  de.switch <- setNames(c('ref', 0, 0.2, 0.3, 0.4, 0.5), (factor.annot$Group %>% unique %>% sort))
   factor.annot %<>% dplyr::mutate(de.level=de.switch[factor.annot$Group],
                                   factor.name=as.numeric(rep(factor.name, nrow(factor.annot))))
   factor.annot %<>% dplyr::rename(!!factor.class:=factor.name)
@@ -247,6 +247,19 @@ SimPaga3 <- function(factor.cm, factor.annot.extended, factor.iteration, factor.
   }
 }
 
+SimPaga4 <- function(connectivity.mat, factor.annot.extended, factor.iteration, factor.identity){
+  factor.annot <- factor.annot.extended
+  de.levels <- (paste0(factor.annot$de.level) %>% unique)[order(paste0(factor.annot$de.level) %>% unique)]
+  n.levels <- length(de.levels)
+  comparisons <- connectivity.mat[n.levels, ] %>% setNames(de.levels)
+  ncell.delevels <- factor.annot$cellid %>% split(factor.annot$de.level) %>% lapply(length) %>% unlist
+  ncell.true <- ncell.delevels+ncell.delevels[n.levels]
+  df <- dplyr::bind_cols(paga.connectivity.value=comparisons, de.levels=de.levels, ncell.comparison=ncell.true,
+                         which.factor=rep(factor.iteration, n.levels))
+  df %<>% dplyr::rename(!!factor.identity:=which.factor)
+  return(df)
+}
+
 SimPagaFactor <- function(factor.list, factor.class, return.p2=F){
   #browser()
   if (names(factor.list)[1]=='p2s') {
@@ -271,13 +284,35 @@ SimPagaFactor <- function(factor.list, factor.class, return.p2=F){
 }
 
 SimCor <- function(cm, annot, factor.iteration, factor.class){
-  submats <- annot$cellid %>% split(annot$de.level) %>% lapply(function(x){cm[x, ]}) %>% lapply(Matrix::colMeans)
-  n.de.levels <- length(submats)
-  ref.mat <- submats[[n.de.levels]]
-  cor.dists <- submats %>% lapply(function(x){1-cor(x,ref.mat)}) %>% unlist
-  df <- dplyr::bind_cols(correlation.distance=cor.dists, de.probs=names(submats))
+  subvecs <- annot$cellid %>% split(annot$de.level) %>% lapply(function(x){cm[x, ]}) %>% lapply(Matrix::colMeans)
+  n.de.levels <- length(subvecs)
+  ref.mat <- subvecs[[n.de.levels]]
+  cor.dists <- subvecs %>% lapply(function(x){1-cor(x,ref.mat)}) %>% unlist
+  df <- dplyr::bind_cols(correlation.distance=cor.dists, de.levels=names(subvecs))
   df %<>% dplyr::mutate(which.factor = rep(factor.iteration, n.de.levels))
   df %<>% dplyr::rename(!!factor.class:=which.factor)
+  return(df)
+}
+
+SimDist <- function(cm, annot, factor.iteration, factor.class, distance, pseudo.prob=1e-6){
+  subvecs <- annot$cellid %>% split(annot$de.level) %>% lapply(function(x){cm[x, ]}) %>% lapply(Matrix::colMeans)
+  n.de.levels <- length(subvecs)
+  ref.mat <- subvecs[[n.de.levels]]
+  if(distance=='correlation.distance') {
+    dist.function <- function(x){1-cor(x, ref.mat)}
+  } else if (distance=='jensen_shannon'){
+    #browser()
+    renormalize <- function(a.vec){
+      a.vec <- a.vec/sum(a.vec); a.vec <- a.vec+pseudo.prob; a.vec <- a.vec/sum(a.vec); return(a.vec)}
+    subvecs <- subvecs %>% lapply(renormalize)
+    ref.mat <- subvecs[[n.de.levels]]
+    dist.function <- function(x){JensenShannon(x, ref.mat)}
+  }
+  cor.dists <- subvecs %>% lapply(dist.function) %>% unlist
+  df <- dplyr::bind_cols(correlation.distance=cor.dists, de.levels=names(subvecs))
+  df %<>% dplyr::mutate(which.factor = rep(factor.iteration, n.de.levels))
+  df %<>% dplyr::rename(!!factor.class:=which.factor)
+  df %<>% dplyr::rename(!!distance:=correlation.distance)
   return(df)
 }
 
@@ -288,4 +323,84 @@ doSimCor <- function(cms, annots, factor.class){
   df <- dplyr::bind_rows(dfs)
   df[[factor.class]] <- df[[factor.class]] %>% as.numeric %>% as.factor
   return(df)
+}
+
+doSimDist <- function(cms, annots, factor.class, distance){
+  extended.annots <- Map(ExtendFactorAnnot, annots, names(annots), factor.class)
+  factor.iterations <- names(annots)
+  dfs <- Map(SimDist, cms, extended.annots, factor.iterations, MoreArgs=list(factor.class=factor.class, distance=distance))
+  df <- dplyr::bind_rows(dfs)
+  df[[factor.class]] <- df[[factor.class]] %>% as.numeric %>% as.factor
+  return(df)
+}
+
+PairwiseComparisonsFullMat <- function(p2.list.or.pca.cm, annot.list, factor.identity, return.p2=T){
+  some.object <- p2.list.or.pca.cm
+  if (class(some.object)=='list'){
+    if (some.object %>% lapply(class) %>% unique=='Pagoda2'){
+      if (factor.identity=='ngenes'){
+        mat.n.cols <- some.object %>% lapply(function(x){x$misc$rawCounts %>% ncol})
+        max.ind <- which(mat.n.cols %>% unlist==max(mat.n.cols %>% unlist))
+        gene.vec <- some.object[[max.ind]]$misc$rawCounts %>% colnames
+        cm.raw <- some.object %>% lapply(function(x){x$misc$rawCounts}) %>% lapply(Matrix::t) %>%
+          lapply(PadGenesRows, gene.vec) %>% lapply(Matrix::t) %>% do.call(rbind,.)
+      } else {
+        cm.raw <- some.object %>% lapply(function(x){x$misc$rawCounts}) %>% do.call(rbind,.)
+      }
+      p2 <- NeuronalMaturation::GetPagoda(Matrix::t(cm.raw), n.odgenes=3000, embeding.type=NULL)
+      cm.pca <- p2$reductions$PCA
+    } else {
+      if (factor.identity=='ngenes'){
+        mat.n.cols <- some.object %>% lapply(function(x){x %>% ncol})
+        max.ind <- which(mat.n.cols %>% unlist==max(mat.n.cols %>% unlist))
+        gene.vec <- some.object[[max.ind]]%>% colnames
+        cm.raw <- some.object %>% lapply(function(x){x}) %>% lapply(Matrix::t) %>%
+          lapply(PadGenesRows, gene.vec) %>% lapply(Matrix::t) %>% do.call(rbind,.)
+      } else {
+        cm.raw <- some.object %>% do.call(rbind,.)
+      }
+      p2 <- NeuronalMaturation::GetPagoda(Matrix::t(cm.raw), n.odgenes=3000, embeding.type=NULL)
+      cm.pca <- p2$reductions$PCA
+    }
+  } else {
+    if (class(some.object=='Pagoda2')){
+      cm.pca <- some.object$reductions$PCA
+    } else {
+      cm.pca <- some.object
+    }
+  }
+  factor.levels <- (annot.list %>% lapply(function(x){x[[factor.identity]] %>% unique})) %>% unlist
+  annots.extended <- Map(ExtendFactorAnnot, annot.list, factor.levels, MoreArgs=(list(factor.identity)))
+  bound.annot <- annots.extended %>% dplyr::bind_rows()
+  partition.levels <- paste0(bound.annot[[factor.identity]], '_', bound.annot$de.level) %>% str_sort(numeric=TRUE) %>% unique
+  bound.annot$partitions <- factor(paste0(bound.annot$ncell, '_', bound.annot$de.level), levels=partition.levels)
+  if (return.p2) {
+    return(list(p2=p2, bound.annot=bound.annot))
+  } else {
+    return(list(cm.pca=cm.pca, bound.annot=bound.annot))
+  }
+}
+
+PagaForBound <- function(p2, annot, varied.factor){
+  graph <- igraph::as_adjacency_matrix(p2$graphs$PCA, attr='weight')[annot$cellid, annot$cellid]
+  mem.vec <- annot$partitions %>% as.numeric
+  part.connects <- GetPagaMatrix(graph, mem.vec)
+  inds <- 1:30 %>% split(seq(1,30, by=5)) %>% as.data.frame %>% t %>% as.matrix %>% as.data.frame
+  sub.mats <- inds %>% lapply(function(x){part.connects[x, x]})
+  factor.levels <- annot[[varied.factor]] %>% unique %>% sort
+  names(sub.mats) <- factor.levels
+  annot.split <- annot %>% split(annot[[varied.factor]])
+  cons <- Map(SimPaga4, sub.mats, annot.split, factor.levels, MoreArgs=list(varied.factor))
+  names(cons) <- factor.levels
+  return(cons)
+}
+
+GetProbDistPerSeed <- function(p2s.anns, factor.class, distance='correlation.distance'){
+  #browser()
+  if (distance=='correlation.distance'){
+    cms <- p2s.anns$p2s %>% lapply(function(x){x$reductions$PCA})
+  } else if (distance=='jensen_shannon'){
+    cms <- p2s.anns$p2s %>% lapply(function(x){x$counts})
+  }
+  dist.df <- doSimDist(cms, p2s.anns$annots, factor.class, distance)
 }
