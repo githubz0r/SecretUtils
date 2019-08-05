@@ -404,3 +404,7 @@ PadGenesRows <- function(a.matrix, gene.vector) {
   colnames(new.mat) <- colnames(a.matrix); rownames(new.mat) <- name.vector
   return(new.mat[gene.vector,])
 }
+
+isNeg <- function(x){
+  if (x<0){return ('Neg')} else {return('Pos')}
+}

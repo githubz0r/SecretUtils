@@ -17,4 +17,8 @@ Depends:
 Imports:
     dplyr (>= 0.8.0.1),
     data.table,
-    Rtsne
+    Rtsne,
+    parallel,
+    abind,
+    pbapply,
+    matrixStats
