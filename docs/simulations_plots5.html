@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="githubz0r" />
+
+<meta name="date" content="2019-08-07" />
+
+<title>simulations_plots5</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">SecretUtils</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/githubz0r/SecretUtils">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">simulations_plots5</h1>
+<h4 class="author">githubz0r</h4>
+<h4 class="date">2019-08-07</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-08-07
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>SecretUtils/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.3.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190415code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190415)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190415code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190415)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreefbc9d003e182d0967a41d6bfec0a9689f4a093actargetblankfbc9d00a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/fbc9d003e182d0967a41d6bfec0a9689f4a093ac" target="_blank">fbc9d00</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreefbc9d003e182d0967a41d6bfec0a9689f4a093actargetblankfbc9d00a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .Rbuildignore
+    Untracked:  R/asdf_bk
+    Untracked:  R/hello.R
+    Untracked:  analysis/grid_of_grids.pdf
+    Untracked:  analysis/make_scanpy_viktor.R
+    Untracked:  analysis/morphine.Rmd
+    Untracked:  analysis/mouse_alzheimer_annotating.Rmd
+    Untracked:  analysis/mouse_alzheimer_preproc.Rmd
+    Untracked:  analysis/paga.Rmd
+    Untracked:  analysis/paga3.Rmd
+    Untracked:  analysis/simulate_data.Rmd
+    Untracked:  analysis/simulate_data2.Rmd
+    Untracked:  analysis/simulate_data3.Rmd
+    Untracked:  analysis/simulations_plots3_bk.Rmd
+    Untracked:  analysis/simulations_plots4.Rmd
+    Untracked:  analysis/simulations_plots5_bk.Rmd
+    Untracked:  analysis/subtype_distances.Rmd
+    Untracked:  analysis/subtype_distances2.Rmd
+    Untracked:  analysis/subtype_distances4.Rmd
+    Untracked:  analysis/subtype_distances_redux.Rmd
+    Untracked:  analysis/subtype_distances_revenge.Rmd
+    Untracked:  analysis/test_output.Rmd
+    Untracked:  analysis/transmute_peters_code.Rmd
+    Untracked:  docs/figure/paga.Rmd/
+    Untracked:  man/
+
+Unstaged changes:
+    Modified:   analysis/correlation_stuff.Rmd
+    Modified:   analysis/jensen_shannon_stuff.Rmd
+    Modified:   analysis/misc_metrics.Rmd
+    Modified:   analysis/mouse_alzheimer_analysis.Rmd
+    Modified:   analysis/paga2.Rmd
+    Modified:   analysis/pancreas_indrop.Rmd
+    Modified:   analysis/simulations_plots.Rmd
+    Modified:   analysis/simulations_plots3.Rmd
+    Modified:   analysis/subtype_distances3.Rmd
+    Modified:   analysis/transmute_code_eps.Rmd
+    Modified:   analysis/transmute_code_eps_2.Rmd
+    Modified:   analysis/visualizations.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/fbc9d003e182d0967a41d6bfec0a9689f4a093ac/analysis/simulations_plots5.Rmd" target="_blank">fbc9d00</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-08-07
+</td>
+<td>
+backing up functions
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>library(conos)
+library(tidyverse)
+devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)
+library(cowplot)
+library(splatter)
+devtools::load_all(&#39;/home/viktor_petukhov/Copenhagen/NeuronalMaturation&#39;)
+devtools::load_all(&#39;/home/viktor_petukhov/SmallProjects/scConditionDifference&#39;)
+params &lt;- readRDS(&#39;/home/larsc/data/splatter_lamp5_params.rds&#39;)</code></pre>
+<p>How to generate params</p>
+<pre class="r"><code>#epilepsy_con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
+#epilepsy_annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))
+#epilepsy_annot$cellid &lt;- rownames(epilepsy_annot)
+#raw_cm &lt;- RbindRaw(epilepsy_con)
+#sub_matrices &lt;- GetSubMatrices(epilepsy_annot$subtype, epilepsy_annot$cellid, epilepsy_annot$condition, raw_cm, 
+                               #colnames(raw_cm), avg=F)
+#testmat &lt;- sub_matrices$healthy$L2_Lamp5 %&gt;% as.matrix %&gt;% removezerocols %&gt;% Matrix::t()
+#params &lt;- splatEstimate(testmat)</code></pre>
+<p>Initiate variables for the simulations</p>
+<pre class="r"><code>group_prob &lt;- rep(1/6, 6)
+de_prob &lt;- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
+ncellvec &lt;- c(30, 100, 200, 500, 1000)
+ngenevec &lt;- c(100, 1000, 5000, 10000, 20000)
+de_prob &lt;- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
+liblocvec &lt;- c(6.5, 7, 7.5, 8, 8.5)
+seeds &lt;- c(22071, 666, 9001)
+leiden_resolutions &lt;- c(1, 1.5, 2, 2.5)
+distances &lt;- list(&#39;paga&#39;, &#39;correlation.distance&#39;, &#39;jensen_shannon&#39;, &#39;CMD&#39;, &#39;euclidean&#39;, &#39;knncor.z&#39;, &#39;knncor.z.med&#39;, &#39;entropy&#39;)</code></pre>
+<p>Create the data (this takes a while, so we make pre-make some sims and save them)</p>
+<pre class="r"><code>#cell_sim &lt;- MakeSimsAllSeeds(seeds, ncellvec, de_prob, &#39;ncell&#39;, make.p2 = T, n.cl.tsne=30, n.cl.sim=3)
+#gene_sim &lt;- MakeSimsAllSeeds(seeds, ngenevec, de_prob, &#39;ngenes&#39;, make.p2 = T, n.cl.tsne=30, n.cl.sim=3)
+#libloc_sim &lt;- MakeSimsAllSeeds(seeds, liblocvec, de_prob, &#39;lib.loc&#39;, make.p2 = T, n.cl.tsne=30, n.cl.sim=3)
+
+# save these for convnience
+#saveRDS(cell_sim, &#39;/home/larsc/data/splatter_data/final_script_data/cell_sim_final.rds&#39;)
+#saveRDS(gene_sim, &#39;/home/larsc/data/splatter_data/final_script_data/gene_sim_final.rds&#39;)
+#saveRDS(libloc_sim, &#39;/home/larsc/data/splatter_data/final_script_data/libloc_sim_final.rds&#39;)
+
+cell_sim &lt;- readRDS(&#39;/home/larsc/data/splatter_data/final_script_data/cell_sim_final.rds&#39;)
+gene_sim &lt;- readRDS(&#39;/home/larsc/data/splatter_data/final_script_data/gene_sim_final.rds&#39;)
+libloc_sim &lt;- readRDS(&#39;/home/larsc/data/splatter_data/final_script_data/libloc_sim_final.rds&#39;)</code></pre>
+<p>Create data frames for the distances (takes a while, especially the entropy, so we pre-make it)</p>
+<pre class="r"><code>#dfs_per_distance &lt;- AllDistsDfs(list(cell_sim, gene_sim, libloc_sim), list(&#39;ncell&#39;, &#39;ngenes&#39;, &#39;lib.loc&#39;),
+                                #distances, avg.meds=T, leiden.resolutions=leiden_resolutions)
+#saveRDS(dfs_per_distance, &#39;/home/larsc/data/splatter_data/final_script_data/dfs_per_distance.rds&#39;)
+dfs_per_distance &lt;- readRDS(&#39;/home/larsc/data/splatter_data/final_script_data/dfs_per_distance.rds&#39;)</code></pre>
+<p>Create plots and make a grid</p>
+<pre class="r"><code>all_plots &lt;- doPlotsPerFactor(dfs_per_distance, jitter=T, geom.smooth=T)
+grid_all &lt;- CreateGrid(all_plots, leiden_resolutions)</code></pre>
+<pre><code>`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;
+`geom_smooth()` using method = &#39;loess&#39; and formula &#39;y ~ x&#39;</code></pre>
+<pre class="r"><code>pdf(file=&#39;/home/larsc/grid_of_grids.pdf&#39;,width=15,height=40)
+grid_all
+dev.off()</code></pre>
+<pre><code>png 
+  2 </code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.3 (2019-03-11)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.2 LTS
+
+Matrix products: default
+BLAS: /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3
+LAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3.10.3
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] scConditionDifference_0.1.0 NeuronalMaturation_0.1.0   
+ [3] splatter_1.6.1              SingleCellExperiment_1.4.1 
+ [5] SummarizedExperiment_1.12.0 DelayedArray_0.8.0         
+ [7] BiocParallel_1.16.6         matrixStats_0.54.0         
+ [9] Biobase_2.42.0              GenomicRanges_1.34.0       
+[11] GenomeInfoDb_1.18.2         IRanges_2.16.0             
+[13] S4Vectors_0.20.1            BiocGenerics_0.28.0        
+[15] cowplot_0.9.4               SecretUtils_0.1.0          
+[17] reshape2_1.4.3              magrittr_1.5               
+[19] forcats_0.4.0               stringr_1.4.0              
+[21] dplyr_0.8.3                 purrr_0.3.2                
+[23] readr_1.3.1                 tidyr_0.8.3                
+[25] tibble_2.1.3                ggplot2_3.2.0              
+[27] tidyverse_1.2.1             conos_1.0.0                
+[29] igraph_1.2.4.1              Matrix_1.2-17              
+
+loaded via a namespace (and not attached):
+ [1] Rtsne_0.15             colorspace_1.4-1       rjson_0.2.20          
+ [4] rprojroot_1.3-2        XVector_0.22.0         base64enc_0.1-3       
+ [7] fs_1.3.1               rstudioapi_0.10        ggpubr_0.2            
+[10] urltools_1.7.3         remotes_2.0.4          lubridate_1.7.4       
+[13] xml2_1.2.0             knitr_1.22             pkgload_1.0.2         
+[16] jsonlite_1.6           workflowr_1.3.0        broom_0.5.2           
+[19] shiny_1.3.2            compiler_3.5.3         httr_1.4.0            
+[22] backports_1.1.4        assertthat_0.2.1       lazyeval_0.2.2        
+[25] cli_1.1.0              later_0.8.0            htmltools_0.3.6       
+[28] prettyunits_1.0.2      tools_3.5.3            gtable_0.3.0          
+[31] glue_1.3.1             GenomeInfoDbData_1.2.0 Rcpp_1.0.1            
+[34] cellranger_1.1.0       nlme_3.1-139           xfun_0.6              
+[37] ps_1.3.0               testthat_2.1.1         rvest_0.3.4           
+[40] irlba_2.3.3            mime_0.6               devtools_2.0.2        
+[43] dendextend_1.12.0      MASS_7.3-51.3          zlibbioc_1.28.0       
+[46] scales_1.0.0           hms_0.4.2              promises_1.0.1        
+[49] yaml_2.2.0             memoise_1.1.0          pbapply_1.4-0         
+[52] gridExtra_2.3          triebeard_0.3.0        stringi_1.4.3         
+[55] Rook_1.1-1             desc_1.2.0             checkmate_1.9.1       
+[58] pkgbuild_1.0.3         rlang_0.4.0            pkgconfig_2.0.2       
+[61] bitops_1.0-6           evaluate_0.13          lattice_0.20-38       
+[64] pagoda2_0.1.0          labeling_0.3           processx_3.3.1        
+[67] tidyselect_0.2.5       plyr_1.8.4             R6_2.4.0              
+[70] generics_0.0.2         pillar_1.4.2           haven_2.1.0           
+[73] whisker_0.3-2          withr_2.1.2            abind_1.4-5           
+[76] RCurl_1.95-4.12        modelr_0.1.4           crayon_1.3.4          
+[79] rmarkdown_1.12         viridis_0.5.1          usethis_1.5.0         
+[82] locfit_1.5-9.1         grid_3.5.3             readxl_1.3.1          
+[85] data.table_1.12.2      callr_3.2.0            git2r_0.25.2          
+[88] digest_0.6.20          xtable_1.8-4           httpuv_1.5.1          
+[91] brew_1.0-6             munsell_0.5.0          viridisLite_0.3.0     
+[94] sessioninfo_1.1.1     </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
