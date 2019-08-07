@@ -1,0 +1,80 @@
+---
+title: "simulations_plots5"
+author: "githubz0r"
+date: "2019-08-07"
+output: workflowr::wflow_html
+---
+
+```{r, message=F}
+library(conos)
+library(tidyverse)
+devtools::load_all('/home/larsc/SecretUtils')
+library(cowplot)
+library(splatter)
+devtools::load_all('/home/viktor_petukhov/Copenhagen/NeuronalMaturation')
+devtools::load_all('/home/viktor_petukhov/SmallProjects/scConditionDifference')
+params <- readRDS('/home/larsc/data/splatter_lamp5_params.rds')
+```
+
+How to generate params
+```{r}
+#epilepsy_con <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
+#epilepsy_annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
+#epilepsy_annot$cellid <- rownames(epilepsy_annot)
+#raw_cm <- RbindRaw(epilepsy_con)
+#sub_matrices <- GetSubMatrices(epilepsy_annot$subtype, epilepsy_annot$cellid, epilepsy_annot$condition, raw_cm, 
+                               #colnames(raw_cm), avg=F)
+#testmat <- sub_matrices$healthy$L2_Lamp5 %>% as.matrix %>% removezerocols %>% Matrix::t()
+#params <- splatEstimate(testmat)
+```
+
+
+Initiate variables for the simulations
+```{r}
+group_prob <- rep(1/6, 6)
+de_prob <- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
+ncellvec <- c(30, 100, 200, 500, 1000)
+ngenevec <- c(100, 1000, 5000, 10000, 20000)
+de_prob <- c(0.0, 0.0, 0.2, 0.3, 0.4, 0.5)
+liblocvec <- c(6.5, 7, 7.5, 8, 8.5)
+seeds <- c(22071, 666, 9001)
+leiden_resolutions <- c(1, 1.5, 2, 2.5)
+distances <- list('paga', 'correlation.distance', 'jensen_shannon', 'CMD', 'euclidean', 'knncor.z', 'knncor.z.med', 'entropy')
+
+```
+
+Create the data (this takes a while, so we make pre-make some sims and save them)
+```{r}
+#cell_sim <- MakeSimsAllSeeds(seeds, ncellvec, de_prob, 'ncell', make.p2 = T, n.cl.tsne=30, n.cl.sim=3)
+#gene_sim <- MakeSimsAllSeeds(seeds, ngenevec, de_prob, 'ngenes', make.p2 = T, n.cl.tsne=30, n.cl.sim=3)
+#libloc_sim <- MakeSimsAllSeeds(seeds, liblocvec, de_prob, 'lib.loc', make.p2 = T, n.cl.tsne=30, n.cl.sim=3)
+
+# save these for convnience
+#saveRDS(cell_sim, '/home/larsc/data/splatter_data/final_script_data/cell_sim_final.rds')
+#saveRDS(gene_sim, '/home/larsc/data/splatter_data/final_script_data/gene_sim_final.rds')
+#saveRDS(libloc_sim, '/home/larsc/data/splatter_data/final_script_data/libloc_sim_final.rds')
+
+cell_sim <- readRDS('/home/larsc/data/splatter_data/final_script_data/cell_sim_final.rds')
+gene_sim <- readRDS('/home/larsc/data/splatter_data/final_script_data/gene_sim_final.rds')
+libloc_sim <- readRDS('/home/larsc/data/splatter_data/final_script_data/libloc_sim_final.rds')
+```
+
+Create data frames for the distances (takes a while, especially the entropy, so we pre-make it)
+```{r}
+#dfs_per_distance <- AllDistsDfs(list(cell_sim, gene_sim, libloc_sim), list('ncell', 'ngenes', 'lib.loc'),
+                                #distances, avg.meds=T, leiden.resolutions=leiden_resolutions)
+#saveRDS(dfs_per_distance, '/home/larsc/data/splatter_data/final_script_data/dfs_per_distance.rds')
+dfs_per_distance <- readRDS('/home/larsc/data/splatter_data/final_script_data/dfs_per_distance.rds')
+```
+
+Create plots and make a grid
+```{r}
+all_plots <- doPlotsPerFactor(dfs_per_distance, jitter=T, geom.smooth=T)
+grid_all <- CreateGrid(all_plots, leiden_resolutions)
+pdf(file='/home/larsc/grid_of_grids.pdf',width=15,height=40)
+grid_all
+dev.off()
+```
+
+
+

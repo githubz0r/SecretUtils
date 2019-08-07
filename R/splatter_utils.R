@@ -126,20 +126,21 @@ lapplyCover <- function(lib.loc.vec, mean.shape.vec, seed, n.genes=10000, n.cell
   return(return(list(cm=boundcm, annot=boundannot)))
 }
 
-MakeSimPerFactor <- function(factor.vec, n.cells=500, seed, lib.loc=8, n.genes=10000,  de.probs, factor.identity) {
+MakeSimPerFactor <- function(factor.vec, n.cells=500, seed, lib.loc=8, n.genes=10000,  de.probs, factor.identity,
+                             n.cl.sim=NULL) {
   group.probs <- rep(1/length(de.probs), length(de.probs))
   if (factor.identity=='ncell'){
-    results <- factor.vec %>% lapply(function(x){
+    results <- factor.vec %>% pbapply::pblapply(function(x){
       a.sim <- SimulateGroups(params, seed=seed, n.cells=x, n.genes=n.genes, lib.loc=lib.loc, de.probabilities=de.probs,
-                            group.prob=group.probs); return(a.sim)})
+                            group.prob=group.probs); return(a.sim)}, cl=n.cl.sim)
   } else if (factor.identity=='ngenes') {
-    results <- factor.vec %>% lapply(function(x){
+    results <- factor.vec %>% pbapply::pblapply(function(x){
       a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=x, lib.loc=lib.loc, de.probabilities=de.probs,
-                              group.prob=group.probs); return(a.sim)})
+                              group.prob=group.probs); return(a.sim)}, cl=n.cl.sim)
   } else if (factor.identity=='lib.loc') {
-    results <-factor.vec %>% lapply(function(x){
+    results <-factor.vec %>% pbapply::pblapply(function(x){
       a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=n.genes, lib.loc=x, de.probabilities=de.probs,
-                              group.prob=group.probs); return(a.sim)})
+                              group.prob=group.probs); return(a.sim)}, cl=n.cl.sim)
   }
 
   cms <- results %>% lapply(function(x){x$cm})
@@ -164,13 +165,13 @@ appendDelevel <- function(annot, de.probs){
   return(annot)
 }
 
-MakeSimsPerSeed <- function(seed, factor.vec, de.probs, factor.identity){
-  sims <- MakeSimPerFactor(factor.vec, de.probs=de.probs, seed=seed, factor.identity=factor.identity)
+MakeSimsPerSeed <- function(seed, factor.vec, de.probs, factor.identity, n.cl.sim){
+  sims <- MakeSimPerFactor(factor.vec, de.probs=de.probs, seed=seed, factor.identity=factor.identity, n.cl.sim=n.cl.sim)
   return(sims)
 }
 
-MakeSimsAllSeeds <- function(seed.vec, factor.vec, de.probs, factor.identity, make.p2=T, n.cl.tsne=30){
-  sims.per.seed <- seed.vec %>% pbapply::pblapply(MakeSimsPerSeed, factor.vec, de.probs, factor.identity)
+MakeSimsAllSeeds <- function(seed.vec, factor.vec, de.probs, factor.identity, make.p2=T, n.cl.tsne=30, n.cl.sim=NULL){
+  sims.per.seed <- seed.vec %>% lapply(MakeSimsPerSeed, factor.vec, de.probs, factor.identity, n.cl.sim=n.cl.sim)
   names(sims.per.seed) <- seed.vec
   if (make.p2) {
     sims.per.seed <- sims.per.seed %>% lapply(MakeP2PerSeed, n.cl.tsne=n.cl.tsne)
@@ -325,12 +326,14 @@ SimPagaFactor <- function(factor.list, factor.class, return.p2=F){
   if (return.p2==F) {
     paga.df <- dplyr::bind_rows(paga.results)
     paga.df[[factor.class]] <- paga.df[[factor.class]] %>% as.numeric #%>% as.factor
+    paga.df <- paga.df[, c(1,2,4,3)]
     return(paga.df)
   } else {
     p2s <- paga.results %>% lapply(function(x){x$p2})
     paga.dfs <- paga.results %>% lapply(function(x){x$paga.df})
     paga.df <- dplyr::bind_rows(paga.dfs)
     paga.df[[factor.class]] <- paga.df[[factor.class]] %>% as.numeric #%>% as.factor
+    paga.df <- paga.df[, c(1,2,4,3)]
     return(list(paga.df=paga.df, p2s=p2s))
   }
 }
@@ -401,7 +404,7 @@ doSimDist <- function(cms, annots, factor.class, distance){
   factor.iterations <- names(annots)
   dfs <- Map(SimDist, cms, extended.annots, factor.iterations, MoreArgs=list(factor.class=factor.class, distance=distance))
   df <- dplyr::bind_rows(dfs)
-  df[[factor.class]] <- df[[factor.class]] %>% as.numeric %>% as.factor
+  df[[factor.class]] <- df[[factor.class]] %>% as.numeric #%>% as.factor
   return(df)
 }
 
@@ -536,13 +539,14 @@ KnnCor <- function(p2, annot, avg.meds=F){
   cor.dists.pairwise.avg.centered <- mapply(`-`, cor.dists.pairwise.avg[names(mean.dist)], mean.dist)
   cor.dists.pairwise.avg.norm <- mapply(`/`, cor.dists.pairwise.avg.centered[names(mean.std)], mean.std)
   z.df <- distancesToDataFrame(cor.dists.pairwise.avg.norm, trim=NULL)
+  z.df %<>% dplyr::rename(de.level=Cluster, knncor.z.score=Distance)
   z.plot <- ggplot(z.df) +
-    geom_violin(aes(x=Cluster, y=Distance), fill=scales::hue_pal()(10)[1]) +
+    geom_violin(aes(x=Cluster, y=knncor.z.score), fill=scales::hue_pal()(10)[1]) +
     theme(axis.text.x = element_text(angle = 30, vjust=1, hjust=1), legend.position="none")
   return(list(plot.df=plot.df, z.df=z.df, z.plot=z.plot, triple.plot=triple.plot))
 }
 
-doKnnCor <- function(list.p2.anns, factor.identity, avg.meds=F){
+doKnnCor <- function(list.p2.anns, factor.identity, avg.meds=T, get.medians=F){
   p2s <- list.p2.anns$p2s
   anns <- list.p2.anns$annots
   knn.cor.results <- Map(KnnCor, p2s, anns, MoreArgs=list(avg.meds=avg.meds))
@@ -554,12 +558,22 @@ doKnnCor <- function(list.p2.anns, factor.identity, avg.meds=F){
   }
   factor.levels <- names(anns)
   z.dfs <- Map(appendFactor, z.dfs, factor.levels)
-  z.df.bound <- dplyr::bind_rows(z.dfs)
-  z.df.bound[[factor.identity]] <- z.df.bound[[factor.identity]] %>% as.numeric %>% as.factor
+  if (get.medians){
+    z.dfs <- z.dfs %>% lapply(medianofz, factor.identity)
+    #z.dfs <- z.dfs %>% lapply(function(x){x[[1]]<-x[[1]] %>% as.numeric; return(x)})
+    #return(z.dfs)
+    z.df.bound <- dplyr::bind_rows(z.dfs)
+    z.df.bound[[factor.identity]] <- z.df.bound[[factor.identity]] %>% as.numeric
+    z.df.bound <- z.df.bound[, c(3,2,1,4)]
+  } else {
+    z.df.bound <- dplyr::bind_rows(z.dfs)
+    z.df.bound[[factor.identity]] <- z.df.bound[[factor.identity]] %>% as.numeric %>% as.factor
+    z.df.bound <- z.df.bound[, c(1,2,4,3)]
+  }
   return(z.df.bound)
 }
 
-NormalizedRelativeEntropy <- function(p2, annot, leiden.resolution, factor.identity, cl.subgraph=NULL){
+NormalizedRelativeEntropy_bk <- function(p2, annot, leiden.resolution, factor.identity, cl.subgraph=NULL){
   factor.iteration <- annot[[factor.identity]] %>% unique
   annot <- ExtendFactorAnnot(annot, factor.iteration, factor.identity)
   annot.splits <- annot %>% split(annot$de.level)
@@ -567,8 +581,9 @@ NormalizedRelativeEntropy <- function(p2, annot, leiden.resolution, factor.ident
   conc.cellids <- conc.annots %>% lapply(function(x){x$cellid})
   raw.cm <- p2$misc$rawCounts
   sub.cms <- conc.cellids %>% lapply(function(x){raw.cm[x, ]})
+  #browser()
   getsubGraph <- function(sub.cm){
-    p2.sub <- sub.cm %>% GetPagoda(n.odgenes=3000, embeding.type = NULL)
+    p2.sub <- sub.cm %>% GetPagoda(n.odgenes=3000, embeding.type = NULL, verbose=F, clustering.type = NULL)
     graph <- p2.sub$graphs$PCA
     return(graph)
   }
@@ -616,8 +631,102 @@ NormalizedRelativeEntropy <- function(p2, annot, leiden.resolution, factor.ident
   return(df)
 }
 
+NormalizedRelativeEntropy <- function(p2, annot, leiden.resolutions, factor.identity, cl.subgraph=NULL){
+  factor.iteration <- annot[[factor.identity]] %>% unique
+  annot <- ExtendFactorAnnot(annot, factor.iteration, factor.identity)
+  annot.splits <- annot %>% split(annot$de.level)
+  conc.annots <- annot.splits[names(annot.splits)!='ref'] %>% lapply(function(x){dplyr::bind_rows(x, annot.splits$ref)})
+  conc.cellids <- conc.annots %>% lapply(function(x){x$cellid})
+  raw.cm <- p2$misc$rawCounts
+  sub.cms <- conc.cellids %>% lapply(function(x){raw.cm[x, ]})
+  #browser()
+  getsubGraph <- function(sub.cm){
+    p2.sub <- sub.cm %>% GetPagoda(n.odgenes=3000, embeding.type = NULL, verbose=F, clustering.type = NULL, n.pcs = 100)
+    graph <- p2.sub$graphs$PCA
+    return(graph)
+  }
+  sub.graphs <- sub.cms %>% lapply(Matrix::t) %>% pbapply::pblapply(getsubGraph, cl=cl.subgraph)
+  #browser()
+  getLeid <- function(graph, leiden.resolutions){
+    #browser()
+    mems <- leiden.resolutions %>% lapply(function(x){
+      conos:::leiden.community(graph, resolution=x)$membership
+  })}
+  mems.per.level <- sub.graphs %>% lapply(function(x){getLeid(x,leiden.resolutions)})
+  appendLeid <- function(annot, leid.mem.vec){
+    #browser()
+    mems <- leid.mem.vec %>% lapply(function(x){x[annot$cellid]})
+    annots.ext <- mems %>% lapply(function(x){z<-annot; z$membership <- x;return(z)})
+    return(annots.ext)
+  }
+  #browser()
+  conc.annots2 <- conc.annots %>% Map(appendLeid, ., mems.per.level)
+  calcEntropy <- function(conc.annot.2){
+    #browser()
+    base.count <- conc.annot.2$de.level %>% table
+    n.samples <- length(base.count)
+    #other.factor <- names(base.count)[names(base.count)!='ref']
+    split.by.mem <- conc.annot.2 %>% split(conc.annot.2$membership)
+    cluster.counts <- split.by.mem %>% lapply(function(x){x$de.level %>% table})
+    ent.numerators <- cluster.counts %>% lapply(doEntKLD, base.count=base.count)
+    norm.rel.ent <- sum(ent.numerators %>% unlist)/(log(n.samples)*sum(cluster.counts %>% unlist))
+    return(1 - norm.rel.ent)
+  }
+  doEntKLD <- function(cluster.count, base.count){
+    #browser()
+    if (length(cluster.count) < 2) {
+      orig.name <- names(cluster.count)
+      if (orig.name=='ref'){
+        cluster.count <- c(1e-3, cluster.count%>% as.numeric)
+      } else {
+        cluster.count <- c(cluster.count %>% as.numeric, 1e-3)
+      }
+    }
+    c.c.norm <- cluster.count/sum(cluster.count)
+    b.c.norm <- base.count/sum(base.count)
+    ent.val <- sum(cluster.count) * KLD(c.c.norm, b.c.norm)
+    return(ent.val)
+  }
+  #browser()
+  rel.ents.list <- conc.annots2 %>% lapply(function(x){x %>% lapply(calcEntropy)})
+  inds.leid <- 1:length(leiden.resolutions)
+  switchEntDe <- function(leid.ind){rel.ents.list %>% lapply(function(x){x[[leid.ind]]})}
+  rel.ents.switched <- inds.leid %>% lapply(switchEntDe)
+  names(rel.ents.switched) <- leiden.resolutions
+  makeRes <- function(ent.res, leiden.resolution){
+    df <- dplyr::bind_cols(norm.rel.entropy=ent.res %>% unlist, de.level=names(conc.annots2))
+    nrowdf <- nrow(df)
+    df %<>% mutate(leiden.resolution=rep(leiden.resolution, nrowdf), some.factor=rep(factor.iteration, nrowdf))
+    df %<>% dplyr::rename(!!factor.identity:=some.factor)
+    return(df)
+  }
+  dfs <- rel.ents.switched %>% Map(makeRes, ., leiden.resolutions)
+  return(dfs)
+}
+
 
 doEntropy <- function(seed, factor.identity, resolutions, cl.subgraph=NULL){
+  #browser()
+  factor.levels <- names(seed$p2s)
+  makeEntDfs <- function(resolutions, p2s, annots, factor.identity=factor.identity){
+    #browser()
+    ent.dfs <- Map(SecretUtils::NormalizedRelativeEntropy, p2s, annots, MoreArgs=list(leiden.resolutions=resolutions, #remove s if bk
+                                                                                      factor.identity=factor.identity,
+                                                                                      cl.subgraph=cl.subgraph))
+    #browser()
+    #bound.df <- ent.dfs %>% dplyr::bind_rows()
+    #return(bound.df)
+    return(ent.dfs)
+  }
+  dfs.per.res <- makeEntDfs(resolutions, seed$p2s, seed$annots, factor.identity)
+  #browser()
+  dfs.bound <- dfs.per.res %>% lapply(function(x){x %>% dplyr::bind_rows()}) %>% dplyr::bind_rows()
+  #return(dfs.per.res %>% dplyr::bind_rows())
+  return(dfs.bound)
+}
+
+doEntropy_bk <- function(seed, factor.identity, resolutions, cl.subgraph=NULL){
+  #browser()
   factor.levels <- names(seed$p2s)
   makeEntDfs <- function(resolution, p2s, annots, factor.identity=factor.identity){
     #browser()
@@ -644,6 +753,15 @@ doSomeDistance <- function(x,y,distance){
 dodoKnnCor <- function(x,y,...){
   df <- x %>% lapply(doKnnCor, y, ...) %>% bind_rows; return(df)
 }
+
+dodoEntropy <- function(x,y,...){
+  df <- x %>% lapply(doEntropy, y, ...) %>% bind_rows; return(df)
+}
+
+doKnnCorMed <- function(x,y,...){
+  df <- x %>% lapply(doKnnCor, y, get.medians=T) %>% bind_rows; return(df)
+}
+
 dfsPerDistance <- function(p2.ann.per.seed.per.factor, factor.identities, distance, bind.paga=F,...){
   items.per.seed <- p2.ann.per.seed.per.factor
   if (distance=='paga'){
@@ -668,7 +786,156 @@ dfsPerDistance <- function(p2.ann.per.seed.per.factor, factor.identities, distan
     dfs.per.factor <- Map(doSomeDistance, items.per.seed, factor.identities, MoreArgs=list(distance=distance))
   } else if (distance=='knncor.z'){
     dfs.per.factor <- Map(dodoKnnCor, items.per.seed, factor.identities, MoreArgs=list(...))
+  } else if (distance=='entropy'){
+    dfs.per.factor <- Map(dodoEntropy, items.per.seed, factor.identities, MoreArgs=list(...))
+  } else if (distance=='knncor.z.med'){
+    dfs.per.factor <- Map(doKnnCorMed, items.per.seed, factor.identities)
   }
   names(dfs.per.factor) <- factor.identities
   return(dfs.per.factor)
+}
+
+dfsPerDist <- function(distance, items.per.seed.per.factor, factor.identities, bind.paga=F, avg.meds=T,
+                       leiden.resolutions=NULL){
+  if (distance=='knncor.z'){
+    dfs <- dfsPerDistance(items.per.seed.per.factor, factor.identities, distance=distance, avg.meds=avg.meds)
+  } else if (distance=='entropy'){
+    dfs <- dfsPerDistance(items.per.seed.per.factor, factor.identities, distance=distance, resolutions=leiden.resolutions)
+  } else if (distance=='paga'){
+    dfs <- dfsPerDistance(items.per.seed.per.factor, factor.identities, distance=distance, bind.paga=bind.paga)
+  } else {
+    dfs <- dfsPerDistance(items.per.seed.per.factor, factor.identities, distance=distance)
+  }
+}
+
+AllDistsDfs <- function(items.per.seed.per.factor, factor.identities, distances, ...){
+  all.dfs <- distances %>% lapply(dfsPerDist, items.per.seed.per.factor, factor.identities, ...)
+  names(all.dfs) <- distances
+  return(all.dfs)
+}
+
+PlotsPerFactor <- function(dfs.per.factor, alpha, jitter=F, geom.smooth=T, is.entropy=F, is.knncor=F, is.knncor.med=F){
+  factor.identities <- dfs.per.factor %>% names
+  if (!is.entropy & !is.knncor &!is.knncor.med){
+    plots <- dfs.per.factor %>% lapply(function(x){
+      vars <- colnames(x)
+      if (jitter){
+        p <- x %>% filter(de.level!='ref') %>% ggplot(aes_string(x=vars[3], y=vars[1], col=vars[2]))+
+          geom_jitter(alpha=alpha) + theme(legend.position="top")
+      } else {
+        p <- x %>% filter(de.level!='ref') %>% ggplot(aes_string(x=vars[3], y=vars[1], col=vars[2]))+
+          geom_point(alpha=alpha) + theme(legend.position="top")
+      }
+      if (geom.smooth) {
+        p <- p+stat_smooth(geom='line', se=F, alpha=alpha)
+      }
+      return(p)
+    })
+  } else if (is.entropy) {
+    split.by.resolution <- dfs.per.factor %>% lapply(function(x){split(x, x$leiden.resolution)})
+    EntropyPlot <- function(x){
+      vars <- colnames(x)
+      which.res <- x[3] %>% unique
+      if (jitter){
+        p <- x %>% ggplot(aes_string(x=vars[4], y=vars[1], col=vars[2]), shape=vars[3])+
+          geom_jitter(alpha=alpha)+ggtitle(paste('leiden resolution: ', which.res)) + theme(legend.position="top")
+      } else {
+        p <- x %>% ggplot(aes_string(x=vars[4], y=vars[1], col=vars[2]), shape=vars[3])+
+          geom_point(alpha=alpha)+ggtitle(paste('leiden resolution: ', which.res)) + theme(legend.position="top")
+      }
+      if (geom.smooth) {
+        p <- p+stat_smooth(geom='line', se=F, alpha=alpha)
+      }
+      return(p)
+    }
+    plots <- split.by.resolution %>% lapply(function(x){
+      plots.for.a.res <- x %>% lapply(EntropyPlot)
+    })
+  } else if (is.knncor) {
+    dfs.per.factor <- dfs.per.factor %>% lapply(function(x){x[[3]] <- x[[3]] %>% as.factor; return(x)})
+    plots <- dfs.per.factor %>% lapply(function(x){
+      vars <- colnames(x)
+      if (!jitter){
+        p <- x %>% filter(de.level!='ref') %>% ggplot(aes_string(x=vars[3], y=vars[1], col=vars[2]))+
+          geom_boxplot(alpha=alpha) + theme(legend.position="top")
+      } else {
+        p <- x %>% filter(de.level!='ref') %>% ggplot(aes_string(x=vars[3], y=vars[1], col=vars[2]))+
+          geom_violin(alpha=alpha) + theme(legend.position="top")+stat_summary(fun.y=median, geom="point",
+                                                                               position=position_dodge(width=0.9))
+      }
+      if (geom.smooth) {
+        #p <- p+stat_smooth(geom='line', se=F, alpha=alpha)
+        NULL
+      }
+      return(p)
+    })
+  } else if (is.knncor.med) {
+    plots <- dfs.per.factor %>% lapply(function(x){
+      vars <- colnames(x)
+      if (jitter){
+        p <- x %>% ggplot(aes_string(x=vars[3], y=vars[1], col=vars[2]))+
+          geom_jitter(alpha=alpha) + theme(legend.position="top")
+      } else {
+        p <- x %>% ggplot(aes_string(x=vars[3], y=vars[1], col=vars[2]))+
+          geom_point(alpha=alpha) + theme(legend.position="top")
+      }
+      if (geom.smooth) {
+        p <- p+stat_smooth(geom='line', se=F, alpha=alpha)
+      }
+      return(p)
+    })
+  }
+  return(plots)
+}
+
+doPlotsPerFactor <- function(dfs.per.distance, alpha=0.6, jitter=F, geom.smooth=F){
+  plots.per.distance <- names(dfs.per.distance) %>% lapply(function(x){
+    if (x=='entropy'){
+      plots <- PlotsPerFactor(dfs.per.distance[[x]], alpha=alpha, jitter=jitter, geom.smooth=geom.smooth, is.entropy=T)
+      plots <- plots %>% unlist(recursive=F)
+    } else if (x=='knncor.z'){
+      plots <- PlotsPerFactor(dfs.per.distance[[x]], alpha=alpha, jitter=jitter, geom.smooth=geom.smooth, is.knncor=T)
+    } else if (x=='knncor.z.med'){
+      plots <- PlotsPerFactor(dfs.per.distance[[x]], alpha=alpha, jitter=jitter, geom.smooth=geom.smooth, is.knncor.med=T)
+    } else {
+      plots <- PlotsPerFactor(dfs.per.distance[[x]], alpha=alpha, jitter=jitter, geom.smooth=geom.smooth)
+    }
+  })
+  names(plots.per.distance) <- names(dfs.per.distance)
+  return(plots.per.distance)
+}
+
+medianofz <- function(z.df, factor.identity){
+  z.df %<>% dplyr::rename(some.factor:=factor.identity)
+  summarised.df <- z.df %>% group_by(some.factor, de.level) %>% summarise(distance.median=median(knncor.z.score),
+                                                                         distance.mad=mad(knncor.z.score))
+  summarised.df %<>% dplyr::rename(!!factor.identity:=some.factor)
+  return(summarised.df)
+}
+
+CreateGrid <- function(plots.per.factor, leiden.resolutions, row.names=NULL){
+  if (is.null(row.names)){
+    factor.names <- plots.per.factor %>% names
+  } else {
+    factor.names <- row.names
+  }
+  n.factors <- plots.per.factor[[1]] %>% length
+  if (length(plots.per.factor$entropy)>n.factors){
+    extra.ents <- rep('entropy', (length(leiden.resolutions)-1)) %>% as.list
+    factor.names <- list(factor.names, extra.ents) %>% unlist(recursive=F)
+  }
+  GroupEnts <- function(ent.plots){
+    #browser()
+    n.ent <- length(plots.per.factor$entropy)
+    split.inds <- 1:n.ent %>% split(seq(1,n.ent, by=n.factors))
+    ent.groups <- split.inds %>% lapply(function(x){plots.per.factor$entropy[x]})
+    names(ent.groups) <- leiden.resolutions
+    return(ent.groups)
+  }
+  #browser()
+  grouped.ents <- GroupEnts(plots.per.factor$entropy)
+  plots.per.factor <- plots.per.factor[names(plots.per.factor)!='entropy']
+  plots.per.factor <- list(plots.per.factor, grouped.ents) %>% unlist(recursive=F)
+  sub.grids <- plots.per.factor %>% Map(function(x,y){plt.grid <- cowplot::plot_grid(plotlist=x, labels=y,ncol=3)},.,factor.names)
+  grid.of.grids <- cowplot::plot_grid(plotlist=sub.grids, nrow=length(sub.grids))
 }
