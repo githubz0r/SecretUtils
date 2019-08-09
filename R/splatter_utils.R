@@ -814,7 +814,7 @@ AllDistsDfs <- function(items.per.seed.per.factor, factor.identities, distances,
   return(all.dfs)
 }
 
-PlotsPerFactor <- function(dfs.per.factor, alpha, jitter=F, geom.smooth=T, is.entropy=F, is.knncor=F, is.knncor.med=F){
+PlotsPerFactor_old <- function(dfs.per.factor, alpha, jitter=F, geom.smooth=T, is.entropy=F, is.knncor=F, is.knncor.med=F){
   factor.identities <- dfs.per.factor %>% names
   if (!is.entropy & !is.knncor &!is.knncor.med){
     plots <- dfs.per.factor %>% lapply(function(x){
@@ -888,7 +888,87 @@ PlotsPerFactor <- function(dfs.per.factor, alpha, jitter=F, geom.smooth=T, is.en
   return(plots)
 }
 
-doPlotsPerFactor <- function(dfs.per.distance, alpha=0.6, jitter=F, geom.smooth=F){
+PlotsPerFactor <- function(dfs.per.factor, alpha, jitter=F, geom.smooth=T, is.entropy=F, is.knncor=F, is.knncor.med=F){
+  factor.identities <- dfs.per.factor %>% names
+  if (!is.entropy & !is.knncor &!is.knncor.med){
+    plots <- dfs.per.factor %>% Map(function(x,factor.identity){
+      vars <- colnames(x)
+      if (jitter){
+        p <- x %>% filter(de.level!='ref') %>% ggplot(aes_string(x=factor.identity, y=vars[1], col='de.level'))+
+          geom_jitter(alpha=alpha) + theme(legend.position="top")
+      } else {
+        p <- x %>% filter(de.level!='ref') %>% ggplot(aes_string(x=factor.identity, y=vars[1], col='de.level'))+
+          geom_point(alpha=alpha) + theme(legend.position="top")
+      }
+      if (geom.smooth) {
+        p <- p+stat_smooth(geom='line', se=F, alpha=alpha)
+      }
+      return(p)
+    }, ., factor.identities)
+  } else if (is.entropy) {
+    split.by.resolution <- dfs.per.factor %>% lapply(function(x){split(x, x$leiden.resolution)})
+    idents.for.resolutions <- factor.identities %>% lapply(rep,4)
+    EntropyPlot <- function(x, factor.identity){
+      vars <- colnames(x)
+      which.res <- x$leiden.resolution %>% unique
+      if (jitter){
+        p <- x %>% ggplot(aes_string(x=factor.identity, y=vars[1], col='de.level'))+
+          geom_jitter(alpha=alpha)+ggtitle(paste('leiden resolution: ', which.res)) + theme(legend.position="top")
+      } else {
+        p <- x %>% ggplot(aes_string(x=factor.identity, y=vars[1], col='de.level'))+
+          geom_point(alpha=alpha)+ggtitle(paste('leiden resolution: ', which.res)) + theme(legend.position="top")
+      }
+      if (geom.smooth) {
+        p <- p+stat_smooth(geom='line', se=F, alpha=alpha)
+      }
+      return(p)
+    }
+    plots <- split.by.resolution %>% Map(function(x, idents){
+      #browser()
+      plots.for.a.res <- x %>% Map(EntropyPlot, ., idents)
+    }, ., idents.for.resolutions)
+  } else if (is.knncor) {
+    dfs.per.factor <- dfs.per.factor %>% Map(function(x, factor.identity){x[[factor.identity]] <- x[[factor.identity]] %>% as.factor; return(x)},
+                                             ., factor.identities)
+    plots <- dfs.per.factor %>% Map(function(x, factor.identity){
+      vars <- colnames(x)
+      if (!jitter){
+        p <- x %>% filter(de.level!='ref') %>% ggplot(aes_string(x=factor.identity, y=vars[1], col='de.level'))+
+          geom_boxplot(alpha=alpha) + theme(legend.position="top")
+      } else {
+        p <- x %>% filter(de.level!='ref') %>% ggplot(aes_string(x=factor.identity, y=vars[1], col='de.level'))+
+          geom_violin(alpha=alpha) + theme(legend.position="top")+stat_summary(fun.y=median, geom="point",
+                                                                               position=position_dodge(width=0.9))
+      }
+      if (geom.smooth) {
+        #p <- p+stat_smooth(geom='line', se=F, alpha=alpha)
+        NULL
+      }
+      return(p)
+    }, ., factor.identities)
+  } else if (is.knncor.med) {
+    plots <- dfs.per.factor %>% Map(function(x, factor.identity){
+      vars <- colnames(x)
+      if (jitter){
+        p <- x %>% ggplot(aes_string(x=factor.identity, y=vars[1], col='de.level'))+
+          geom_jitter(alpha=alpha) + theme(legend.position="top")
+      } else {
+        p <- x %>% ggplot(aes_string(x=factor.identity, y=vars[1], col='de.level'))+
+          geom_point(alpha=alpha) + theme(legend.position="top")
+      }
+      if (geom.smooth) {
+        p <- p+stat_smooth(geom='line', se=F, alpha=alpha)
+      }
+      return(p)
+    }, ., factor.identities)
+  }
+  return(plots)
+}
+
+doPlotsPerFactor <- function(dfs.per.distance, alpha=0.6, jitter=F, geom.smooth=F, use.old=F){
+  if(use.old){
+    PlotsPerFactor <- PlotsPerFactor_old
+  }
   plots.per.distance <- names(dfs.per.distance) %>% lapply(function(x){
     if (x=='entropy'){
       plots <- PlotsPerFactor(dfs.per.distance[[x]], alpha=alpha, jitter=jitter, geom.smooth=geom.smooth, is.entropy=T)
