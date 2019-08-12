@@ -357,7 +357,7 @@ SimDist <- function(cm, annot, factor.iteration, factor.class, distance, pseudo.
     subvecs <- annot$cellid %>% split(annot$de.level) %>% lapply(function(x){cm[x, ]}) %>% lapply(Matrix::colMeans)
   }
   n.de.levels <- length(subvecs)
-  ref.mat <- subvecs[[n.de.levels]]
+  ref.mat <- subvecs$ref
   if(distance=='correlation.distance') {
     dist.function <- function(x){1-cor(x, ref.mat)}
   } else if (distance=='jensen_shannon'){
@@ -365,13 +365,13 @@ SimDist <- function(cm, annot, factor.iteration, factor.class, distance, pseudo.
     renormalize <- function(a.vec){
       a.vec <- a.vec/sum(a.vec); a.vec <- a.vec+pseudo.prob; a.vec <- a.vec/sum(a.vec); return(a.vec)}
     subvecs <- subvecs %>% lapply(renormalize)
-    ref.mat <- subvecs[[n.de.levels]]
+    ref.mat <- subvecs$ref
     dist.function <- function(x){JensenShannon(x, ref.mat)}
   } else if (distance=='euclidean'){
     dist.function <- function(x){sqrt(sum((x-ref.mat)^2))}
   } else if (distance=='CMD') {
     subvecs <- annot$cellid %>% split(annot$de.level) %>% lapply(function(x){cm[x, ]})
-    ref.mat <- subvecs[[n.de.levels]]
+    ref.mat <- subvecs$ref
     dist.function <- function(x){
       cor.ref <- cor(ref.mat)
       cor.dis <- cor(x)
@@ -402,9 +402,15 @@ doSimDist <- function(cms, annots, factor.class, distance){
     extended.annots <- annots
   }
   factor.iterations <- names(annots)
-  dfs <- Map(SimDist, cms, extended.annots, factor.iterations, MoreArgs=list(factor.class=factor.class, distance=distance))
-  df <- dplyr::bind_rows(dfs)
-  df[[factor.class]] <- df[[factor.class]] %>% as.numeric #%>% as.factor
+  if (distance!='log.fold.change'){
+    dfs <- Map(SimDist, cms, extended.annots, factor.iterations, MoreArgs=list(factor.class=factor.class, distance=distance))
+    df <- dplyr::bind_rows(dfs)
+    df[[factor.class]] <- df[[factor.class]] %>% as.numeric
+  } else {
+    dfs <- Map(LFC, cms, extended.annots, factor.iterations, MoreArgs=list(factor.class=factor.class))
+    df <- dplyr::bind_rows(dfs)
+    df[[factor.class]] <- df[[factor.class]] %>% as.numeric %>% as.factor
+  }
   return(df)
 }
 
@@ -477,14 +483,24 @@ PagaForBound <- function(p2, annot, varied.factor){
   return(cons)
 }
 
-GetProbDistPerSeed <- function(p2s.anns, factor.class, distance='correlation.distance'){
+GetProbDistPerSeed <- function(p2s.anns, factor.class, distance='correlation.distance', use.raw.counts=F){
   #browser()
   if (distance=='correlation.distance'){
     cms <- p2s.anns$p2s %>% lapply(function(x){x$reductions$PCA})
   } else if (distance=='jensen_shannon'){
-    cms <- p2s.anns$p2s %>% lapply(function(x){x$counts})
+    if(!use.raw.counts){
+      cms <- p2s.anns$p2s %>% lapply(function(x){x$counts})
+    } else {
+      cms <- p2s.anns$p2s %>% lapply(function(x){x$misc$rawCounts})
+    }
   } else if (distance=='euclidean' | distance=='CMD'){
     cms <- p2s.anns$p2s %>% lapply(function(x){x$reductions$PCA})
+  } else if (distance=='log.fold.change'){
+    if(!use.raw.counts){
+      cms <- p2s.anns$p2s %>% lapply(function(x){x$counts})
+    } else {
+      cms <- p2s.anns$p2s %>% lapply(function(x){x$misc$rawCounts})
+    }
   }
   dist.df <- doSimDist(cms, p2s.anns$annots, factor.class, distance)
 }
@@ -782,7 +798,7 @@ dfsPerDistance <- function(p2.ann.per.seed.per.factor, factor.identities, distan
     dfs.per.factor <- Map(doSomeDistance, items.per.seed, factor.identities, MoreArgs=list(distance=distance))
   } else if (distance=='euclidean'){
     dfs.per.factor <- Map(doSomeDistance, items.per.seed, factor.identities, MoreArgs=list(distance=distance))
-  } else if (distance=='CMD'){
+  } else if (distance=='CMD'|distance=='log.fold.change'){
     dfs.per.factor <- Map(doSomeDistance, items.per.seed, factor.identities, MoreArgs=list(distance=distance))
   } else if (distance=='knncor.z'){
     dfs.per.factor <- Map(dodoKnnCor, items.per.seed, factor.identities, MoreArgs=list(...))
@@ -1018,4 +1034,21 @@ CreateGrid <- function(plots.per.factor, leiden.resolutions, row.names=NULL){
   plots.per.factor <- list(plots.per.factor, grouped.ents) %>% unlist(recursive=F)
   sub.grids <- plots.per.factor %>% Map(function(x,y){plt.grid <- cowplot::plot_grid(plotlist=x, labels=y,ncol=3)},.,factor.names)
   grid.of.grids <- cowplot::plot_grid(plotlist=sub.grids, nrow=length(sub.grids))
+}
+
+LFC <- function(cm, annot, factor.iteration, factor.class){
+  lfc_ <- function(x){
+    lfcs <- log2(x/ref.mat)
+    names(lfcs) <- names(x)
+    return(lfcs)
+  }
+  subvecs <- annot$cellid %>% split(annot$de.level) %>% lapply(function(x){cm[x, ]}) %>% lapply(Matrix::colMeans)
+  ref.mat <- subvecs$ref
+  lfcs <- subvecs %>% lapply(lfc_)
+  dfs <- names(lfcs) %>% lapply(function(x){
+    df <- dplyr::bind_cols(log.fold.change=lfcs[[x]], de.level=rep(x, length(lfcs[[x]])))
+    df %<>% dplyr::mutate(which.factor = rep(factor.iteration, length(lfcs[[x]])))
+    df %<>% dplyr::rename(!!factor.class:=which.factor)
+  })
+  return(dfs %>% dplyr::bind_rows())
 }
