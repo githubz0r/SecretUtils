@@ -1,0 +1,41 @@
+---
+title: "sanity_check"
+author: "githubz0r"
+date: "2019-08-21"
+output: workflowr::wflow_html
+---
+```{r, message=F}
+library(conos)
+library(tidyverse)
+devtools::load_all('/home/larsc/SecretUtils')
+library(cowplot)
+library(splatter)
+devtools::load_all('/home/viktor_petukhov/Copenhagen/NeuronalMaturation')
+devtools::load_all('/home/viktor_petukhov/SmallProjects/scConditionDifference')
+params <- readRDS('/home/larsc/data/splatter_lamp5_params.rds')
+```
+
+Maybe there's something wrong with the simulategroups function
+```{r}
+t_res <- splatSimulateGroups(params, group.prob = rep(1/6, 6),
+                                    de.prob = c(0,0,0.2,0.3,0.4, 0.5), nGenes=10000, batchCells=200*6,
+                                    lib.loc=8, verbose = FALSE)
+t_cm <- counts(t_res)
+t_annot <- t_res@colData %>% as.data.frame
+t_p2 <- GetPagoda(t_cm, n.odgenes = 3000, verbose=F, embeding.type = NULL)
+
+t_subcms <- t_annot$Cell %>% split(t_annot$Group) %>% lapply(function(x){
+  t_p2$counts[x, ]
+})
+
+t_subcms_raw <- t_annot$Cell %>% split(t_annot$Group) %>% lapply(function(x){
+  t_p2$misc$rawCounts[x, ]
+})
+
+lfcs_test <- t_subcms %>% lapply(function(x){
+  lfcs <- log2(Matrix::colMeans(x)/Matrix::colMeans(t_subcms$Group1))
+  return(abs(lfcs[is.finite(lfcs)]))
+})
+
+lfcs_test %>% lapply(median)
+```
