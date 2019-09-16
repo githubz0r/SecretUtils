@@ -176,7 +176,9 @@ IndividualCellProbs <- function(annotation, rbound.panel, cellid.col, sub.col, n
 GetSampProbs <- function(list.of.samp, rbound.panel, genes, cellid.col, pseudo.count){
   exps.list <- list.of.samp %>% lapply(function(x){rbound.panel[x[,cellid.col], genes]})
   exps.list <- exps.list %>% lapply(GetColMeans)
-  exps.list <- exps.list %>% lapply(function(x){x+pseudo.count}) # missing the first 'normalization' step
+  exps.list <- exps.list %>% lapply(function(x){
+    x<-x/sum(x)
+    x<-x+pseudo.count}) # missing the first 'normalization' step
   probs.list <- exps.list %>% lapply(function(vector){return(vector/sum(vector))})
 }
 
@@ -382,7 +384,7 @@ CMD <- function(cor1, cor2) {
   l2norm <- function(x){
     return(sqrt(sum(x^2)))
   }
-  cmd <- (vec1 %*% vec2)/(l2norm(vec1)*l2norm(vec2))
+  cmd <- 1 - (vec1 %*% vec2)/(l2norm(vec1)*l2norm(vec2))
   return(cmd)
 }
 
@@ -407,4 +409,33 @@ PadGenesRows <- function(a.matrix, gene.vector) {
 
 isNeg <- function(x){
   if (x<0){return ('Neg')} else {return('Pos')}
+}
+
+GetSubMats <- function(count.matrix, cellid.vector, subtype.vector, condition.vector, genes=NULL, avg=T, sum=F,
+                       normalize=F, pseudo.prob=0){
+  bound.annot <- dplyr::bind_cols(cellid=cellid.vector, subtype=subtype.vector, condition=condition.vector)
+  condition.split <- bound.annot %>% split(bound.annot$condition)
+  sub.cms.split <- condition.split %>% lapply(function(x){
+    sub.split <- x %>% split(x$subtype)
+    if (!is.null(genes)){
+      cms <- sub.split %>% lapply(function(x){count.matrix[x$cellid, genes]})
+    } else {
+      cms <- sub.split %>% lapply(function(x){count.matrix[x$cellid, ]})
+    }
+    if (avg){
+      values <- cms %>% lapply(Matrix::colMeans)
+    } else if (sum) {
+      values <- cms %>% lapply(Matrix::colSums)
+    } else {
+      values <- cms
+    }
+    if (normalize){
+      values <- values %>% lapply(function(x){
+        x <- x/sum(x)
+        if(pseudo.prob>0){x<-x+pseudo.prob; x<-x/sum(x)}
+        return(x)
+      })
+    }
+    return(values)
+  })
 }

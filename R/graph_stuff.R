@@ -32,8 +32,9 @@ GetPagaMatrix <- function(dst.matrix, membership.vector, scale=F, linearize=T) {
     scaled.values <- ifelse(sd.random.null.vals !=0, (inter.es4@x - expected.random.null.vals)/sd.random.null.vals, 0) %>% as.numeric
   } else {
     scaled.values <- ifelse(expected.random.null.vals != 0, inter.es4@x / expected.random.null.vals, 1) %>% as.numeric
-    scale <- scale %>% rep(length(scaled.values))
-    scaled.values <- ifelse(scale, scaled.values[scaled.values>1]<-1, scaled.values)
+    if (scale) {
+      scaled.values <- ifelse(scaled.values>1, 1, scaled.values)
+    }
   }
   connectivities <- inter.es4
   connectivities@x <- scaled.values
@@ -213,12 +214,12 @@ PadMatZeroes <- function(a.matrix, sample.list) {
 
 GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=NULL, sample.vector=NULL,
                               by.subtypes.condition=FALSE, by.subtypes.samples=FALSE, by.samples=FALSE,
-                              linearize=T, log.scale=F, pseudo.connectivity=1e-3){
+                              linearize=T, log.scale=F, pseudo.connectivity=1e-3, threshold=F){
   if (by.subtypes.condition) {
     subtype.condition <- paste0(subtype.vector, '-', condition.vector)
     membership.vector <- as.numeric(factor(subtype.condition))
     subtype.order <- (paste0(subtype.vector) %>% unique)[order(paste0(subtype.vector) %>% unique)] # for appending to the DF
-    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F, linearize=linearize)
+    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=threshold, linearize=linearize)
     statistics <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
     paga.df <- dplyr::bind_cols(paga.connectivity.value=statistics, subtype=subtype.order)
     paga.df$ncells <- table(subtype.vector)[subtype.order] %>% as.numeric
@@ -233,7 +234,7 @@ GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=N
   } else if (by.subtypes.samples) {
     subtype.samples <- paste0(subtype.vector, '-', sample.vector)
     membership.vec.subsamp <- as.numeric(factor(subtype.samples))
-    connectivities <- GetPagaMatrix(graph.adj, membership.vec.subsamp, scale=F, linearize=linearize)
+    connectivities <- GetPagaMatrix(graph.adj, membership.vec.subsamp, scale=threshold, linearize=linearize)
     paga.df <- GeneratePagaSubSampDF(connectivities, subtype.vector, sample.vector, condition.vector)
     paga.df <- paga.df %>% dplyr::rename(paga.connectivity.value=value)
     if (log.scale){
@@ -247,7 +248,7 @@ GeneratePagaItems <- function(graph.adj, subtype.vector=NULL, condition.vector=N
   } else if (by.samples) {
     membership.vector <- as.numeric(factor(sample.vector))
     sample.order <- (paste0(sample.vector) %>% unique)[order(paste0(sample.vector) %>% unique)]
-    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=F, linearize=linearize) %>% as.matrix
+    connectivities <- GetPagaMatrix(graph.adj, membership.vector, scale=threshold, linearize=linearize) %>% as.matrix
     rownames(connectivities) <- sample.order; colnames(connectivities) <- sample.order
     if (log.scale){
       connectivities <- log(connectivities+pseudo.connectivity)
