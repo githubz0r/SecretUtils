@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="githubz0r" />
+
+<meta name="date" content="2019-10-05" />
+
+<title>transmute_code_eps_3</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">SecretUtils</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/githubz0r/SecretUtils">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">transmute_code_eps_3</h1>
+<h4 class="author">githubz0r</h4>
+<h4 class="date">2019-10-05</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2019-10-04
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>SecretUtils/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.3.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190415code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190415)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190415code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190415)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreef471291dda05fd8a264eb9c3a8f907756e9b79dctargetblankf471291a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/f471291dda05fd8a264eb9c3a8f907756e9b79dc" target="_blank">f471291</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreef471291dda05fd8a264eb9c3a8f907756e9b79dctargetblankf471291a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  .Rbuildignore
+    Untracked:  R/asdf_bk
+    Untracked:  R/hello.R
+    Untracked:  analysis/eps_joint_all.bmp
+    Untracked:  analysis/grid_of_grids.pdf
+    Untracked:  analysis/make_scanpy_viktor.R
+    Untracked:  analysis/morphine.Rmd
+    Untracked:  analysis/mouse_alzheimer_annotating.Rmd
+    Untracked:  analysis/mouse_alzheimer_preproc.Rmd
+    Untracked:  analysis/paga.Rmd
+    Untracked:  analysis/paga3.Rmd
+    Untracked:  analysis/simulate_data.Rmd
+    Untracked:  analysis/simulate_data2.Rmd
+    Untracked:  analysis/simulate_data3.Rmd
+    Untracked:  analysis/simulations_plots3_bk.Rmd
+    Untracked:  analysis/simulations_plots4.Rmd
+    Untracked:  analysis/simulations_plots5_bk.Rmd
+    Untracked:  analysis/simulations_plots6.Rmd
+    Untracked:  analysis/subtype_distances.Rmd
+    Untracked:  analysis/subtype_distances2.Rmd
+    Untracked:  analysis/subtype_distances4.Rmd
+    Untracked:  analysis/subtype_distances_redux.Rmd
+    Untracked:  analysis/subtype_distances_revenge.Rmd
+    Untracked:  analysis/test_output.Rmd
+    Untracked:  analysis/transmute_peters_code.Rmd
+    Untracked:  docs/figure/paga.Rmd/
+    Untracked:  man/
+
+Unstaged changes:
+    Modified:   analysis/correlation_stuff.Rmd
+    Modified:   analysis/jensen_shannon_stuff.Rmd
+    Modified:   analysis/misc_metrics.Rmd
+    Modified:   analysis/mouse_alzheimer_analysis.Rmd
+    Modified:   analysis/paga2.Rmd
+    Modified:   analysis/paga_analyses.Rmd
+    Modified:   analysis/pancreas_indrop.Rmd
+    Modified:   analysis/sanity_check.Rmd
+    Modified:   analysis/simulations_plots.Rmd
+    Modified:   analysis/simulations_plots3.Rmd
+    Modified:   analysis/simulations_plots5.Rmd
+    Modified:   analysis/subtype_distances3.Rmd
+    Modified:   analysis/transmute_code_eps.Rmd
+    Modified:   analysis/transmute_code_eps_2.Rmd
+    Modified:   analysis/visualizations.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/f471291dda05fd8a264eb9c3a8f907756e9b79dc/analysis/transmute_code_eps_3.Rmd" target="_blank">f471291</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-10-04
+</td>
+<td>
+peters functions, bit cleaner script
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>load packages and data</p>
+<pre class="r"><code>library(conos)
+library(tidyverse)
+library(parallel)
+library(Matrix)
+library(data.table)
+library(pagoda2)
+library(cowplot)
+library(abind)
+library(Rtsne)
+devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)
+
+con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
+con &lt;- Conos$new(con)
+annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))
+fraction_palette_eps &lt;- c(epilepsy=&#39;hotpink&#39;, healthy=&#39;seagreen&#39;) </code></pre>
+<p>The fractions across the conditions are the average of the fractions for each sample.</p>
+<pre class="r"><code>FractionalPlot(annot$sample, annot$subtype, annot$condition, fraction.palette = fraction_palette_eps)</code></pre>
+<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Looking at patients instead</p>
+<pre class="r"><code>freq_df &lt;- FractionalPlot(annot$sample, annot$subtype, annot$condition, return.plot=F) 
+ggplot(na.omit(freq_df),aes(x=subtype,y=freq, col=patient))+ 
+  geom_point() + theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab(&quot;&quot;) +ylab(&quot;fraction of total cells&quot;)+ theme(legend.position=&quot;right&quot;)</code></pre>
+<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Distance matrix tsne plot</p>
+<pre class="r"><code>annot2 &lt;- annot %&gt;% mutate(cellid=rownames(annot))
+source(&#39;/home/larsc/SecretUtils/R/peter_code_utils.R&#39;)
+sub_dist_mat &lt;- Makesubdistmat(con, annot2$sample, annot2$subtype, annot2$cellid)
+
+## some weird shit
+#testannot &lt;- bind_cols(list(annot2$sample, annot2$subtype, annot2$cellid))
+#tf_test &lt;- setNames(testannot[, 2], testannot[, 3]) %&gt;% as.factor # does not work
+#tf_test &lt;- setNames(testannot[[2]], testannot[[3]]) %&gt;% as.factor
+## end weird shit
+PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4) # add labels</code></pre>
+<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /> check the mat</p>
+<pre class="r"><code>PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4, get.mat=TRUE)</code></pre>
+<pre><code>           ep_p1      ep_p2      ep_p3       c_p1      c_p2       c_p3
+ep_p1 0.00000000 0.02949935 0.03381853 0.06628933 0.2335435 0.13937694
+ep_p2 0.02949935 0.00000000 0.02607767 0.05389090 0.1918274 0.11002414
+ep_p3 0.03381853 0.02607767 0.00000000 0.06561158 0.2089419 0.13402977
+c_p1  0.06628933 0.05389090 0.06561158 0.00000000 0.1713584 0.07000583
+c_p2  0.23354345 0.19182742 0.20894194 0.17135838 0.0000000 0.11904113
+c_p3  0.13937694 0.11002414 0.13402977 0.07000583 0.1190411 0.00000000
+c_p4  0.16022473 0.12936523 0.14413603 0.08160400 0.1190776 0.08271640
+           c_p4
+ep_p1 0.1602247
+ep_p2 0.1293652
+ep_p3 0.1441360
+c_p1  0.0816040
+c_p2  0.1190776
+c_p3  0.0827164
+c_p4  0.0000000</code></pre>
+<p>Condition distance distribution (uses JSD in Peter’s code, replace with something more suitable)</p>
+<pre class="r"><code>ConditionDistanceDensity(sub_dist_mat, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
+                         notch=F, fraction.palette = fraction_palette_eps)</code></pre>
+<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Distribution of distances per cell type (JSD again). It’s possible that there are better ways to visualize this.</p>
+<pre class="r"><code>min_cells=0
+SecretUtils::PlotCellTypeDists(sub_dist_mat, min_cells, annot$sample, annot$condition)</code></pre>
+<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.3 (2019-03-11)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.2 LTS
+
+Matrix products: default
+BLAS: /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3
+LAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3.10.3
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] SecretUtils_0.1.0 reshape2_1.4.3    magrittr_1.5     
+ [4] Rtsne_0.15        abind_1.4-5       cowplot_0.9.4    
+ [7] pagoda2_0.1.0     data.table_1.12.2 forcats_0.4.0    
+[10] stringr_1.4.0     dplyr_0.8.3       purrr_0.3.2      
+[13] readr_1.3.1       tidyr_0.8.3       tibble_2.1.3     
+[16] ggplot2_3.2.0     tidyverse_1.2.1   conos_1.0.0      
+[19] igraph_1.2.4.1    Matrix_1.2-17    
+
+loaded via a namespace (and not attached):
+ [1] nlme_3.1-139       matrixStats_0.54.0 fs_1.3.1          
+ [4] usethis_1.5.0      lubridate_1.7.4    devtools_2.0.2    
+ [7] httr_1.4.0         rprojroot_1.3-2    tools_3.5.3       
+[10] backports_1.1.4    R6_2.4.0           irlba_2.3.3       
+[13] lazyeval_0.2.2     colorspace_1.4-1   withr_2.1.2       
+[16] tidyselect_0.2.5   gridExtra_2.3      prettyunits_1.0.2 
+[19] processx_3.3.1     compiler_3.5.3     git2r_0.25.2      
+[22] cli_1.1.0          rvest_0.3.4        xml2_1.2.0        
+[25] desc_1.2.0         labeling_0.3       triebeard_0.3.0   
+[28] scales_1.0.0       pbapply_1.4-0      callr_3.2.0       
+[31] digest_0.6.20      rmarkdown_1.12     base64enc_0.1-3   
+[34] pkgconfig_2.0.2    htmltools_0.3.6    sessioninfo_1.1.1 
+[37] rlang_0.4.0        readxl_1.3.1       rstudioapi_0.10   
+[40] shiny_1.3.2        generics_0.0.2     jsonlite_1.6      
+[43] dendextend_1.12.0  Rcpp_1.0.1         munsell_0.5.0     
+[46] viridis_0.5.1      stringi_1.4.3      whisker_0.3-2     
+[49] yaml_2.2.0         MASS_7.3-51.3      plyr_1.8.4        
+[52] pkgbuild_1.0.3     grid_3.5.3         promises_1.0.1    
+[55] crayon_1.3.4       lattice_0.20-38    haven_2.1.0       
+[58] hms_0.4.2          knitr_1.22         ps_1.3.0          
+[61] pillar_1.4.2       rjson_0.2.20       pkgload_1.0.2     
+[64] glue_1.3.1         evaluate_0.13      remotes_2.0.4     
+[67] modelr_0.1.4       httpuv_1.5.1       urltools_1.7.3    
+[70] testthat_2.1.1     cellranger_1.1.0   gtable_0.3.0      
+[73] assertthat_0.2.1   xfun_0.6           mime_0.6          
+[76] xtable_1.8-4       broom_0.5.2        later_0.8.0       
+[79] viridisLite_0.3.0  memoise_1.1.0      workflowr_1.3.0   
+[82] Rook_1.1-1         brew_1.0-6        </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
