@@ -1,0 +1,81 @@
+---
+title: "transmute_code_eps_3"
+author: "githubz0r"
+date: "2019-10-05"
+output: workflowr::wflow_html
+---
+
+
+load packages and data
+```{r, message=F}
+library(conos)
+library(tidyverse)
+library(parallel)
+library(Matrix)
+library(data.table)
+library(pagoda2)
+library(cowplot)
+library(abind)
+library(Rtsne)
+devtools::load_all('/home/larsc/SecretUtils')
+
+con <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
+con <- Conos$new(con)
+annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
+fraction_palette_eps <- c(epilepsy='hotpink', healthy='seagreen') 
+
+```
+
+The fractions across the conditions are the average of the fractions for each sample. 
+```{r}
+FractionalPlot(annot$sample, annot$subtype, annot$condition, fraction.palette = fraction_palette_eps)
+```
+
+Looking at patients instead
+```{r}
+freq_df <- FractionalPlot(annot$sample, annot$subtype, annot$condition, return.plot=F) 
+ggplot(na.omit(freq_df),aes(x=subtype,y=freq, col=patient))+ 
+  geom_point() + theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
+    xlab("") +ylab("fraction of total cells")+ theme(legend.position="right")
+```
+
+Distance matrix tsne plot
+```{r}
+annot2 <- annot %>% mutate(cellid=rownames(annot))
+source('/home/larsc/SecretUtils/R/peter_code_utils.R')
+sub_dist_mat <- Makesubdistmat(con, annot2$sample, annot2$subtype, annot2$cellid)
+
+## some weird shit
+#testannot <- bind_cols(list(annot2$sample, annot2$subtype, annot2$cellid))
+#tf_test <- setNames(testannot[, 2], testannot[, 3]) %>% as.factor # does not work
+#tf_test <- setNames(testannot[[2]], testannot[[3]]) %>% as.factor
+## end weird shit
+PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4) # add labels
+```
+check the mat
+```{r}
+PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
+                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4, get.mat=TRUE)
+```
+
+
+Condition distance distribution (uses JSD in Peter's code, replace with something more suitable)
+```{r}
+ConditionDistanceDensity(sub_dist_mat, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
+                         notch=F, fraction.palette = fraction_palette_eps)
+
+```
+
+
+
+
+Distribution of distances per cell type (JSD again). It's possible that there are better ways to visualize this.
+```{r}
+min_cells=0
+SecretUtils::PlotCellTypeDists(sub_dist_mat, min_cells, annot$sample, annot$condition)
+```
+
+
+
+
