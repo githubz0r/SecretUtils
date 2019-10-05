@@ -11,9 +11,9 @@
 
 <meta name="author" content="githubz0r" />
 
-<meta name="date" content="2019-10-05" />
+<meta name="date" content="2019-08-07" />
 
-<title>transmute_code_eps_3</title>
+<title>simulations_plots5</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -420,9 +420,9 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">transmute_code_eps_3</h1>
+<h1 class="title toc-ignore">simulations_plots5</h1>
 <h4 class="author">githubz0r</h4>
-<h4 class="date">2019-10-05</h4>
+<h4 class="date">2019-08-07</h4>
 
 </div>
 
@@ -566,7 +566,6 @@ Untracked files:
     Untracked:  analysis/test_output.Rmd
     Untracked:  analysis/transmute_peters_code.Rmd
     Untracked:  docs/figure/paga.Rmd/
-    Untracked:  docs/figure/simulations_plots_intro.Rmd/
     Untracked:  man/
 
 Unstaged changes:
@@ -625,27 +624,10 @@ Message
 <tbody>
 <tr>
 <td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/08f7fbba38336fd513d7a426086ea0136c90080f/docs/transmute_code_eps_3.html" target="_blank">08f7fbb</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-10-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
 Rmd
 </td>
 <td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/f471291dda05fd8a264eb9c3a8f907756e9b79dc/analysis/transmute_code_eps_3.Rmd" target="_blank">f471291</a>
+<a href="https://github.com/githubz0r/SecretUtils/blob/dd9b9c0e750b95d872fb63f2ba76d9da2405ce85/analysis/simulations_plots_intro.Rmd" target="_blank">dd9b9c0</a>
 </td>
 <td>
 githubz0r
@@ -654,7 +636,7 @@ githubz0r
 2019-10-04
 </td>
 <td>
-peters functions, bit cleaner script
+tutorial for simulated data and cleaned peter code utils example
 </td>
 </tr>
 </tbody>
@@ -664,256 +646,145 @@ peters functions, bit cleaner script
 </div>
 </div>
 </div>
-<p>load packages and data</p>
+<p>Load packages and soem data</p>
 <pre class="r"><code>library(conos)
 library(tidyverse)
-library(parallel)
-library(Matrix)
-library(data.table)
-library(pagoda2)
-library(cowplot)
-library(abind)
-library(Rtsne)
 devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)
+library(cowplot)
+library(splatter)
+devtools::load_all(&#39;/home/viktor_petukhov/Copenhagen/NeuronalMaturation&#39;)
+devtools::load_all(&#39;/home/viktor_petukhov/SmallProjects/scConditionDifference&#39;)</code></pre>
+<p>We need to generate parameters for gamma function (initial gene means) and log normal (for library sizes). This shit takes a while so we load premade parameters, but just follow the commented lines otherwise.</p>
+<pre class="r"><code>#epilepsy_con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
+#epilepsy_annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))
+#epilepsy_annot$cellid &lt;- rownames(epilepsy_annot)
+#raw_cm &lt;- RbindRaw(epilepsy_con)
+#sub_matrices &lt;- GetSubMatrices(epilepsy_annot$subtype, epilepsy_annot$cellid, epilepsy_annot$condition, raw_cm, 
+                               #colnames(raw_cm), avg=F)
+#testmat &lt;- sub_matrices$healthy$L2_Lamp5 %&gt;% as.matrix %&gt;% removezerocols %&gt;% Matrix::t()
+#params &lt;- splatEstimate(testmat)
 
-con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
-con &lt;- Conos$new(con)
-annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))
-fraction_palette_eps &lt;- c(epilepsy=&#39;hotpink&#39;, healthy=&#39;seagreen&#39;) </code></pre>
-<p>The fractions across the conditions are the average of the fractions for each sample.</p>
-<pre class="r"><code>FractionalPlot(annot$sample, annot$subtype, annot$condition, fraction.palette = fraction_palette_eps)</code></pre>
-<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
-Past versions of unnamed-chunk-2-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-2-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/08f7fbba38336fd513d7a426086ea0136c90080f/docs/figure/transmute_code_eps_3.Rmd/unnamed-chunk-2-1.png" target="_blank">08f7fbb</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-10-04
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Looking at patients instead</p>
-<pre class="r"><code>freq_df &lt;- FractionalPlot(annot$sample, annot$subtype, annot$condition, return.plot=F) 
-ggplot(na.omit(freq_df),aes(x=subtype,y=freq, col=patient))+ 
-  geom_point() + theme(axis.text.x = element_text(angle = 90, hjust = 1), axis.text.y = element_text(angle = 90, hjust = 0.5)) +
-    xlab(&quot;&quot;) +ylab(&quot;fraction of total cells&quot;)+ theme(legend.position=&quot;right&quot;)</code></pre>
-<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
-Past versions of unnamed-chunk-3-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-3-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/08f7fbba38336fd513d7a426086ea0136c90080f/docs/figure/transmute_code_eps_3.Rmd/unnamed-chunk-3-1.png" target="_blank">08f7fbb</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-10-04
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Distance matrix tsne plot</p>
-<pre class="r"><code>annot2 &lt;- annot %&gt;% mutate(cellid=rownames(annot))
-source(&#39;/home/larsc/SecretUtils/R/peter_code_utils.R&#39;)
-sub_dist_mat &lt;- Makesubdistmat(con, annot2$sample, annot2$subtype, annot2$cellid)
+lamp5_params &lt;- readRDS(&#39;/home/larsc/data/splatter_lamp5_params.rds&#39;)</code></pre>
+<p>Initiate variables for the simulations. The basic principle is that we simulate a bunch of groups with different DE levels and then we use Group1 as the reference and compare the other groups to this reference. Then we do this several times with different seeds. Default values are set to 500 cells, libloc of 8 and 10000 genes (in MakeSimPerFactor). Instead of using seeds, we can also just use batches, but it should give the same result and I don’t feel like changing it. I’ve made some functions to calculate the distances in the distance list. In order to add a new distance, just make a function that compares Group1 to the other groups for a given factor and then weave it into the 10 layers of wrapper functions, it’s very simple.</p>
+<pre class="r"><code>de_prob &lt;- c(0.0, 0.0, 0.3, 0.5)
+ncellvec &lt;- c(30, 200, 500)
+ngenevec &lt;- c(100, 1000, 10000)
+liblocvec &lt;- c(6.5, 7.5, 8.5)
+seeds &lt;- c(9001)
+leiden_resolutions &lt;- c(1, 2)
+distances &lt;- list(&#39;log.fold.change&#39;,&#39;jensen_shannon&#39;, &#39;correlation.distance&#39;, &#39;paga&#39;, &#39;CMD&#39;, &#39;euclidean&#39;, &#39;knncor.z&#39;, &#39;knncor.z.med&#39;, &#39;entropy&#39;)</code></pre>
+<p>Now we create the actual data. We’ll just use two factors(ncell and ngenes) to speed up shit. Can add more factors by changing the functions MakeSimPerFactor and SimulateGroups.</p>
+<pre class="r"><code>cell_sim &lt;- MakeSimsAllSeeds(lamp5_params, seeds, ncellvec, de_prob, &#39;ncell&#39;, make.p2 = T, n.cl.tsne=30, n.cl.sim=3)</code></pre>
+<pre><code>120 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 0 overdispersed genes ... 0 persisting ... done.
+running PCA using 3000 OD genes ..</code></pre>
+<pre><code>Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+You&#39;re computing too large a percentage of total singular values, use a
+standard svd instead.</code></pre>
+<pre><code>.. done
+calculating distance ... pearson ...running tSNE using 30 cores:
+800 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 9 overdispersed genes ... 9 persisting ... done.
+running PCA using 3000 OD genes .... done
+calculating distance ... pearson ...running tSNE using 30 cores:
+2000 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 26 overdispersed genes ... 26 persisting ... done.
+running PCA using 3000 OD genes .... done
+calculating distance ... pearson ...running tSNE using 30 cores:</code></pre>
+<pre class="r"><code>gene_sim &lt;- MakeSimsAllSeeds(lamp5_params, seeds, ngenevec, de_prob, &#39;ngenes&#39;, make.p2 = T, n.cl.tsne=30, n.cl.sim=3)</code></pre>
+<pre><code>2000 cells, 100 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 24 overdispersed genes ... 24 persisting ... done.
+running PCA using 100 OD genes ..</code></pre>
+<pre><code>Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+You&#39;re computing too large a percentage of total singular values, use a
+standard svd instead.</code></pre>
+<pre><code>Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+did not converge--results might be invalid!; try increasing work or maxit</code></pre>
+<pre><code>.. done
+calculating distance ... pearson ...running tSNE using 30 cores:
+2000 cells, 1000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 60 overdispersed genes ... 60 persisting ... done.
+running PCA using 1000 OD genes .... done
+calculating distance ... pearson ...running tSNE using 30 cores:
+2000 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 26 overdispersed genes ... 26 persisting ... done.
+running PCA using 3000 OD genes .... done
+calculating distance ... pearson ...running tSNE using 30 cores:</code></pre>
+<p>Now we create distance data frames.</p>
+<pre class="r"><code>dfs_per_distance &lt;- AllDistsDfs(list(cell_sim, gene_sim), list(&#39;ncell&#39;, &#39;ngenes&#39;),
+                                distances, avg.meds=T, leiden.resolutions=leiden_resolutions)</code></pre>
+<pre><code>Warning in bind_rows_(x, .id): Unequal factor levels: coercing to character</code></pre>
+<pre><code>Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
 
-## some weird shit
-#testannot &lt;- bind_cols(list(annot2$sample, annot2$subtype, annot2$cellid))
-#tf_test &lt;- setNames(testannot[, 2], testannot[, 3]) %&gt;% as.factor # does not work
-#tf_test &lt;- setNames(testannot[[2]], testannot[[3]]) %&gt;% as.factor
-## end weird shit
-PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
-                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4) # add labels</code></pre>
-<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
-Past versions of unnamed-chunk-4-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-4-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/08f7fbba38336fd513d7a426086ea0136c90080f/docs/figure/transmute_code_eps_3.Rmd/unnamed-chunk-4-1.png" target="_blank">08f7fbb</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-10-04
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>check the mat</p>
-<pre class="r"><code>PlotDistanceMatRed(sub_dist_mat, annot2$sample, annot2$subtype, annot2$sample, 
-                   annot2$cellid, annot2$condition, perplexity=2, max_iter=1e4, get.mat=TRUE)</code></pre>
-<pre><code>           ep_p1      ep_p2      ep_p3       c_p1      c_p2       c_p3
-ep_p1 0.00000000 0.02949935 0.03381853 0.06628933 0.2335435 0.13937694
-ep_p2 0.02949935 0.00000000 0.02607767 0.05389090 0.1918274 0.11002414
-ep_p3 0.03381853 0.02607767 0.00000000 0.06561158 0.2089419 0.13402977
-c_p1  0.06628933 0.05389090 0.06561158 0.00000000 0.1713584 0.07000583
-c_p2  0.23354345 0.19182742 0.20894194 0.17135838 0.0000000 0.11904113
-c_p3  0.13937694 0.11002414 0.13402977 0.07000583 0.1190411 0.00000000
-c_p4  0.16022473 0.12936523 0.14413603 0.08160400 0.1190776 0.08271640
-           c_p4
-ep_p1 0.1602247
-ep_p2 0.1293652
-ep_p3 0.1441360
-c_p1  0.0816040
-c_p2  0.1190776
-c_p3  0.0827164
-c_p4  0.0000000</code></pre>
-<p>Condition distance distribution (uses JSD in Peter’s code, replace with something more suitable)</p>
-<pre class="r"><code>ConditionDistanceDensity(sub_dist_mat, annot$sample, annot$subtype, annot$sample, annot2$cellid, annot$condition,
-                         notch=F, fraction.palette = fraction_palette_eps)</code></pre>
-<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
-Past versions of unnamed-chunk-6-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-6-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/08f7fbba38336fd513d7a426086ea0136c90080f/docs/figure/transmute_code_eps_3.Rmd/unnamed-chunk-6-1.png" target="_blank">08f7fbb</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-10-04
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<p>Distribution of distances per cell type (JSD again). It’s possible that there are better ways to visualize this.</p>
-<pre class="r"><code>min_cells=0
-SecretUtils::PlotCellTypeDists(sub_dist_mat, min_cells, annot$sample, annot$condition)</code></pre>
-<p><img src="figure/transmute_code_eps_3.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
-Past versions of unnamed-chunk-7-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-7-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/githubz0r/SecretUtils/blob/08f7fbba38336fd513d7a426086ea0136c90080f/docs/figure/transmute_code_eps_3.Rmd/unnamed-chunk-7-1.png" target="_blank">08f7fbb</a>
-</td>
-<td>
-githubz0r
-</td>
-<td>
-2019-10-04
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector</code></pre>
+<pre><code>Warning in bind_rows_(x, .id): Unequal factor levels: coercing to character</code></pre>
+<pre><code>Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector</code></pre>
+<pre><code>Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+You&#39;re computing too large a percentage of total singular values, use a
+standard svd instead.
+
+Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+You&#39;re computing too large a percentage of total singular values, use a
+standard svd instead.
+
+Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+You&#39;re computing too large a percentage of total singular values, use a
+standard svd instead.
+
+Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+You&#39;re computing too large a percentage of total singular values, use a
+standard svd instead.</code></pre>
+<pre><code>Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+did not converge--results might be invalid!; try increasing work or maxit</code></pre>
+<pre><code>Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+You&#39;re computing too large a percentage of total singular values, use a
+standard svd instead.</code></pre>
+<pre><code>Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+did not converge--results might be invalid!; try increasing work or maxit</code></pre>
+<pre><code>Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+You&#39;re computing too large a percentage of total singular values, use a
+standard svd instead.</code></pre>
+<pre><code>Warning in irlba(x, nv = nPcs, nu = 0, center = cm, right_only = FALSE, :
+did not converge--results might be invalid!; try increasing work or maxit</code></pre>
+<p>Create plots and make a grid</p>
+<pre class="r"><code>all_plots &lt;- doPlotsPerFactor(dfs_per_distance, jitter=T, geom.smooth=F)
+grid_all &lt;- CreateGrid(all_plots, leiden_resolutions)
+ggsave(grid_all, file=&#39;/home/larsc/plots/testshit.pdf&#39;, width=10, height=45)</code></pre>
+<p>Bound Paga</p>
+<pre class="r"><code>boundcellpaga &lt;- doBoundPaga(cell_sim$`9001`, &#39;ncell&#39;)</code></pre>
+<pre><code>2920 cells, 10000 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 137 overdispersed genes ... 137 persisting ... done.
+running PCA using 3000 OD genes .... done
+calculating distance ... pearson ...running tSNE using 30 cores:</code></pre>
+<pre><code>Warning in bind_rows_(x, .id): Unequal factor levels: coercing to character</code></pre>
+<pre><code>Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector
+
+Warning in bind_rows_(x, .id): binding character and factor vector,
+coercing into character vector</code></pre>
+<pre class="r"><code>unboundcellpaga &lt;- SimPagaFactor(cell_sim$`9001`, &#39;ncell&#39;)
+
+boundcellpaga %&gt;% filter(de.level!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.level))+
+  geom_point(size=1, alpha=0.8)</code></pre>
+<p><img src="figure/simulations_plots_intro.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>unboundcellpaga %&gt;% filter(de.level!=&#39;ref&#39;) %&gt;% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.level))+
+  geom_point(size=1, alpha=0.8)</code></pre>
+<p><img src="figure/simulations_plots_intro.Rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -939,47 +810,59 @@ locale:
 [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
-[1] parallel  stats     graphics  grDevices utils     datasets  methods  
-[8] base     
+[1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
 
 other attached packages:
- [1] SecretUtils_0.1.0 reshape2_1.4.3    magrittr_1.5     
- [4] Rtsne_0.15        abind_1.4-5       cowplot_0.9.4    
- [7] pagoda2_0.1.0     data.table_1.12.2 forcats_0.4.0    
-[10] stringr_1.4.0     dplyr_0.8.3       purrr_0.3.2      
-[13] readr_1.3.1       tidyr_0.8.3       tibble_2.1.3     
-[16] ggplot2_3.2.0     tidyverse_1.2.1   conos_1.0.0      
-[19] igraph_1.2.4.1    Matrix_1.2-17    
+ [1] scConditionDifference_0.1.0 NeuronalMaturation_0.1.0   
+ [3] splatter_1.6.1              SingleCellExperiment_1.4.1 
+ [5] SummarizedExperiment_1.12.0 DelayedArray_0.8.0         
+ [7] BiocParallel_1.16.6         matrixStats_0.54.0         
+ [9] Biobase_2.42.0              GenomicRanges_1.34.0       
+[11] GenomeInfoDb_1.18.2         IRanges_2.16.0             
+[13] S4Vectors_0.20.1            BiocGenerics_0.28.0        
+[15] cowplot_0.9.4               SecretUtils_0.1.0          
+[17] reshape2_1.4.3              magrittr_1.5               
+[19] forcats_0.4.0               stringr_1.4.0              
+[21] dplyr_0.8.3                 purrr_0.3.2                
+[23] readr_1.3.1                 tidyr_0.8.3                
+[25] tibble_2.1.3                ggplot2_3.2.0              
+[27] tidyverse_1.2.1             conos_1.0.0                
+[29] igraph_1.2.4.1              Matrix_1.2-17              
 
 loaded via a namespace (and not attached):
- [1] nlme_3.1-139       matrixStats_0.54.0 fs_1.3.1          
- [4] usethis_1.5.0      lubridate_1.7.4    devtools_2.0.2    
- [7] httr_1.4.0         rprojroot_1.3-2    tools_3.5.3       
-[10] backports_1.1.4    R6_2.4.0           irlba_2.3.3       
-[13] lazyeval_0.2.2     colorspace_1.4-1   withr_2.1.2       
-[16] tidyselect_0.2.5   gridExtra_2.3      prettyunits_1.0.2 
-[19] processx_3.3.1     compiler_3.5.3     git2r_0.25.2      
-[22] cli_1.1.0          rvest_0.3.4        xml2_1.2.0        
-[25] desc_1.2.0         labeling_0.3       triebeard_0.3.0   
-[28] scales_1.0.0       pbapply_1.4-0      callr_3.2.0       
-[31] digest_0.6.20      rmarkdown_1.12     base64enc_0.1-3   
-[34] pkgconfig_2.0.2    htmltools_0.3.6    sessioninfo_1.1.1 
-[37] rlang_0.4.0        readxl_1.3.1       rstudioapi_0.10   
-[40] shiny_1.3.2        generics_0.0.2     jsonlite_1.6      
-[43] dendextend_1.12.0  Rcpp_1.0.1         munsell_0.5.0     
-[46] viridis_0.5.1      stringi_1.4.3      whisker_0.3-2     
-[49] yaml_2.2.0         MASS_7.3-51.3      plyr_1.8.4        
-[52] pkgbuild_1.0.3     grid_3.5.3         promises_1.0.1    
-[55] crayon_1.3.4       lattice_0.20-38    haven_2.1.0       
-[58] hms_0.4.2          knitr_1.22         ps_1.3.0          
-[61] pillar_1.4.2       rjson_0.2.20       pkgload_1.0.2     
-[64] glue_1.3.1         evaluate_0.13      remotes_2.0.4     
-[67] modelr_0.1.4       httpuv_1.5.1       urltools_1.7.3    
-[70] testthat_2.1.1     cellranger_1.1.0   gtable_0.3.0      
-[73] assertthat_0.2.1   xfun_0.6           mime_0.6          
-[76] xtable_1.8-4       broom_0.5.2        later_0.8.0       
-[79] viridisLite_0.3.0  memoise_1.1.0      workflowr_1.3.0   
-[82] Rook_1.1-1         brew_1.0-6        </code></pre>
+ [1] Rtsne_0.15             colorspace_1.4-1       rjson_0.2.20          
+ [4] rprojroot_1.3-2        XVector_0.22.0         base64enc_0.1-3       
+ [7] fs_1.3.1               rstudioapi_0.10        ggpubr_0.2            
+[10] urltools_1.7.3         remotes_2.0.4          lubridate_1.7.4       
+[13] xml2_1.2.0             splines_3.5.3          knitr_1.22            
+[16] pkgload_1.0.2          jsonlite_1.6           workflowr_1.3.0       
+[19] broom_0.5.2            shiny_1.3.2            compiler_3.5.3        
+[22] httr_1.4.0             backports_1.1.4        assertthat_0.2.1      
+[25] lazyeval_0.2.2         cli_1.1.0              later_0.8.0           
+[28] htmltools_0.3.6        prettyunits_1.0.2      tools_3.5.3           
+[31] gtable_0.3.0           glue_1.3.1             GenomeInfoDbData_1.2.0
+[34] Rcpp_1.0.1             cellranger_1.1.0       nlme_3.1-139          
+[37] xfun_0.6               ps_1.3.0               testthat_2.1.1        
+[40] rvest_0.3.4            irlba_2.3.3            mime_0.6              
+[43] devtools_2.0.2         dendextend_1.12.0      MASS_7.3-51.3         
+[46] zlibbioc_1.28.0        scales_1.0.0           hms_0.4.2             
+[49] promises_1.0.1         yaml_2.2.0             memoise_1.1.0         
+[52] pbapply_1.4-0          gridExtra_2.3          triebeard_0.3.0       
+[55] stringi_1.4.3          Rook_1.1-1             desc_1.2.0            
+[58] checkmate_1.9.1        pkgbuild_1.0.3         rlang_0.4.0           
+[61] pkgconfig_2.0.2        bitops_1.0-6           evaluate_0.13         
+[64] lattice_0.20-38        pagoda2_0.1.0          labeling_0.3          
+[67] processx_3.3.1         tidyselect_0.2.5       plyr_1.8.4            
+[70] R6_2.4.0               generics_0.0.2         mgcv_1.8-28           
+[73] pillar_1.4.2           haven_2.1.0            whisker_0.3-2         
+[76] withr_2.1.2            abind_1.4-5            RCurl_1.95-4.12       
+[79] modelr_0.1.4           crayon_1.3.4           rmarkdown_1.12        
+[82] viridis_0.5.1          usethis_1.5.0          locfit_1.5-9.1        
+[85] grid_3.5.3             readxl_1.3.1           data.table_1.12.2     
+[88] callr_3.2.0            git2r_0.25.2           digest_0.6.20         
+[91] xtable_1.8-4           httpuv_1.5.1           brew_1.0-6            
+[94] munsell_0.5.0          viridisLite_0.3.0      sessioninfo_1.1.1     </code></pre>
 </div>
 
 
