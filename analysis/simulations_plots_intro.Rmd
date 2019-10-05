@@ -1,0 +1,82 @@
+---
+title: "simulations_plots5"
+author: "githubz0r"
+date: "2019-08-07"
+output: workflowr::wflow_html
+---
+
+Load packages and soem data
+```{r, message=F}
+library(conos)
+library(tidyverse)
+devtools::load_all('/home/larsc/SecretUtils')
+library(cowplot)
+library(splatter)
+devtools::load_all('/home/viktor_petukhov/Copenhagen/NeuronalMaturation')
+devtools::load_all('/home/viktor_petukhov/SmallProjects/scConditionDifference')
+```
+
+We need to generate parameters for gamma function (initial gene means) and log normal (for library sizes). 
+This shit takes a while so we load premade parameters, but just follow the commented lines otherwise.
+```{r}
+#epilepsy_con <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
+#epilepsy_annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
+#epilepsy_annot$cellid <- rownames(epilepsy_annot)
+#raw_cm <- RbindRaw(epilepsy_con)
+#sub_matrices <- GetSubMatrices(epilepsy_annot$subtype, epilepsy_annot$cellid, epilepsy_annot$condition, raw_cm, 
+                               #colnames(raw_cm), avg=F)
+#testmat <- sub_matrices$healthy$L2_Lamp5 %>% as.matrix %>% removezerocols %>% Matrix::t()
+#params <- splatEstimate(testmat)
+
+lamp5_params <- readRDS('/home/larsc/data/splatter_lamp5_params.rds')
+```
+
+
+Initiate variables for the simulations. The basic principle is that we simulate a bunch of groups with different DE levels and then we use Group1 as the reference and compare the other groups to this reference. Then we do this several times with different seeds. Default values are set to 500 cells, libloc of 8 and 10000 genes (in MakeSimPerFactor).
+Instead of using seeds, we can also just use batches, but it should give the same result and I don't feel like changing it. I've made some functions to calculate the distances in the distance list. 
+In order to add a new distance, just make a function that compares Group1 to the other groups for a given factor and then weave it into the 10 layers of wrapper functions, it's very simple.
+```{r}
+de_prob <- c(0.0, 0.0, 0.3, 0.5)
+ncellvec <- c(30, 200, 500)
+ngenevec <- c(100, 1000, 10000)
+liblocvec <- c(6.5, 7.5, 8.5)
+seeds <- c(9001)
+leiden_resolutions <- c(1, 2)
+distances <- list('log.fold.change','jensen_shannon', 'correlation.distance', 'paga', 'CMD', 'euclidean', 'knncor.z', 'knncor.z.med', 'entropy')
+
+```
+
+Now we create the actual data. We'll just use two factors(ncell and ngenes) to speed up shit. Can add more factors by changing the functions MakeSimPerFactor and SimulateGroups.
+```{r}
+cell_sim <- MakeSimsAllSeeds(lamp5_params, seeds, ncellvec, de_prob, 'ncell', make.p2 = T, n.cl.tsne=30, n.cl.sim=3)
+gene_sim <- MakeSimsAllSeeds(lamp5_params, seeds, ngenevec, de_prob, 'ngenes', make.p2 = T, n.cl.tsne=30, n.cl.sim=3)
+```
+
+Now we create distance data frames.
+```{r}
+dfs_per_distance <- AllDistsDfs(list(cell_sim, gene_sim), list('ncell', 'ngenes'),
+                                distances, avg.meds=T, leiden.resolutions=leiden_resolutions)
+```
+
+Create plots and make a grid
+```{r}
+all_plots <- doPlotsPerFactor(dfs_per_distance, jitter=T, geom.smooth=F)
+grid_all <- CreateGrid(all_plots, leiden_resolutions)
+ggsave(grid_all, file='/home/larsc/plots/testshit.pdf', width=10, height=45)
+
+```
+
+
+Bound Paga
+```{r}
+boundcellpaga <- doBoundPaga(cell_sim$`9001`, 'ncell')
+
+unboundcellpaga <- SimPagaFactor(cell_sim$`9001`, 'ncell')
+
+boundcellpaga %>% filter(de.level!='ref') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.level))+
+  geom_point(size=1, alpha=0.8)
+unboundcellpaga %>% filter(de.level!='ref') %>% ggplot(aes(x=ncell, y=paga.connectivity.value, col=de.level))+
+  geom_point(size=1, alpha=0.8)
+
+```
+

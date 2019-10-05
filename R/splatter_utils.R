@@ -30,7 +30,7 @@ Selectsimcons <- function(connectivity.mat, de.prob.vec, n.batch.vec) {
 
 SimulateGroups <- function(splatter.params, n.cells, de.probabilities,
                            group.prob = c(rep(1/10, 10)), n.genes, lib.loc, mean.shape=0.414, seed=22071, dropout.type='none') {
-  sim.result <- splatSimulateGroups(splatter.params, group.prob = group.prob, dropout.type=dropout.type, mean.shape=mean.shape,
+  sim.result <- splatSimulateGroups(params=splatter.params, group.prob = group.prob, dropout.type=dropout.type, mean.shape=mean.shape,
                                     de.prob = de.probabilities, nGenes=n.genes, batchCells=n.cells*length(group.prob),
                                     lib.loc=lib.loc, verbose = FALSE, seed=seed)
 
@@ -46,7 +46,7 @@ SimulateGroups <- function(splatter.params, n.cells, de.probabilities,
   return(list(cm=t(sim.cm), sim.annot=sim.annot, whole.result=sim.result))
 }
 
-lapplyCells <- function(n.cell.vec, seed, lib.loc=8, n.genes=10000,  de.probs, bind=F) {
+lapplyCells <- function(n.cell.vec, seed, lib.loc=8, n.genes=10000,  de.probs, bind=F) { # olde
   group.probs <- rep(1/length(de.probs), length(de.probs))
   results <- n.cell.vec %>% lapply(function(x){
     a.sim <- SimulateGroups(params, seed=seed, n.cells=x, n.genes=n.genes, lib.loc=lib.loc, de.probabilities=de.probs,
@@ -68,7 +68,7 @@ lapplyCells <- function(n.cell.vec, seed, lib.loc=8, n.genes=10000,  de.probs, b
   return(return.value)
 }
 
-lapplyLibloc <- function(lib.loc.vec, seed, n.cells=500, n.genes=10000,  de.probs, bind=F) {
+lapplyLibloc <- function(lib.loc.vec, seed, n.cells=500, n.genes=10000,  de.probs, bind=F) { # olde
   group.probs <- rep(1/length(de.probs), length(de.probs))
   results <- lib.loc.vec %>% lapply(function(x){
     a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=n.genes, lib.loc=x, de.probabilities=de.probs,
@@ -90,7 +90,7 @@ lapplyLibloc <- function(lib.loc.vec, seed, n.cells=500, n.genes=10000,  de.prob
   return(return.value)
 }
 
-lapplyGenes <- function(n.gene.vec, seed, n.cells=500, lib.loc=8,  de.probs, bind=F) {
+lapplyGenes <- function(n.gene.vec, seed, n.cells=500, lib.loc=8,  de.probs, bind=F) { # olde
   group.probs <- rep(1/length(de.probs), length(de.probs))
   results <- n.gene.vec %>% lapply(function(x){
     a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=x, lib.loc=lib.loc,
@@ -113,7 +113,7 @@ lapplyGenes <- function(n.gene.vec, seed, n.cells=500, lib.loc=8,  de.probs, bin
 }
 
 
-lapplyCover <- function(lib.loc.vec, mean.shape.vec, seed, n.genes=10000, n.cells=400) {
+lapplyCover <- function(lib.loc.vec, mean.shape.vec, seed, n.genes=10000, n.cells=400) { #olde
   doSimulateGroups <- function(lib.loc, mean.shape, seed, n.genes, n.cells){
     return(SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=n.genes, lib.loc=lib.loc, mean.shape=mean.shape))
   }
@@ -124,20 +124,20 @@ lapplyCover <- function(lib.loc.vec, mean.shape.vec, seed, n.genes=10000, n.cell
   return(return(list(cm=boundcm, annot=boundannot)))
 }
 
-MakeSimPerFactor <- function(factor.vec, n.cells=500, seed, lib.loc=8, n.genes=10000,  de.probs, factor.identity,
+MakeSimPerFactor <- function(splatter.params, factor.vec, n.cells=500, seed, lib.loc=8, n.genes=10000,  de.probs, factor.identity,
                              n.cl.sim=NULL) {
   group.probs <- rep(1/length(de.probs), length(de.probs))
   if (factor.identity=='ncell'){
     results <- factor.vec %>% pbapply::pblapply(function(x){
-      a.sim <- SimulateGroups(params, seed=seed, n.cells=x, n.genes=n.genes, lib.loc=lib.loc, de.probabilities=de.probs,
+      a.sim <- SimulateGroups(splatter.params=splatter.params, seed=seed, n.cells=x, n.genes=n.genes, lib.loc=lib.loc, de.probabilities=de.probs,
                             group.prob=group.probs); return(a.sim)}, cl=n.cl.sim)
   } else if (factor.identity=='ngenes') {
     results <- factor.vec %>% pbapply::pblapply(function(x){
-      a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=x, lib.loc=lib.loc, de.probabilities=de.probs,
+      a.sim <- SimulateGroups(splatter.params=splatter.params, seed=seed, n.cells=n.cells, n.genes=x, lib.loc=lib.loc, de.probabilities=de.probs,
                               group.prob=group.probs); return(a.sim)}, cl=n.cl.sim)
   } else if (factor.identity=='lib.loc') {
     results <-factor.vec %>% pbapply::pblapply(function(x){
-      a.sim <- SimulateGroups(params, seed=seed, n.cells=n.cells, n.genes=n.genes, lib.loc=x, de.probabilities=de.probs,
+      a.sim <- SimulateGroups(splatter.params=splatter.params, seed=seed, n.cells=n.cells, n.genes=n.genes, lib.loc=x, de.probabilities=de.probs,
                               group.prob=group.probs); return(a.sim)}, cl=n.cl.sim)
   }
 
@@ -151,7 +151,7 @@ MakeSimPerFactor <- function(factor.vec, n.cells=500, seed, lib.loc=8, n.genes=1
   return(return.value)
 }
 
-appendDelevel <- function(annot, de.probs){
+appendDelevel <- function(annot, de.probs){ # not sure what this is for
   if (is.null(names(de.probs))){
     de.level.vec <- c('ref', de.probs[2:length(de.probs)])
   } else {
@@ -163,13 +163,16 @@ appendDelevel <- function(annot, de.probs){
   return(annot)
 }
 
-MakeSimsPerSeed <- function(seed, factor.vec, de.probs, factor.identity, n.cl.sim){
-  sims <- MakeSimPerFactor(factor.vec, de.probs=de.probs, seed=seed, factor.identity=factor.identity, n.cl.sim=n.cl.sim)
+MakeSimsPerSeed <- function(seed, splatter.params, factor.vec, de.probs, factor.identity, n.cl.sim){
+  sims <- MakeSimPerFactor(splatter.params=splatter.params, factor.vec, de.probs=de.probs, seed=seed,
+                           factor.identity=factor.identity, n.cl.sim=n.cl.sim)
   return(sims)
 }
 
-MakeSimsAllSeeds <- function(seed.vec, factor.vec, de.probs, factor.identity, make.p2=T, n.cl.tsne=30, n.cl.sim=NULL){
-  sims.per.seed <- seed.vec %>% lapply(MakeSimsPerSeed, factor.vec, de.probs, factor.identity, n.cl.sim=n.cl.sim)
+MakeSimsAllSeeds <- function(splatter.params, seed.vec, factor.vec, de.probs, factor.identity, make.p2=T, n.cl.tsne=30,
+                             n.cl.sim=NULL){
+  sims.per.seed <- seed.vec %>% lapply(MakeSimsPerSeed, splatter.params, factor.vec, de.probs, factor.identity,
+                                       n.cl.sim=n.cl.sim)
   names(sims.per.seed) <- seed.vec
   if (make.p2) {
     sims.per.seed <- sims.per.seed %>% lapply(MakeP2PerSeed, n.cl.tsne=n.cl.tsne)
@@ -182,7 +185,7 @@ MakeP2PerSeed <- function(cms.anns.list, n.cl.tsne){
   return(list(p2s=p2s, annots=cms.anns.list$annots, rowdatas=cms.anns.list$rowdatas))
 }
 
-annotSubtypeCondition <- function(simannot, arrange.factor){
+annotSubtypeCondition <- function(simannot, arrange.factor){ # olde function
   simannot$ngenes <- as.numeric(simannot$ngenes)
   simannot$group <- as.numeric(simannot$group)
   simannot$lib.loc <- as.numeric(simannot$lib.loc)
@@ -210,7 +213,7 @@ annotSubtypeCondition <- function(simannot, arrange.factor){
   return(simannot)
 }
 
-MakeSimRepPaga <- function(rep.annot, rep.cm, varied.factor, n.odgenes=3000, embedding.type=NULL) {
+MakeSimRepPaga <- function(rep.annot, rep.cm, varied.factor, n.odgenes=3000, embedding.type=NULL) { # olde function
   if (class(rep.cm)!='Pagoda2') {
     rep.cm <- rep.cm[rep.annot$cellid, ]
     rep.annot$Cell <- rep.annot$Cell %>% as.character
@@ -240,7 +243,7 @@ MakeSimRepPaga <- function(rep.annot, rep.cm, varied.factor, n.odgenes=3000, emb
   return(paga.df.batch)
 }
 
-ProcessGeneSim <- function(genesim, gene.name.vec){
+ProcessGeneSim <- function(genesim, gene.name.vec){ # OLDE
   annot <- do.call(rbind, genesim %>% lapply(function(x){x$sim.annot}))
   cms <- genesim %>% lapply(function(x){x$cm})
   cms <- cms %>% lapply(Matrix::t) %>% lapply(PadGenesRows, gene.name.vec) %>% lapply(Matrix::t)
@@ -249,7 +252,7 @@ ProcessGeneSim <- function(genesim, gene.name.vec){
   return(list(cm=cmbound, annot=annot))
 }
 
-performDistance <- function(subtype.vector, cellid.vector, condition.vector, count.matrix, genes){
+performDistance <- function(subtype.vector, cellid.vector, condition.vector, count.matrix, genes){ # olde
   sub.mats <- GetSubMatrices(subtype.vector, cellid.vector, condition.vector, count.matrix, genes, avg=T)
   corr.dists <- Map(function(x,y){1-cor(x,y)}, sub.mats[[1]], sub.mats[[2]])
   names(corr.dists) <- names(sub.mats[[1]])
@@ -263,7 +266,7 @@ ExtendFactorAnnot <- function(factor.annot, factor.name=NULL, factor.class=NULL,
   #factor.annot %<>% dplyr::mutate(de.level=de.switch[factor.annot$Group],
                                   #factor.name=as.numeric(rep(factor.name, nrow(factor.annot))))
   #factor.annot %<>% dplyr::rename(!!factor.class:=factor.name)
-  return(factor.annot)
+  return(factor.annot) # Think I used this for older iterations, prolly just ignore it
 }
 
 SimPaga3 <- function(factor.cm, factor.annot.extended, factor.iteration, factor.identity, static.factors=NULL, return.p2=F){
@@ -580,7 +583,7 @@ doKnnCor <- function(list.p2.anns, factor.identity, avg.meds=T, get.medians=F){
   return(z.df.bound)
 }
 
-NormalizedRelativeEntropy_bk <- function(p2, annot, leiden.resolution, factor.identity, cl.subgraph=NULL){
+NormalizedRelativeEntropy_bk <- function(p2, annot, leiden.resolution, factor.identity, cl.subgraph=NULL){ # olde
   factor.iteration <- annot[[factor.identity]] %>% unique
   annot <- ExtendFactorAnnot(annot, factor.iteration, factor.identity)
   annot.splits <- annot %>% split(annot$de.level)
@@ -907,7 +910,8 @@ PlotsPerFactor <- function(dfs.per.factor, alpha, jitter=F, geom.smooth=T, is.en
     }, ., factor.identities)
   } else if (is.entropy) {
     split.by.resolution <- dfs.per.factor %>% lapply(function(x){split(x, x$leiden.resolution)})
-    idents.for.resolutions <- factor.identities %>% lapply(rep,4)
+    n.resolutions <- split.by.resolution[[1]] %>% length
+    idents.for.resolutions <- factor.identities %>% lapply(rep,2)
     EntropyPlot <- function(x, factor.identity){
       vars <- colnames(x)
       which.res <- x$leiden.resolution %>% unique
@@ -1059,7 +1063,8 @@ LFCperFactor <- function(p2s.annots.rowdatas, factor.class, use.raw.cm=F, ...){
 }
 
 LFC <- function(cm, annot, gene.data, factor.iteration, factor.class, use.raw.gene.de=F, use.non.de=F, use.only.de=F){
-  de.factors <- gene.data[5:10]
+  n.grps <- annot$group %>% unique %>% length
+  de.factors <- gene.data[, 5:(4+n.grps)]
   names(de.factors) <- gsub('DEFac', '', names(de.factors))
   de.switch <- setNames(annot$de.level %>% unique, annot$de.level %>% names %>% unique)
   names(de.factors) <- de.switch[names(de.factors)]
