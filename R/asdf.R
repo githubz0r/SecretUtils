@@ -187,7 +187,7 @@ GetAllProbs <- function(annotation, rbound.panel, samp.col, sub.col, cellid.col,
   prob.dist <- first.split %>% lapply(GetSampProbs, rbound.panel, genes, cellid.col, pseudo.count)
 }
 
-GetSubMatricesOld <- function(list.of.cats, rbound.panel, genes, cellid.col, avg=F) {
+GetSubMatricesOld <- function(list.of.cats, rbound.panel, genes, cellid.col, avg=F) { # OLD
   exps.list <- list.of.cats %>% lapply(function(x){rbound.panel[x[,cellid.col], genes]})
   if (avg){
     return(exps.list %>% lapply(GetColMeans))
@@ -196,7 +196,7 @@ GetSubMatricesOld <- function(list.of.cats, rbound.panel, genes, cellid.col, avg
   }
 }
 
-GetSubMatrices <- function(subtype.vector, cellid.vector, condition.vector, count.matrix, genes, avg=T) {
+GetSubMatrices <- function(subtype.vector, cellid.vector, condition.vector, count.matrix, genes, avg=T) { # OLD
   sub.cell.df <- dplyr::bind_cols(subtype.vector=subtype.vector, cellid.vector=cellid.vector)
   condition.split <- split(sub.cell.df, condition.vector)
   subtype.splits <- condition.split %>% lapply(function(x){split(x, x$subtype.vector)})
@@ -347,7 +347,7 @@ FractionalChanges <- function(annotation, patient.col, subtype.col, condition.co
   return(freq.df)
 }
 
-GetSubMatsList <- function(list.of.annots, rbound.panel, list.of.genes, cellid.col) {
+GetSubMatsList <- function(list.of.annots, rbound.panel, list.of.genes, cellid.col) { # OLD
   GetMat <- function(sub.annot, genes, rbound.panel, cellid.col) {
     cellids <- sub.annot[, cellid.col]
     return(rbound.panel[cellids, genes])
@@ -412,20 +412,31 @@ isNeg <- function(x){
 }
 
 GetSubMats <- function(count.matrix, cellid.vector, subtype.vector, condition.vector, genes=NULL, avg=T, sum=F,
-                       normalize=F, pseudo.prob=0){
+                       normalize=F, pseudo.prob=0, verbose=T){
   bound.annot <- dplyr::bind_cols(cellid=cellid.vector, subtype=subtype.vector, condition=condition.vector)
-  condition.split <- bound.annot %>% split(bound.annot$condition)
+  check.subs <- bound.annot %$% split(condition, subtype) %>% lapply(unique)
+  has.all <- check.subs[which(check.subs %>%
+                                lapply(function(x){length(x)>length(condition.vector %>% unique)-1}) %>% unlist)] %>% names
+  missing.some <- setdiff(annot$subtype %>% unique, has.all)
+  bound.annot <- bound.annot[bound.annot$subtype %in% has.all, ]
+  if (verbose){
+    if(!purrr::is_empty(missing.some)){
+      message("Subtypes ", paste0(missing.some), " not in all conditions, skipping.")
+    }
+  }
+  condition.split <- bound.annot %>% split(bound.annot$condition, drop=T)
   sub.cms.split <- condition.split %>% lapply(function(x){
-    sub.split <- x %>% split(x$subtype)
+    sub.split <- x %>% split(x$subtype, drop=T)
     if (!is.null(genes)){
       cms <- sub.split %>% lapply(function(x){count.matrix[x$cellid, genes]})
     } else {
       cms <- sub.split %>% lapply(function(x){count.matrix[x$cellid, ]})
     }
+    cms <- cms %>% lapply(function(x){if(is.null(dim(x))){as.matrix(x)} else{x}})
     if (avg){
       values <- cms %>% lapply(Matrix::colMeans)
     } else if (sum) {
-      values <- cms %>% lapply(Matrix::colSums)
+      values <- cms %>% lapply(Matrix::colMeans)
     } else {
       values <- cms
     }
@@ -438,4 +449,41 @@ GetSubMats <- function(count.matrix, cellid.vector, subtype.vector, condition.ve
     }
     return(values)
   })
+}
+
+PerturbedGeneCorrelations <- function(cms, cellid.vec, celltype.vec, condition.vec, perturb.reps=5, do.pca=F){
+  annotation <- dplyr::bind_cols(cellid=cellid.vec, celltype=celltype.vec, condition=condition.vec)
+  fcs <- c(0.5, 2, 1)
+  fc.vec <- rep(fcs, ncol(cms[[1]])*c(0.15,0.15,0.7))
+  fc.vec.randomizations <- replicate(perturb.reps, list(sample(fc.vec)))
+  PerturbCounts <- function(cm, fc.vector){
+    cm %>% apply(1, function(cell.vec){cell.vec*fc.vector}) %>% Matrix::t()
+  }
+  dfs <- fc.vec.randomizations %>% lapply(function(fc.vec.iteration){
+    repped.fc <- rep(list(fc.vec.iteration), length(cms)) # to have the same lfc multiplier for all subtypes
+    cms.pseudo.diseased <- Map(PerturbCounts, cms, repped.fc)
+    annot.pseudo <- annotation
+    annot.pseudo$cellid %<>% sapply(function(x){paste0(x,"+pseudo")}) %>% unname
+    annot.pseudo$condition <- rep('pseudo', nrow(annot.pseudo))
+    cm.pseudo.bound <- do.call(rbind, cms.pseudo.diseased)
+    new.rownames <- rownames(cm.pseudo.bound) %>% sapply(function(x){paste0(x,"+pseudo")}) %>% unname
+    rownames(cm.pseudo.bound) <- new.rownames
+    new.annot <- rbind(annotation, annot.pseudo)
+    new.cm <- rbind(do.call(rbind, cms), cm.pseudo.bound)
+    if (do.pca) {
+      pca.pseudo <- prcomp_irlba(new.cm, n=100)
+      pca.cm.pseudo <- pca.pseudo$x
+      rownames(pca.cm.pseudo) <- rownames(new.cm)
+      new.cm <- pca.cm.pseudo
+    }
+    vecs.sub.pseudo <- GetSubMats(new.cm, new.annot$cellid, new.annot$celltype, new.annot$condition)
+
+    cor.res.pseudo <- Map(function(x,y){1-cor(x,y)}, vecs.sub.pseudo[[1]], vecs.sub.pseudo[[2]])
+
+    plot.df <- cor.res.pseudo %>% as.data.frame %>% gather(key=celltype, value=correlation.distance)
+    plot.df$celltype <- gsub('\\.', '/', plot.df$celltype) # annoying fucking dot that gets put in instead of the slash
+    plot.df %<>% mutate(ncell=table(annotation$celltype)[plot.df$celltype] %>% as.numeric())
+    return(plot.df)
+  })
+  return(dplyr::bind_rows(dfs))
 }
