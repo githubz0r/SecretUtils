@@ -1,13 +1,13 @@
 ---
-title: "mouse_alzheimer_annotating"
+title: "mouse_alzheimer_analysis"
 author: "githubz0r"
 date: "2019-06-6"
 output: workflowr::wflow_html
 ---
 
-Load conos, pagoda2 and fuck.
+Load conos, pagoda2 and SecretUtils etc.
 
-```{r}
+```{r, message=F}
 library(conos)
 library(tidyverse)
 devtools::load_all('/home/larsc/SecretUtils')
@@ -20,7 +20,7 @@ mouse_annot$subtype_condition <- paste0(mouse_annot$celltype, '.', mouse_annot$c
 ```
 
 load conos object
-```{r}
+```{r, message=F}
 mouse_con <- readRDS('/home/larsc/data/mouse_alzheimer/mouse_alzheimers_conos_procced_graphed.rds')
 ```
 
@@ -31,7 +31,7 @@ rbound_panel <- RbindPanel(mouse_con)
 rbound_panel <- rbound_panel[order(rbound_panel %>% rownames),]
 ```
 
-Make groups for plotting
+Make groups for colorful tsne plots of the dataset
 ```{r}
 nr_annot <- setNames(mouse_annot$mouse_nr, mouse_annot$Well_ID)
 batch_annot <- setNames(mouse_annot$Amp_batch_ID, mouse_annot$Well_ID)
@@ -61,18 +61,32 @@ subtype_split <- state_split %>% lapply(function(x){split(x, x$celltype, drop=TR
 ```
 
 
-Jensen Shannon, overall (microglia has by far the most cells so this will heavily skew the result due to dropout)
+Jensen Shannon between AD and WT, overall (microglia has by far the most cells so this will heavily skew the result due to dropout)
 ```{r}
-wt_probs <- subtype_split$WT %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 1, pseudo.count=10^(-8))
-ad_probs <- subtype_split$AD %>% GetSampProbs(rbound_panel, od_genes, cellid.col = 1, pseudo.count=10^(-8))
+sub_mats_probs <- SecretUtils::GetSubMats(rbound_panel, mouse_annot$Well_ID, mouse_annot$celltype, mouse_annot$condition, 
+                                          normalize=T, pseudo.prob=10^-8)
 
-all_dists <- Map(JensenShannon, wt_probs, ad_probs) %>% as_tibble
+all_dists <- Map(JensenShannon, sub_mats_probs$AD, sub_mats_probs$WT) %>% as_tibble
 all_dists_gathered <- gather(all_dists, key=subtype, value=js_distance)
 ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) +geom_bar(stat='identity') +
   theme(axis.text.x = element_text(angle = -90, hjust = 1))
 ```
 
-PCA for correlation
+
+
+Violins plots of between condition distances(slightly older function, hence some not ideal practices regarding input variables, but gets the job done).
+```{r}
+wtcellprobs <- IndividualCellProbs(state_split$WT, rbound_panel, 1, 7, 100, od_genes, 10^(-8))
+adcellprobs <- IndividualCellProbs(state_split$AD, rbound_panel, 1, 7, 100, od_genes, 10^(-8))
+all_singlecell_dists <- Map(CalculateAllJSD, wtcellprobs, adcellprobs)
+all_sc_dists <- all_singlecell_dists %>% as_tibble
+all_scd_gathered <- gather(all_sc_dists, key=subtype, value=jsd)
+ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))
+```
+
+
+PCA for correlation (correlation is very biased in gene expression space)
 ```{r}
 pca_cm <- prcomp_irlba(rbound_panel[, od_genes],n=100)
 pca_cmat <- pca_cm$x
@@ -80,41 +94,39 @@ rownames(pca_cmat) <- rownames(rbound_panel)
 pca_genes <- colnames(pca_cmat)
 ```
 
+
 ```{r}
-wt_vecs <- subtype_split$WT %>% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 1, avg=T)
-ad_vecs <- subtype_split$AD %>% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 1, avg=T)
+sub_mats_pca <- SecretUtils::GetSubMats(pca_cmat, mouse_annot$Well_ID, mouse_annot$celltype, mouse_annot$condition)
 
-#ad_vecs <- subtype_split$AD %>% GetSampProbs(pca_cmat, pca_genes, cellid.col = 1, pseudo.count=0) # remember sign
-#wt_vecs <- subtype_split$WT %>% GetSampProbs(pca_cmat, pca_genes, cellid.col = 1, pseudo.count=0)
-
-all_dists <- Map(function(x,y){1-cor(x,y)}, wt_vecs, ad_vecs) %>% as_tibble
-all_dists_gathered <- gather(all_dists, key=subtype, value=corcomplement)
-ggplot(all_dists_gathered, aes(y=corcomplement, x=subtype)) +geom_bar(stat='identity') +
+all_dists <- Map(function(x,y){1-cor(x,y)}, sub_mats_pca$AD, sub_mats_pca$WT) %>% as_tibble
+all_dists_gathered <- gather(all_dists, key=subtype, value=correlation.distance)
+ggplot(all_dists_gathered, aes(y=correlation.distance, x=subtype)) +geom_bar(stat='identity') +
   theme(axis.text.x = element_text(angle = -90, hjust = 1))
 ```
-Fractional plot
+
+Plot showing which fractions belong to which celltype for the corresponding conditions.
 ```{r}
 FractionalPlot(mouse_annot$mouse_nr, mouse_annot$celltype, mouse_annot$condition)
 ```
 
-PAGA
-```{r}
-conos_distances <- Matrix::readMM('/home/larsc/data/mouse_alzheimer/for_paga/graph_distances.mtx')
-mouse_annot$subtype_sample <- paste(mouse_annot$celltype, mouse_annot$mouse_nr, sep='-')
 
-mem_levels <- factor(mouse_annot$subtype_sample) %>% levels
+PAGA using unaligned graph (KNN graph where edges are correlation distance in PCA space). Small value = less connected, i.e. a similarity metric, not distance.
+Note that in general we do not trust the PAGA metric as unbiased, see the simulation plots.
+```{r}
+raw_mouse <- RbindRaw(mouse_con)
+mouse_unaligned_adj <- GenerateUnalignedAdj(raw_mouse, cellid.vector=mouse_annot$Well_ID)[mouse_annot$Well_ID, mouse_annot$Well_ID]
+
 subtype_order <- (paste0(mouse_annot$celltype) %>% unique)[order(paste0(mouse_annot$celltype) %>% unique)]
 membership_vec <- as.numeric(factor(mouse_annot$subtype_condition))
-membership_levels <- factor(mouse_annot$subtype_sample) %>% levels
-membership_vec_subsamp <- as.numeric(factor(mouse_annot$subtype_sample))
 ```
 
 ```{r}
-connectivities <- GetPagaMatrix(conos_distances, membership_vec, scale=F)
+connectivities <- GetPagaMatrix(mouse_unaligned_adj, membership_vec, scale=F)
 linearized_stats <- seq(1, dim(connectivities)[1], 2) %>% sapply(function(i){connectivities[i,i+1]})
 
 paga_df <- bind_cols(value=linearized_stats, subtype=subtype_order)
-ggplot(paga_df, aes(y=-linearized_stats, x=subtype)) +geom_point()+
+ggplot(paga_df, aes(y=linearized_stats, x=subtype)) +geom_point()+
   theme(axis.text.x = element_text(angle = -90, hjust = 1))
 ```
+
 
