@@ -12,7 +12,7 @@
 <meta name="author" content="githubz0r" />
 
 
-<title>mouse_alzheimer_annotating</title>
+<title>mouse_alzheimer_analysis</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -419,7 +419,7 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">mouse_alzheimer_annotating</h1>
+<h1 class="title toc-ignore">mouse_alzheimer_analysis</h1>
 <h4 class="author">githubz0r</h4>
 <h4 class="date">2019-06-6</h4>
 
@@ -446,7 +446,7 @@ div.section {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2019-06-06
+<strong>Last updated:</strong> 2020-07-03
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -525,10 +525,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree056d84988ab6a9c252deeb33fbfa08d678b27ea1targetblank056d849a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/056d84988ab6a9c252deeb33fbfa08d678b27ea1" target="_blank">056d849</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreeb7acbc7a3d6d68bfb13fe60adc37e581b04e45f6targetblankb7acbc7a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/b7acbc7a3d6d68bfb13fe60adc37e581b04e45f6" target="_blank">b7acbc7</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstree056d84988ab6a9c252deeb33fbfa08d678b27ea1targetblank056d849a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreeb7acbc7a3d6d68bfb13fe60adc37e581b04e45f6targetblankb7acbc7a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -540,11 +540,25 @@ Ignored files:
 
 Untracked files:
     Untracked:  .Rbuildignore
+    Untracked:  R/asdf_bk
     Untracked:  R/hello.R
+    Untracked:  R_bk/
+    Untracked:  analysis/eps_joint_all.bmp
+    Untracked:  analysis/grid_of_grids.pdf
     Untracked:  analysis/make_scanpy_viktor.R
+    Untracked:  analysis/morphine.Rmd
     Untracked:  analysis/mouse_alzheimer_annotating.Rmd
     Untracked:  analysis/mouse_alzheimer_preproc.Rmd
     Untracked:  analysis/paga.Rmd
+    Untracked:  analysis/paga3.Rmd
+    Untracked:  analysis/pca_dependency.Rmd
+    Untracked:  analysis/simulate_data.Rmd
+    Untracked:  analysis/simulate_data2.Rmd
+    Untracked:  analysis/simulate_data3.Rmd
+    Untracked:  analysis/simulations_plots3_bk.Rmd
+    Untracked:  analysis/simulations_plots4.Rmd
+    Untracked:  analysis/simulations_plots5_bk.Rmd
+    Untracked:  analysis/simulations_plots6.Rmd
     Untracked:  analysis/subtype_distances.Rmd
     Untracked:  analysis/subtype_distances2.Rmd
     Untracked:  analysis/subtype_distances4.Rmd
@@ -556,11 +570,18 @@ Untracked files:
     Untracked:  man/
 
 Unstaged changes:
-    Modified:   DESCRIPTION
     Modified:   R/asdf.R
-    Modified:   R/peter_code_utils.R
     Modified:   analysis/correlation_stuff.Rmd
+    Modified:   analysis/jensen_shannon_stuff.Rmd
     Modified:   analysis/misc_metrics.Rmd
+    Modified:   analysis/paga2.Rmd
+    Modified:   analysis/paga_analyses.Rmd
+    Modified:   analysis/pancreas_indrop.Rmd
+    Modified:   analysis/sanity_check.Rmd
+    Modified:   analysis/simulations_plots.Rmd
+    Modified:   analysis/simulations_plots3.Rmd
+    Modified:   analysis/simulations_plots5.Rmd
+    Modified:   analysis/simulations_plots_intro.Rmd
     Modified:   analysis/subtype_distances3.Rmd
     Modified:   analysis/transmute_code_eps.Rmd
     Modified:   analysis/transmute_code_eps_2.Rmd
@@ -608,6 +629,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/b7acbc7a3d6d68bfb13fe60adc37e581b04e45f6/analysis/mouse_alzheimer_analysis.Rmd" target="_blank">b7acbc7</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2020-07-03
+</td>
+<td>
+update the script a bit
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/githubz0r/SecretUtils/0c4c36721d481be27a01b9a491e0a7e7716d04b7/docs/mouse_alzheimer_analysis.html" target="_blank">0c4c367</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/githubz0r/SecretUtils/blob/056d84988ab6a9c252deeb33fbfa08d678b27ea1/analysis/mouse_alzheimer_analysis.Rmd" target="_blank">056d849</a>
 </td>
 <td>
@@ -627,53 +682,12 @@ some new plots
 </div>
 </div>
 </div>
-<p>Load conos, pagoda2 and fuck.</p>
-<pre class="r"><code>library(conos)</code></pre>
-<pre><code>Loading required package: Matrix</code></pre>
-<pre><code>Loading required package: igraph</code></pre>
-<pre><code>
-Attaching package: &#39;igraph&#39;</code></pre>
-<pre><code>The following objects are masked from &#39;package:stats&#39;:
-
-    decompose, spectrum</code></pre>
-<pre><code>The following object is masked from &#39;package:base&#39;:
-
-    union</code></pre>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>── Attaching packages ────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
-<pre><code>✔ ggplot2 3.1.1     ✔ purrr   0.3.2
-✔ tibble  2.1.2     ✔ dplyr   0.8.1
-✔ tidyr   0.8.3     ✔ stringr 1.4.0
-✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::as_data_frame() masks tibble::as_data_frame(), igraph::as_data_frame()
-✖ purrr::compose()       masks igraph::compose()
-✖ tidyr::crossing()      masks igraph::crossing()
-✖ tidyr::expand()        masks Matrix::expand()
-✖ dplyr::filter()        masks stats::filter()
-✖ dplyr::groups()        masks igraph::groups()
-✖ dplyr::lag()           masks stats::lag()
-✖ purrr::simplify()      masks igraph::simplify()</code></pre>
-<pre class="r"><code>devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)</code></pre>
-<pre><code>Loading SecretUtils</code></pre>
-<pre><code>Loading required package: magrittr</code></pre>
-<pre><code>
-Attaching package: &#39;magrittr&#39;</code></pre>
-<pre><code>The following object is masked from &#39;package:purrr&#39;:
-
-    set_names</code></pre>
-<pre><code>The following object is masked from &#39;package:tidyr&#39;:
-
-    extract</code></pre>
-<pre><code>Loading required package: reshape2</code></pre>
-<pre><code>
-Attaching package: &#39;reshape2&#39;</code></pre>
-<pre><code>The following object is masked from &#39;package:tidyr&#39;:
-
-    smiths</code></pre>
-<pre class="r"><code>require(pagoda2)</code></pre>
-<pre><code>Loading required package: pagoda2</code></pre>
-<pre class="r"><code>library(pheatmap)
+<p>Load conos, pagoda2 and SecretUtils etc.</p>
+<pre class="r"><code>library(conos)
+library(tidyverse)
+devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)
+require(pagoda2)
+library(pheatmap)
 library(irlba)
 library(igraph)
 mouse_annot &lt;- read.csv(file.path(&#39;/home/larsc/data/mouse_alzheimer/mouse_alzheimers_annotation_filtered_subtypes.csv&#39;))
@@ -684,7 +698,7 @@ mouse_annot$subtype_condition &lt;- paste0(mouse_annot$celltype, &#39;.&#39;, mo
 <pre class="r"><code>rbound_panel &lt;- RbindPanel(mouse_con)
 # sorting it just in case
 rbound_panel &lt;- rbound_panel[order(rbound_panel %&gt;% rownames),]</code></pre>
-<p>Make groups for plotting</p>
+<p>Make groups for colorful tsne plots of the dataset</p>
 <pre class="r"><code>nr_annot &lt;- setNames(mouse_annot$mouse_nr, mouse_annot$Well_ID)
 batch_annot &lt;- setNames(mouse_annot$Amp_batch_ID, mouse_annot$Well_ID)
 condition_annot &lt;- setNames(mouse_annot$condition, mouse_annot$Well_ID)
@@ -703,59 +717,286 @@ AD6m_mouse1 AD6m_mouse2 AD6m_mouse3 WT6m_mouse1 WT6m_mouse2 WT6m_mouse3
 <p>Plot graph with different annotations</p>
 <pre class="r"><code>mouse_con$plotGraph(groups=condition_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)</code></pre>
 <p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
+Past versions of unnamed-chunk-6-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/0c4c36721d481be27a01b9a491e0a7e7716d04b7/docs/figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-6-1.png" target="_blank">0c4c367</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>mouse_con$plotGraph(groups=celltype_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)</code></pre>
 <p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-2">
+Past versions of unnamed-chunk-6-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/0c4c36721d481be27a01b9a491e0a7e7716d04b7/docs/figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-6-2.png" target="_blank">0c4c367</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>mouse_con$plotGraph(groups=sub_cond_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)</code></pre>
 <p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-6-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-3">
+Past versions of unnamed-chunk-6-3.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/0c4c36721d481be27a01b9a491e0a7e7716d04b7/docs/figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-6-3.png" target="_blank">0c4c367</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>mouse_con$plotGraph(groups=nr_annot, font.size=3, size=0.3, alpha=0.3, show.legend=T)</code></pre>
 <p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-6-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-4">
+Past versions of unnamed-chunk-6-4.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-6-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/0c4c36721d481be27a01b9a491e0a7e7716d04b7/docs/figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-6-4.png" target="_blank">0c4c367</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Initiate some variables</p>
 <pre class="r"><code>od_genes = conos:::getOdGenesUniformly(mouse_con$samples, 3000)
 state_split &lt;- split(mouse_annot, mouse_annot$condition, drop=TRUE)
 subtype_split &lt;- state_split %&gt;% lapply(function(x){split(x, x$celltype, drop=TRUE)})</code></pre>
-<p>Jensen Shannon, overall (microglia has by far the most cells so this will heavily skew the result due to dropout)</p>
-<pre class="r"><code>wt_probs &lt;- subtype_split$WT %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 1, pseudo.count=10^(-8))
-ad_probs &lt;- subtype_split$AD %&gt;% GetSampProbs(rbound_panel, od_genes, cellid.col = 1, pseudo.count=10^(-8))
+<p>Jensen Shannon between AD and WT, overall (microglia has by far the most cells so this will heavily skew the result due to dropout)</p>
+<pre class="r"><code>sub_mats_probs &lt;- SecretUtils::GetSubMats(rbound_panel, mouse_annot$Well_ID, mouse_annot$celltype, mouse_annot$condition, 
+                                          normalize=T, pseudo.prob=10^-8)
 
-all_dists &lt;- Map(JensenShannon, wt_probs, ad_probs) %&gt;% as_tibble
+all_dists &lt;- Map(JensenShannon, sub_mats_probs$AD, sub_mats_probs$WT) %&gt;% as_tibble
 all_dists_gathered &lt;- gather(all_dists, key=subtype, value=js_distance)
 ggplot(all_dists_gathered, aes(y=js_distance, x=subtype)) +geom_bar(stat=&#39;identity&#39;) +
   theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
 <p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>PCA for correlation</p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
+Past versions of unnamed-chunk-8-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-8-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/0c4c36721d481be27a01b9a491e0a7e7716d04b7/docs/figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-8-1.png" target="_blank">0c4c367</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Violins plots of between condition distances(slightly older function, hence some not ideal practices regarding input variables, but gets the job done).</p>
+<pre class="r"><code>wtcellprobs &lt;- IndividualCellProbs(state_split$WT, rbound_panel, 1, 7, 100, od_genes, 10^(-8))
+adcellprobs &lt;- IndividualCellProbs(state_split$AD, rbound_panel, 1, 7, 100, od_genes, 10^(-8))
+all_singlecell_dists &lt;- Map(CalculateAllJSD, wtcellprobs, adcellprobs)
+all_sc_dists &lt;- all_singlecell_dists %&gt;% as_tibble
+all_scd_gathered &lt;- gather(all_sc_dists, key=subtype, value=jsd)
+ggplot(all_scd_gathered, aes(y=jsd, x=subtype)) + geom_violin(aes(col=subtype))+
+  theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
+<p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>PCA for correlation (correlation is very biased in gene expression space)</p>
 <pre class="r"><code>pca_cm &lt;- prcomp_irlba(rbound_panel[, od_genes],n=100)
 pca_cmat &lt;- pca_cm$x
 rownames(pca_cmat) &lt;- rownames(rbound_panel)
 pca_genes &lt;- colnames(pca_cmat)</code></pre>
-<pre class="r"><code>wt_vecs &lt;- subtype_split$WT %&gt;% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 1, avg=T)
-ad_vecs &lt;- subtype_split$AD %&gt;% GetSubMatrices(pca_cmat, pca_genes, cellid.col = 1, avg=T)
+<pre class="r"><code>sub_mats_pca &lt;- SecretUtils::GetSubMats(pca_cmat, mouse_annot$Well_ID, mouse_annot$celltype, mouse_annot$condition)
 
-#ad_vecs &lt;- subtype_split$AD %&gt;% GetSampProbs(pca_cmat, pca_genes, cellid.col = 1, pseudo.count=0) # remember sign
-#wt_vecs &lt;- subtype_split$WT %&gt;% GetSampProbs(pca_cmat, pca_genes, cellid.col = 1, pseudo.count=0)
-
-all_dists &lt;- Map(function(x,y){1-cor(x,y)}, wt_vecs, ad_vecs) %&gt;% as_tibble
-all_dists_gathered &lt;- gather(all_dists, key=subtype, value=corcomplement)
-ggplot(all_dists_gathered, aes(y=corcomplement, x=subtype)) +geom_bar(stat=&#39;identity&#39;) +
+all_dists &lt;- Map(function(x,y){1-cor(x,y)}, sub_mats_pca$AD, sub_mats_pca$WT) %&gt;% as_tibble
+all_dists_gathered &lt;- gather(all_dists, key=subtype, value=correlation.distance)
+ggplot(all_dists_gathered, aes(y=correlation.distance, x=subtype)) +geom_bar(stat=&#39;identity&#39;) +
   theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
-<p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /> Fractional plot</p>
-<pre class="r"><code>FractionalPlot(mouse_annot$mouse_nr, mouse_annot$celltype, mouse_annot$condition)</code></pre>
 <p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>PAGA</p>
-<pre class="r"><code>conos_distances &lt;- Matrix::readMM(&#39;/home/larsc/data/mouse_alzheimer/for_paga/graph_distances.mtx&#39;)
-mouse_annot$subtype_sample &lt;- paste(mouse_annot$celltype, mouse_annot$mouse_nr, sep=&#39;-&#39;)
-
-mem_levels &lt;- factor(mouse_annot$subtype_sample) %&gt;% levels
-subtype_order &lt;- (paste0(mouse_annot$celltype) %&gt;% unique)[order(paste0(mouse_annot$celltype) %&gt;% unique)]
-membership_vec &lt;- as.numeric(factor(mouse_annot$subtype_condition))
-membership_levels &lt;- factor(mouse_annot$subtype_sample) %&gt;% levels
-membership_vec_subsamp &lt;- as.numeric(factor(mouse_annot$subtype_sample))</code></pre>
-<pre class="r"><code>connectivities &lt;- GetPagaMatrix(conos_distances, membership_vec, scale=F)
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-11-1">
+Past versions of unnamed-chunk-11-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-11-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/0c4c36721d481be27a01b9a491e0a7e7716d04b7/docs/figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-11-1.png" target="_blank">0c4c367</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2019-06-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Plot showing which fractions belong to which celltype for the corresponding conditions.</p>
+<pre class="r"><code>FractionalPlot(mouse_annot$mouse_nr, mouse_annot$celltype, mouse_annot$condition)</code></pre>
+<p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>PAGA using unaligned graph (KNN graph where edges are correlation distance in PCA space). Small value = less connected, i.e. a similarity metric, not distance. Note that in general we do not trust the PAGA metric as unbiased, see the simulation plots.</p>
+<pre class="r"><code>raw_mouse &lt;- RbindRaw(mouse_con)
+mouse_unaligned_adj &lt;- GenerateUnalignedAdj(raw_mouse, cellid.vector=mouse_annot$Well_ID)[mouse_annot$Well_ID, mouse_annot$Well_ID]</code></pre>
+<pre><code>12483 cells, 34016 genes; normalizing ... using plain model winsorizing ... log scale ... done.
+calculating variance fit ... using gam 134 overdispersed genes ... 134 persisting ... done.
+running PCA using 3000 OD genes .... done</code></pre>
+<pre class="r"><code>subtype_order &lt;- (paste0(mouse_annot$celltype) %&gt;% unique)[order(paste0(mouse_annot$celltype) %&gt;% unique)]
+membership_vec &lt;- as.numeric(factor(mouse_annot$subtype_condition))</code></pre>
+<pre class="r"><code>connectivities &lt;- GetPagaMatrix(mouse_unaligned_adj, membership_vec, scale=F)
 linearized_stats &lt;- seq(1, dim(connectivities)[1], 2) %&gt;% sapply(function(i){connectivities[i,i+1]})
 
 paga_df &lt;- bind_cols(value=linearized_stats, subtype=subtype_order)
-ggplot(paga_df, aes(y=-linearized_stats, x=subtype)) +geom_point()+
+ggplot(paga_df, aes(y=linearized_stats, x=subtype)) +geom_point()+
   theme(axis.text.x = element_text(angle = -90, hjust = 1))</code></pre>
-<p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/mouse_alzheimer_analysis.Rmd/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -786,41 +1027,43 @@ attached base packages:
 other attached packages:
  [1] irlba_2.3.3       pheatmap_1.0.12   pagoda2_0.1.0    
  [4] SecretUtils_0.1.0 reshape2_1.4.3    magrittr_1.5     
- [7] forcats_0.4.0     stringr_1.4.0     dplyr_0.8.1      
+ [7] forcats_0.4.0     stringr_1.4.0     dplyr_0.8.3      
 [10] purrr_0.3.2       readr_1.3.1       tidyr_0.8.3      
-[13] tibble_2.1.2      ggplot2_3.1.1     tidyverse_1.2.1  
-[16] conos_1.0.0       igraph_1.2.4      Matrix_1.2-17    
+[13] tibble_2.1.3      ggplot2_3.2.0     tidyverse_1.2.1  
+[16] conos_1.0.0       igraph_1.2.4.1    Matrix_1.2-17    
 
 loaded via a namespace (and not attached):
- [1] nlme_3.1-139       fs_1.3.1           usethis_1.5.0     
- [4] lubridate_1.7.4    devtools_2.0.2     RColorBrewer_1.1-2
- [7] httr_1.4.0         rprojroot_1.3-2    tools_3.5.3       
-[10] backports_1.1.4    R6_2.4.0           lazyeval_0.2.2    
-[13] colorspace_1.4-1   withr_2.1.2        tidyselect_0.2.5  
-[16] gridExtra_2.3      prettyunits_1.0.2  processx_3.3.1    
-[19] compiler_3.5.3     git2r_0.25.2       cli_1.1.0         
-[22] rvest_0.3.4        xml2_1.2.0         desc_1.2.0        
-[25] labeling_0.3       triebeard_0.3.0    scales_1.0.0      
-[28] callr_3.2.0        digest_0.6.18      rmarkdown_1.12    
-[31] base64enc_0.1-3    pkgconfig_2.0.2    htmltools_0.3.6   
-[34] sessioninfo_1.1.1  rlang_0.3.4        readxl_1.3.1      
-[37] rstudioapi_0.10    shiny_1.3.2        generics_0.0.2    
-[40] jsonlite_1.6       dendextend_1.12.0  Rcpp_1.0.1        
-[43] munsell_0.5.0      abind_1.4-5        viridis_0.5.1     
-[46] stringi_1.4.3      whisker_0.3-2      yaml_2.2.0        
-[49] MASS_7.3-51.3      pkgbuild_1.0.3     Rtsne_0.15        
-[52] plyr_1.8.4         grid_3.5.3         ggrepel_0.8.1     
-[55] parallel_3.5.3     promises_1.0.1     crayon_1.3.4      
-[58] lattice_0.20-38    haven_2.1.0        hms_0.4.2         
-[61] knitr_1.22         ps_1.3.0           pillar_1.4.1      
-[64] rjson_0.2.20       pkgload_1.0.2      glue_1.3.1        
-[67] evaluate_0.13      data.table_1.12.2  remotes_2.0.4     
-[70] modelr_0.1.4       urltools_1.7.3     httpuv_1.5.1      
-[73] testthat_2.1.1     cellranger_1.1.0   gtable_0.3.0      
-[76] assertthat_0.2.1   xfun_0.6           mime_0.6          
-[79] xtable_1.8-4       broom_0.5.2        later_0.8.0       
-[82] viridisLite_0.3.0  memoise_1.1.0      workflowr_1.3.0   
-[85] Rook_1.1-1         brew_1.0-6        </code></pre>
+ [1] nlme_3.1-139       matrixStats_0.54.0 fs_1.3.1          
+ [4] usethis_1.5.0      lubridate_1.7.4    devtools_2.0.2    
+ [7] RColorBrewer_1.1-2 httr_1.4.0         rprojroot_1.3-2   
+[10] tools_3.5.3        backports_1.1.4    R6_2.4.0          
+[13] mgcv_1.8-28        lazyeval_0.2.2     colorspace_1.4-1  
+[16] withr_2.1.2        tidyselect_0.2.5   gridExtra_2.3     
+[19] prettyunits_1.0.2  processx_3.3.1     compiler_3.5.3    
+[22] git2r_0.25.2       cli_1.1.0          rvest_0.3.4       
+[25] xml2_1.2.0         desc_1.2.0         labeling_0.3      
+[28] triebeard_0.3.0    scales_1.0.0       callr_3.2.0       
+[31] pbapply_1.4-0      digest_0.6.20      rmarkdown_1.12    
+[34] base64enc_0.1-3    pkgconfig_2.0.2    htmltools_0.3.6   
+[37] sessioninfo_1.1.1  rlang_0.4.0        readxl_1.3.1      
+[40] rstudioapi_0.10    shiny_1.3.2        generics_0.0.2    
+[43] jsonlite_1.6       dendextend_1.12.0  Rcpp_1.0.1        
+[46] munsell_0.5.0      abind_1.4-5        viridis_0.5.1     
+[49] stringi_1.4.3      whisker_0.3-2      yaml_2.2.0        
+[52] MASS_7.3-51.3      pkgbuild_1.0.3     Rtsne_0.15        
+[55] plyr_1.8.4         grid_3.5.3         ggrepel_0.8.1     
+[58] parallel_3.5.3     promises_1.0.1     crayon_1.3.4      
+[61] lattice_0.20-38    splines_3.5.3      haven_2.1.0       
+[64] cowplot_0.9.4      hms_0.4.2          knitr_1.22        
+[67] ps_1.3.0           pillar_1.4.2       rjson_0.2.20      
+[70] pkgload_1.0.2      glue_1.3.1         evaluate_0.13     
+[73] data.table_1.12.2  remotes_2.0.4      modelr_0.1.4      
+[76] urltools_1.7.3     httpuv_1.5.1       testthat_2.1.1    
+[79] cellranger_1.1.0   gtable_0.3.0       assertthat_0.2.1  
+[82] xfun_0.6           mime_0.6           xtable_1.8-4      
+[85] broom_0.5.2        later_0.8.0        viridisLite_0.3.0 
+[88] memoise_1.1.0      Rook_1.1-1         workflowr_1.3.0   
+[91] brew_1.0-6        </code></pre>
 </div>
 
 
