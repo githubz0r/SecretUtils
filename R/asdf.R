@@ -417,7 +417,7 @@ GetSubMats <- function(count.matrix, cellid.vector, subtype.vector, condition.ve
   check.subs <- bound.annot %$% split(condition, subtype) %>% lapply(unique)
   has.all <- check.subs[which(check.subs %>%
                                 lapply(function(x){length(x)>length(condition.vector %>% unique)-1}) %>% unlist)] %>% names
-  missing.some <- setdiff(annot$subtype %>% unique, has.all)
+  missing.some <- setdiff(bound.annot$subtype %>% unique, has.all)
   bound.annot <- bound.annot[bound.annot$subtype %in% has.all, ]
   if (verbose){
     if(!purrr::is_empty(missing.some)){
