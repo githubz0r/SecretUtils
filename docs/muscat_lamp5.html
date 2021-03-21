@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>R Notebook</title>
+
+<script src="site_libs/header-attrs-2.7/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-sm-12 col-md-4 col-lg-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-sm-12 col-md-8 col-lg-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">SecretUtils</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/githubz0r/SecretUtils">
+    <span class="fas fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">R Notebook</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2021-03-21
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>SecretUtils/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20190415code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20190415)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20190415code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20190415)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongabsolute"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>File paths:</strong> absolute </a>
+</p>
+</div>
+<div id="strongFilepathsstrongabsolute" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Using absolute paths to the files within your workflowr project makes it difficult for you and others to run your code on a different machine. Change the absolute path(s) below to the suggested relative path(s) to make your code more reproducible.
+</p>
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th style="text-align:left;">
+absolute
+</th>
+<th style="text-align:left;">
+relative
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+/home/larsc/SecretUtils
+</td>
+<td style="text-align:left;">
+.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreed394136c1ad6acba40f27f64dc8d21bf8ce67bf5targetblankd394136a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/githubz0r/SecretUtils/tree/d394136c1ad6acba40f27f64dc8d21bf8ce67bf5" target="_blank">d394136</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomgithubz0rSecretUtilstreed394136c1ad6acba40f27f64dc8d21bf8ce67bf5targetblankd394136a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/githubz0r/SecretUtils/tree/d394136c1ad6acba40f27f64dc8d21bf8ce67bf5" target="_blank">d394136</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/mouse_alzheimer.nb.html
+    Ignored:    analysis/mouse_alzheimer_preproc.nb.html
+    Ignored:    analysis/muscat_lamp5.nb.html
+    Ignored:    analysis/sanity_check.nb.html
+
+Untracked files:
+    Untracked:  .Rbuildignore
+    Untracked:  R/asdf_bk
+    Untracked:  R/hello.R
+    Untracked:  R_bk/
+    Untracked:  analysis/eps_joint_all.bmp
+    Untracked:  analysis/grid_of_grids.pdf
+    Untracked:  analysis/make_scanpy_viktor.R
+    Untracked:  analysis/morphine.Rmd
+    Untracked:  analysis/mouse_alzheimer_annotating.Rmd
+    Untracked:  analysis/mouse_alzheimer_preproc.Rmd
+    Untracked:  analysis/paga.Rmd
+    Untracked:  analysis/paga3.Rmd
+    Untracked:  analysis/pca_dependency.Rmd
+    Untracked:  analysis/simulate_data.Rmd
+    Untracked:  analysis/simulate_data2.Rmd
+    Untracked:  analysis/simulate_data3.Rmd
+    Untracked:  analysis/simulations_plots3_bk.Rmd
+    Untracked:  analysis/simulations_plots4.Rmd
+    Untracked:  analysis/simulations_plots5_bk.Rmd
+    Untracked:  analysis/simulations_plots6.Rmd
+    Untracked:  analysis/subtype_distances.Rmd
+    Untracked:  analysis/subtype_distances2.Rmd
+    Untracked:  analysis/subtype_distances4.Rmd
+    Untracked:  analysis/subtype_distances_redux.Rmd
+    Untracked:  analysis/subtype_distances_revenge.Rmd
+    Untracked:  analysis/test_output.Rmd
+    Untracked:  analysis/transmute_peters_code.Rmd
+    Untracked:  man/
+    Untracked:  new_dists.Rmd
+    Untracked:  new_dists.nb.html
+    Untracked:  new_dists_bk.Rmd
+
+Unstaged changes:
+    Modified:   R/splatter_utils.R
+    Modified:   analysis/correlation_stuff.Rmd
+    Modified:   analysis/jensen_shannon_stuff.Rmd
+    Modified:   analysis/misc_metrics.Rmd
+    Modified:   analysis/paga2.Rmd
+    Modified:   analysis/paga_analyses.Rmd
+    Modified:   analysis/pancreas_indrop.Rmd
+    Modified:   analysis/sanity_check.Rmd
+    Modified:   analysis/simulations_plots.Rmd
+    Modified:   analysis/simulations_plots3.Rmd
+    Modified:   analysis/simulations_plots5.Rmd
+    Modified:   analysis/simulations_plots_intro.Rmd
+    Modified:   analysis/subtype_distances3.Rmd
+    Modified:   analysis/transmute_code_eps.Rmd
+    Modified:   analysis/transmute_code_eps_2.Rmd
+    Modified:   analysis/visualizations.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/muscat_lamp5.Rmd</code>) and HTML (<code>docs/muscat_lamp5.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/githubz0r/SecretUtils/blob/d394136c1ad6acba40f27f64dc8d21bf8ce67bf5/analysis/muscat_lamp5.Rmd" target="_blank">d394136</a>
+</td>
+<td>
+githubz0r
+</td>
+<td>
+2021-03-21
+</td>
+<td>
+push muscat script
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>library(conos)</code></pre>
+<pre><code>Loading required package: Matrix</code></pre>
+<pre><code>Loading required package: igraph</code></pre>
+<pre><code>
+Attaching package: &#39;igraph&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    decompose, spectrum</code></pre>
+<pre><code>The following object is masked from &#39;package:base&#39;:
+
+    union</code></pre>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+✓ tibble  3.1.0     ✓ dplyr   1.0.5
+✓ tidyr   1.1.3     ✓ stringr 1.4.0
+✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+x dplyr::as_data_frame() masks tibble::as_data_frame(), igraph::as_data_frame()
+x purrr::compose()       masks igraph::compose()
+x tidyr::crossing()      masks igraph::crossing()
+x tidyr::expand()        masks Matrix::expand()
+x dplyr::filter()        masks stats::filter()
+x dplyr::groups()        masks igraph::groups()
+x dplyr::lag()           masks stats::lag()
+x tidyr::pack()          masks Matrix::pack()
+x purrr::simplify()      masks igraph::simplify()
+x tidyr::unpack()        masks Matrix::unpack()</code></pre>
+<pre class="r"><code>library(splatter)</code></pre>
+<pre><code>Loading required package: SingleCellExperiment</code></pre>
+<pre><code>Loading required package: SummarizedExperiment</code></pre>
+<pre><code>Loading required package: MatrixGenerics</code></pre>
+<pre><code>Loading required package: matrixStats</code></pre>
+<pre><code>
+Attaching package: &#39;matrixStats&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:dplyr&#39;:
+
+    count</code></pre>
+<pre><code>
+Attaching package: &#39;MatrixGenerics&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:matrixStats&#39;:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars</code></pre>
+<pre><code>Loading required package: GenomicRanges</code></pre>
+<pre><code>Loading required package: stats4</code></pre>
+<pre><code>Loading required package: BiocGenerics</code></pre>
+<pre><code>Loading required package: parallel</code></pre>
+<pre><code>
+Attaching package: &#39;BiocGenerics&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:parallel&#39;:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB</code></pre>
+<pre><code>The following objects are masked from &#39;package:dplyr&#39;:
+
+    combine, intersect, setdiff, union</code></pre>
+<pre><code>The following objects are masked from &#39;package:igraph&#39;:
+
+    normalize, path, union</code></pre>
+<pre><code>The following objects are masked from &#39;package:stats&#39;:
+
+    IQR, mad, sd, var, xtabs</code></pre>
+<pre><code>The following objects are masked from &#39;package:base&#39;:
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which.max, which.min</code></pre>
+<pre><code>Loading required package: S4Vectors</code></pre>
+<pre><code>
+Attaching package: &#39;S4Vectors&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:dplyr&#39;:
+
+    first, rename</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    expand</code></pre>
+<pre><code>The following object is masked from &#39;package:Matrix&#39;:
+
+    expand</code></pre>
+<pre><code>The following object is masked from &#39;package:base&#39;:
+
+    expand.grid</code></pre>
+<pre><code>Loading required package: IRanges</code></pre>
+<pre><code>
+Attaching package: &#39;IRanges&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:dplyr&#39;:
+
+    collapse, desc, slice</code></pre>
+<pre><code>The following object is masked from &#39;package:purrr&#39;:
+
+    reduce</code></pre>
+<pre><code>Loading required package: GenomeInfoDb</code></pre>
+<pre><code>Loading required package: Biobase</code></pre>
+<pre><code>Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    &#39;browseVignettes()&#39;. To cite Bioconductor, see
+    &#39;citation(&quot;Biobase&quot;)&#39;, and for packages &#39;citation(&quot;pkgname&quot;)&#39;.</code></pre>
+<pre><code>
+Attaching package: &#39;Biobase&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:MatrixGenerics&#39;:
+
+    rowMedians</code></pre>
+<pre><code>The following objects are masked from &#39;package:matrixStats&#39;:
+
+    anyMissing, rowMedians</code></pre>
+<pre class="r"><code>library(muscat)
+library(SingleCellExperiment)
+devtools::load_all(&#39;/home/larsc/SecretUtils&#39;)</code></pre>
+<pre><code>ℹ Loading SecretUtils</code></pre>
+<pre><code>Loading required package: magrittr</code></pre>
+<pre><code>
+Attaching package: &#39;magrittr&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:purrr&#39;:
+
+    set_names</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    extract</code></pre>
+<pre><code>Loading required package: reshape2</code></pre>
+<pre><code>
+Attaching package: &#39;reshape2&#39;</code></pre>
+<pre><code>The following object is masked from &#39;package:tidyr&#39;:
+
+    smiths</code></pre>
+<pre class="r"><code>epilepsy_con &lt;- readRDS(file.path(&#39;/home/larsc/data/10x_preproced_graphed.rds&#39;))
+epilepsy_annot &lt;- readRDS(file.path(&#39;/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds&#39;))
+epilepsy_annot$cellid &lt;- rownames(epilepsy_annot)
+raw_cm &lt;- RbindRaw(epilepsy_con)</code></pre>
+<pre class="r"><code>lamp5_healthy_annot &lt;- epilepsy_annot %&gt;% filter(subtype==&#39;L2_Lamp5&#39;, condition==&#39;healthy&#39;)
+lamp5_healthy_cm &lt;- raw_cm[lamp5_healthy_annot$cellid, ]
+
+
+data(sce) # reference sce object from muscat package
+sce@assays@data$counts %&gt;% dim</code></pre>
+<pre><code>[1] 1267 1556</code></pre>
+<pre class="r"><code>lamp5_sce &lt;- SingleCellExperiment(list(counts=Matrix::t(lamp5_healthy_cm)), 
+                                  colData=DataFrame(cluster_id = lamp5_healthy_annot$subtype,
+                                                    sample_id = lamp5_healthy_annot$sample,
+                                                    group_id = lamp5_healthy_annot$condition))
+#ref &lt;- prepSim(lamp5_sce, verbose = FALSE)
+#saveRDS(ref, file.path(&#39;/home/larsc/data/lamp5_prepsim.rds&#39;))
+ref &lt;- readRDS(file.path(&#39;/home/larsc/data/lamp5_prepsim.rds&#39;))
+sub &lt;- assay(lamp5_sce[rownames(ref), colnames(ref)])
+all.equal(exp(ref$offset), as.numeric(colSums(sub)))</code></pre>
+<pre><code>[1] TRUE</code></pre>
+<pre class="r"><code>sim &lt;- simData(ref, p_dd = diag(6)[1, ],
+    nk = 3, ns = 3, nc = 2e3,
+    ng = 1e3, force = TRUE)
+table(sim$sample_id, sim$cluster_id)</code></pre>
+<pre><code>           
+            cluster1 cluster2 cluster3
+  sample1.A      108      109      112
+  sample2.A      113       99      125
+  sample3.A      109      118      122
+  sample1.B      106      106      106
+  sample2.B      119       90      114
+  sample3.B      116      123      105</code></pre>
+<pre class="r"><code>generateSims &lt;- function(sce.obj, ncell, ngenes, nreplicates, varied.factor){
+  de.proportions &lt;- 1:5 %&gt;% lapply(function(x){c(1-x*1e-1, 0, x*1e-1, 0, 0, 0)})
+  sims &lt;- de.proportions %&gt;% lapply(function(prop.vec){
+    sim.obj &lt;- muscat::simData(
+      sce.obj, p_dd = prop.vec, nk = 1, ns = nreplicates, nc = ncell*2, ng = ngenes, force = TRUE)
+    sim.obj@colData$de &lt;- prop.vec[3]
+    sim.obj@colData[[varied.factor]] &lt;- get(varied.factor)
+    sim.obj@colData$cellid &lt;- paste(rownames(sim.obj@colData), prop.vec[3], get(varied.factor), sep=&#39;_&#39;)
+    colnames(sim.obj@assays@data$counts) &lt;- sim.obj@colData$cellid
+    return(sim.obj)
+  })
+  names(sims) &lt;- 1:5*1e-1
+  return(sims)
+}
+
+#sims_100cell &lt;- generateSims(ref, ncell=100, ngenes=1000, nreplicates=2, &#39;ncell&#39;)
+# maybe extract gene info as well from the sim objects
+
+extractSimItems &lt;- function(sims.by.de){
+  cm.bound &lt;- sims.by.de %&gt;% lapply(function(sim.obj){
+    Matrix::t(sim.obj@assays@data$counts)
+  }) %&gt;% do.call(rbind, .)
+  annot.bound &lt;- sims.by.de %&gt;% lapply(function(sim.obj){
+    df &lt;- data.frame(sim.obj@colData)
+    rownames(df) &lt;- NULL
+    return(df)
+  }) %&gt;% dplyr::bind_rows()
+  gene.infos &lt;- sims.by.de %&gt;% lapply(function(sim.obj){
+    sim.obj@metadata$gene_info
+  })
+  return(list(cm = cm.bound, annot = annot.bound, gene.infos = gene.infos))
+}
+
+#sim100cellconc &lt;- sims_100cell %&gt;% extractSimItems()
+#sim100cellconc$annot %&gt;% head
+
+ncell_values &lt;- c(50, 100, 200)
+
+SimAndExtract &lt;- function(sce.obj, ncell, ngenes, nreplicates, varied.factor){
+  if (varied.factor==&#39;ncell&#39;){
+    sims.per.factor &lt;- ncell %&gt;% lapply(function(ncell.val){
+      sim.items &lt;- generateSims(sce.obj, ncell.val, ngenes, nreplicates, varied.factor) %&gt;% 
+        extractSimItems()
+    })
+  } else if (varied.factor==&#39;ngenes&#39;){
+    sims.per.factor &lt;- ngenes %&gt;% lapply(function(ngene.val){
+      sim.items &lt;- generateSims(sce.obj, ncell, ngene.val, nreplicates, varied.factor) %&gt;% 
+        extractSimItems()
+    })
+  }
+  cm &lt;- sims.per.factor %&gt;% lapply(function(x){x$cm}) %&gt;% do.call(rbind, .)
+  annot &lt;- sims.per.factor %&gt;% lapply(function(x){x$annot}) %&gt;% dplyr::bind_rows()
+  gene.infos &lt;- sims.per.factor %&gt;% lapply(function(x){x$gene.infos})
+  return(list(cm = cm, annot = annot, gene.infos = gene.infos))
+}
+
+sims_per_ncell &lt;- SimAndExtract(ref, ncell_values, 1000, 2, &#39;ncell&#39;)</code></pre>
+<p>Now we can build p2 -&gt; conos -&gt; cacoa</p>
+<pre class="r"><code>sim_annot &lt;- sims_per_ncell$annot
+sim_annot %&lt;&gt;% mutate(celltype=paste0(ncell, &#39;_&#39;, de))
+sim_cm &lt;- sims_per_ncell$cm
+cms_by_sample &lt;- sim_annot$cellid %&gt;% split(sim_annot$sample_id) %&gt;% lapply(function(x){sim_cm[x, ]})
+sim_p2s &lt;- lapply(cms_by_sample %&gt;% lapply(Matrix::t), pagoda2::basicP2proc, n.cores=1, min.cells.per.gene=0, n.odgenes=2e3, 
+                   get.largevis=FALSE, make.geneknn=FALSE, get.tsne=FALSE, min.transcripts.per.cell=1)</code></pre>
+<pre><code>911 cells, 1000 genes; normalizing ... </code></pre>
+<pre><code>Using plain model </code></pre>
+<pre><code>Winsorizing ... </code></pre>
+<pre><code>log scale ... </code></pre>
+<pre><code>done.</code></pre>
+<pre><code>calculating variance fit ...</code></pre>
+<pre><code> using gam </code></pre>
+<pre><code>28 overdispersed genes ... 28</code></pre>
+<pre><code>persisting ... </code></pre>
+<pre><code>done.</code></pre>
+<pre><code>running PCA using 1000 OD genes .</code></pre>
+<pre><code>.
+.
+.</code></pre>
+<pre><code> done</code></pre>
+<pre><code>creating space of type angular done
+adding data ... done
+building index ... done
+querying ... done</code></pre>
+<pre><code>875 cells, 1000 genes; normalizing ... </code></pre>
+<pre><code>Using plain model </code></pre>
+<pre><code>Winsorizing ... </code></pre>
+<pre><code>log scale ... </code></pre>
+<pre><code>done.</code></pre>
+<pre><code>calculating variance fit ...</code></pre>
+<pre><code> using gam </code></pre>
+<pre><code>31 overdispersed genes ... 31</code></pre>
+<pre><code>persisting ... </code></pre>
+<pre><code>done.</code></pre>
+<pre><code>running PCA using 1000 OD genes .</code></pre>
+<pre><code>.
+.
+.</code></pre>
+<pre><code> done</code></pre>
+<pre><code>creating space of type angular done
+adding data ... done
+building index ... done
+querying ... done</code></pre>
+<pre><code>841 cells, 1000 genes; normalizing ... </code></pre>
+<pre><code>Using plain model </code></pre>
+<pre><code>Winsorizing ... </code></pre>
+<pre><code>log scale ... </code></pre>
+<pre><code>done.</code></pre>
+<pre><code>calculating variance fit ...</code></pre>
+<pre><code> using gam </code></pre>
+<pre><code>26 overdispersed genes ... 26</code></pre>
+<pre><code>persisting ... </code></pre>
+<pre><code>done.</code></pre>
+<pre><code>running PCA using 1000 OD genes .</code></pre>
+<pre><code>.
+.
+.</code></pre>
+<pre><code> done</code></pre>
+<pre><code>creating space of type angular done
+adding data ... done
+building index ... done
+querying ... done</code></pre>
+<pre><code>873 cells, 1000 genes; normalizing ... </code></pre>
+<pre><code>Using plain model </code></pre>
+<pre><code>Winsorizing ... </code></pre>
+<pre><code>log scale ... </code></pre>
+<pre><code>done.</code></pre>
+<pre><code>calculating variance fit ...</code></pre>
+<pre><code> using gam </code></pre>
+<pre><code>11 overdispersed genes ... 11</code></pre>
+<pre><code>persisting ... </code></pre>
+<pre><code>done.</code></pre>
+<pre><code>running PCA using 1000 OD genes .</code></pre>
+<pre><code>.
+.
+.</code></pre>
+<pre><code> done</code></pre>
+<pre><code>creating space of type angular done
+adding data ... done
+building index ... done
+querying ... done</code></pre>
+<pre class="r"><code>sim_conos &lt;- Conos$new(sim_p2s)
+sim_conos$buildGraph(n.odgenes=1000) # crashes if the value is higher than actual genes present</code></pre>
+<pre><code>found 0 out of 6 cached PCA space pairs ... </code></pre>
+<pre><code>running 6 additional PCA space pairs </code></pre>
+<pre><code> done</code></pre>
+<pre><code>inter-sample links using mNN </code></pre>
+<pre><code> done</code></pre>
+<pre><code>local pairs </code></pre>
+<pre><code> done</code></pre>
+<pre><code>building graph .</code></pre>
+<pre><code>.</code></pre>
+<pre><code>done</code></pre>
+<pre class="r"><code>sim_conos$embedGraph(method=&#39;largeVis&#39;)</code></pre>
+<pre><code>Estimating embeddings.</code></pre>
+<pre class="r"><code>sim_samples_con &lt;- setNames(sim_annot$sample_id, sim_annot$cellid)
+sim_condition_con &lt;- setNames(sim_annot$group_id, sim_annot$cellid)
+sim_celltype_con &lt;- setNames(sim_annot$celltype, sim_annot$cellid)
+sim_conos$plotGraph(groups = sim_celltype_con, show.legend=T)</code></pre>
+<p><img src="figure/muscat_lamp5.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>cacoa</p>
+<pre class="r"><code>sim_sample_grps &lt;- sim_annot %&gt;% split(sim_annot$sample_id) %&gt;% lapply(function(x){x$group_id %&gt;% unique}) %&gt;% unlist()
+sim_cell_grps &lt;- setNames(sim_annot$celltype, sim_annot$cellid)
+
+cao &lt;- cacoa::Cacoa$new(sim_conos, sample.groups=sim_sample_grps, cell.groups=sim_cell_grps, n.cores=10, 
+                 target.level=&#39;B&#39;, ref.level=&#39;A&#39;)</code></pre>
+<pre><code></code></pre>
+<pre class="r"><code>res &lt;- cao$estimateExpressionShiftMagnitudes(min.cells=5, dist=&quot;cor&quot;, n.subsamples=50)</code></pre>
+<pre><code>setting group size of  100  cells for comparisons
+running 50 subsamples using  10 cores ...
+calculating distances ... done!</code></pre>
+<pre class="r"><code>dist.per.type &lt;- res$dist.df %$% split(value, Type)
+dist.df &lt;- dist.per.type %&gt;% data.frame
+names(dist.df) &lt;- names(dist.per.type) # stupid appending of characters when casting to df
+dist.df &lt;- dist.df %&gt;% tidyr::pivot_longer(cols=everything(), names_to=&#39;celltype&#39;, values_to=&#39;distance&#39;)
+ncell_de_list &lt;- strsplit(dist.df$celltype, &#39;_&#39;)
+
+dist.df %&lt;&gt;% mutate(ncell = as.factor(as.numeric(ncell_de_list %&gt;% lapply(function(x){x[[1]]}) %&gt;% unlist)), 
+                    de = ncell_de_list %&gt;% lapply(function(x){x[[2]]}) %&gt;% unlist,)
+dist.df %&gt;% ggplot(aes(x=ncell, y=distance, col=de))+geom_jitter()+ theme(legend.position=&quot;top&quot;)</code></pre>
+<p><img src="figure/muscat_lamp5.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.0.4 (2021-02-15)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.2 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/atlas/libblas.so.3.10.3
+LAPACK: /usr/lib/x86_64-linux-gnu/atlas/liblapack.so.3.10.3
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] SecretUtils_0.1.0           reshape2_1.4.4             
+ [3] magrittr_2.0.1              muscat_1.5.1               
+ [5] splatter_1.14.1             SingleCellExperiment_1.12.0
+ [7] SummarizedExperiment_1.20.0 Biobase_2.50.0             
+ [9] GenomicRanges_1.42.0        GenomeInfoDb_1.26.4        
+[11] IRanges_2.24.1              S4Vectors_0.28.1           
+[13] BiocGenerics_0.36.0         MatrixGenerics_1.2.1       
+[15] matrixStats_0.58.0          forcats_0.5.1              
+[17] stringr_1.4.0               dplyr_1.0.5                
+[19] purrr_0.3.4                 readr_1.4.0                
+[21] tidyr_1.1.3                 tibble_3.1.0               
+[23] ggplot2_3.3.3               tidyverse_1.3.0            
+[25] conos_1.4.0                 igraph_1.2.6               
+[27] Matrix_1.3-2                workflowr_1.6.2            
+
+loaded via a namespace (and not attached):
+  [1] dendsort_0.3.3            R.methodsS3_1.8.1        
+  [3] bit64_4.0.5               knitr_1.31               
+  [5] R.utils_2.10.1            irlba_2.3.3              
+  [7] DelayedArray_0.16.2       Rook_1.1-1               
+  [9] data.table_1.14.0         RCurl_1.98-1.3           
+ [11] doParallel_1.0.16         generics_0.1.0           
+ [13] cowplot_1.1.1             callr_3.5.1              
+ [15] usethis_2.0.1             RSQLite_2.2.4            
+ [17] shadowtext_0.0.7          future_1.21.0            
+ [19] enrichplot_1.10.2         bit_4.0.4                
+ [21] xml2_1.3.2                lubridate_1.7.10         
+ [23] httpuv_1.5.5              assertthat_0.2.1         
+ [25] viridis_0.5.1             xfun_0.22                
+ [27] RMTstat_0.3               hms_1.0.0                
+ [29] evaluate_0.14             promises_1.2.0.1         
+ [31] fansi_0.4.2               progress_1.2.2           
+ [33] caTools_1.18.1            dbplyr_2.1.0             
+ [35] readxl_1.3.1              DBI_1.1.1                
+ [37] geneplotter_1.68.0        ellipsis_0.3.1           
+ [39] backports_1.2.1           annotate_1.68.0          
+ [41] sparseMatrixStats_1.2.1   vctrs_0.3.6              
+ [43] remotes_2.2.0             Cairo_1.5-12.2           
+ [45] abind_1.4-5               cachem_1.0.4             
+ [47] withr_2.4.1               ggforce_0.3.3            
+ [49] grr_0.9.5                 triebeard_0.3.0          
+ [51] checkmate_2.0.0           sctransform_0.3.2        
+ [53] prettyunits_1.1.1         DOSE_3.16.0              
+ [55] cluster_2.1.1             ape_5.4-1                
+ [57] crayon_1.4.1              genefilter_1.72.1        
+ [59] labeling_0.4.2            edgeR_3.32.1             
+ [61] pkgconfig_2.0.3           tweenr_1.0.1             
+ [63] drat_0.1.8                nlme_3.1-152             
+ [65] vipor_0.4.5               pkgload_1.2.0            
+ [67] blme_1.0-5                devtools_2.3.2           
+ [69] rlang_0.4.10              globals_0.14.0           
+ [71] lifecycle_1.0.0           modelr_0.1.8             
+ [73] rsvd_1.0.3                polyclip_1.10-0          
+ [75] cellranger_1.1.0          rprojroot_2.0.2          
+ [77] urltools_1.7.3            boot_1.3-27              
+ [79] Matrix.utils_0.9.8        reprex_1.0.0             
+ [81] beeswarm_0.3.1            whisker_0.4              
+ [83] GlobalOptions_0.1.2       processx_3.4.5           
+ [85] png_0.1-7                 viridisLite_0.3.0        
+ [87] rjson_0.2.20              bitops_1.0-6             
+ [89] R.oo_1.24.0               KernSmooth_2.23-18       
+ [91] blob_1.2.1                DelayedMatrixStats_1.12.3
+ [93] shape_1.4.5               qvalue_2.22.0            
+ [95] brew_1.0-6                parallelly_1.24.0        
+ [97] sccore_0.1.2              beachmat_2.6.4           
+ [99] scales_1.1.1              memoise_2.0.0            
+[101] plyr_1.8.6                gplots_3.1.1             
+[103] zlibbioc_1.36.0           scatterpie_0.1.5         
+[105] compiler_4.0.4            p2data_1.0.0             
+[107] RColorBrewer_1.1-2        clue_0.3-58              
+[109] lme4_1.1-26               DESeq2_1.30.1            
+[111] cli_2.3.1                 XVector_0.30.0           
+[113] lmerTest_3.1-3            listenv_0.8.0            
+[115] pbapply_1.4-3             ps_1.6.0                 
+[117] TMB_1.7.19                mgcv_1.8-34              
+[119] MASS_7.3-53.1             tidyselect_1.1.0         
+[121] stringi_1.5.3             highr_0.8                
+[123] GOSemSim_2.16.1           yaml_2.2.1               
+[125] BiocSingular_1.6.0        locfit_1.5-9.4           
+[127] ggrepel_0.9.1             pbmcapply_1.5.0          
+[129] grid_4.0.4                fastmatch_1.1-0          
+[131] cacoa_0.1                 tools_4.0.4              
+[133] future.apply_1.7.0        circlize_0.4.12          
+[135] rstudioapi_0.13           foreach_1.5.1            
+[137] git2r_0.28.0              gridExtra_2.3            
+[139] farver_2.1.0              Rtsne_0.15               
+[141] ggraph_2.0.5              BiocManager_1.30.10      
+[143] rvcheck_0.1.8             digest_0.6.27            
+[145] Rcpp_1.0.6                broom_0.7.5              
+[147] scuttle_1.0.4             later_1.1.0.1            
+[149] httr_1.4.2                AnnotationDbi_1.52.0     
+[151] ComplexHeatmap_2.6.2      N2R_0.1.1                
+[153] colorspace_2.0-0          rvest_1.0.0              
+[155] XML_3.99-0.6              fs_1.5.0                 
+[157] splines_4.0.4             statmod_1.4.35           
+[159] graphlayouts_0.7.1        scater_1.18.6            
+[161] sessioninfo_1.1.1         xtable_1.8-4             
+[163] jsonlite_1.7.2            nloptr_1.2.2.2           
+[165] tidygraph_1.2.0           leidenAlg_0.1.1          
+[167] testthat_3.0.2            R6_2.5.0                 
+[169] pillar_1.5.1              htmltools_0.5.1.1        
+[171] glue_1.4.2                fastmap_1.1.0            
+[173] minqa_1.2.4               BiocParallel_1.24.1      
+[175] pagoda2_1.0.2             BiocNeighbors_1.8.2      
+[177] codetools_0.2-18          fgsea_1.16.0             
+[179] pkgbuild_1.2.0            utf8_1.2.1               
+[181] lattice_0.20-41           numDeriv_2016.8-1.1      
+[183] pbkrtest_0.5.1            ggbeeswarm_0.6.0         
+[185] colorRamps_2.3            gtools_3.8.2             
+[187] GO.db_3.12.1              survival_3.2-7           
+[189] limma_3.46.0              glmmTMB_1.0.2.1          
+[191] rmarkdown_2.7             desc_1.3.0               
+[193] munsell_0.5.0             DO.db_2.9                
+[195] GetoptLong_1.0.5          GenomeInfoDbData_1.2.4   
+[197] iterators_1.0.13          variancePartition_1.20.0 
+[199] haven_2.3.1               gtable_0.3.0             </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
