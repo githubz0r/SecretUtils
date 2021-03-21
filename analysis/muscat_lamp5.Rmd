@@ -1,0 +1,145 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(conos)
+library(tidyverse)
+library(splatter)
+library(muscat)
+library(SingleCellExperiment)
+devtools::load_all('/home/larsc/SecretUtils')
+```
+
+```{r}
+epilepsy_con <- readRDS(file.path('/home/larsc/data/10x_preproced_graphed.rds'))
+epilepsy_annot <- readRDS(file.path('/home/demharters/R/projects/UPF9_14_17_19_22_23_24_32_33/metadata_10x_final.rds'))
+epilepsy_annot$cellid <- rownames(epilepsy_annot)
+raw_cm <- RbindRaw(epilepsy_con)
+```
+
+```{r}
+lamp5_healthy_annot <- epilepsy_annot %>% filter(subtype=='L2_Lamp5', condition=='healthy')
+lamp5_healthy_cm <- raw_cm[lamp5_healthy_annot$cellid, ]
+
+
+data(sce) # reference sce object from muscat package
+sce@assays@data$counts %>% dim
+```
+
+```{r}
+lamp5_sce <- SingleCellExperiment(list(counts=Matrix::t(lamp5_healthy_cm)), 
+                                  colData=DataFrame(cluster_id = lamp5_healthy_annot$subtype,
+                                                    sample_id = lamp5_healthy_annot$sample,
+                                                    group_id = lamp5_healthy_annot$condition))
+#ref <- prepSim(lamp5_sce, verbose = FALSE)
+#saveRDS(ref, file.path('/home/larsc/data/lamp5_prepsim.rds'))
+ref <- readRDS(file.path('/home/larsc/data/lamp5_prepsim.rds'))
+sub <- assay(lamp5_sce[rownames(ref), colnames(ref)])
+all.equal(exp(ref$offset), as.numeric(colSums(sub)))
+
+sim <- simData(ref, p_dd = diag(6)[1, ],
+    nk = 3, ns = 3, nc = 2e3,
+    ng = 1e3, force = TRUE)
+table(sim$sample_id, sim$cluster_id)
+```
+
+```{r}
+generateSims <- function(sce.obj, ncell, ngenes, nreplicates, varied.factor){
+  de.proportions <- 1:5 %>% lapply(function(x){c(1-x*1e-1, 0, x*1e-1, 0, 0, 0)})
+  sims <- de.proportions %>% lapply(function(prop.vec){
+    sim.obj <- muscat::simData(
+      sce.obj, p_dd = prop.vec, nk = 1, ns = nreplicates, nc = ncell*2, ng = ngenes, force = TRUE)
+    sim.obj@colData$de <- prop.vec[3]
+    sim.obj@colData[[varied.factor]] <- get(varied.factor)
+    sim.obj@colData$cellid <- paste(rownames(sim.obj@colData), prop.vec[3], get(varied.factor), sep='_')
+    colnames(sim.obj@assays@data$counts) <- sim.obj@colData$cellid
+    return(sim.obj)
+  })
+  names(sims) <- 1:5*1e-1
+  return(sims)
+}
+
+#sims_100cell <- generateSims(ref, ncell=100, ngenes=1000, nreplicates=2, 'ncell')
+# maybe extract gene info as well from the sim objects
+
+extractSimItems <- function(sims.by.de){
+  cm.bound <- sims.by.de %>% lapply(function(sim.obj){
+    Matrix::t(sim.obj@assays@data$counts)
+  }) %>% do.call(rbind, .)
+  annot.bound <- sims.by.de %>% lapply(function(sim.obj){
+    df <- data.frame(sim.obj@colData)
+    rownames(df) <- NULL
+    return(df)
+  }) %>% dplyr::bind_rows()
+  gene.infos <- sims.by.de %>% lapply(function(sim.obj){
+    sim.obj@metadata$gene_info
+  })
+  return(list(cm = cm.bound, annot = annot.bound, gene.infos = gene.infos))
+}
+
+#sim100cellconc <- sims_100cell %>% extractSimItems()
+#sim100cellconc$annot %>% head
+
+ncell_values <- c(50, 100, 200)
+
+SimAndExtract <- function(sce.obj, ncell, ngenes, nreplicates, varied.factor){
+  if (varied.factor=='ncell'){
+    sims.per.factor <- ncell %>% lapply(function(ncell.val){
+      sim.items <- generateSims(sce.obj, ncell.val, ngenes, nreplicates, varied.factor) %>% 
+        extractSimItems()
+    })
+  } else if (varied.factor=='ngenes'){
+    sims.per.factor <- ngenes %>% lapply(function(ngene.val){
+      sim.items <- generateSims(sce.obj, ncell, ngene.val, nreplicates, varied.factor) %>% 
+        extractSimItems()
+    })
+  }
+  cm <- sims.per.factor %>% lapply(function(x){x$cm}) %>% do.call(rbind, .)
+  annot <- sims.per.factor %>% lapply(function(x){x$annot}) %>% dplyr::bind_rows()
+  gene.infos <- sims.per.factor %>% lapply(function(x){x$gene.infos})
+  return(list(cm = cm, annot = annot, gene.infos = gene.infos))
+}
+
+sims_per_ncell <- SimAndExtract(ref, ncell_values, 1000, 2, 'ncell')
+```
+
+Now we can build p2 -> conos -> cacoa
+```{r}
+sim_annot <- sims_per_ncell$annot
+sim_annot %<>% mutate(celltype=paste0(ncell, '_', de))
+sim_cm <- sims_per_ncell$cm
+cms_by_sample <- sim_annot$cellid %>% split(sim_annot$sample_id) %>% lapply(function(x){sim_cm[x, ]})
+sim_p2s <- lapply(cms_by_sample %>% lapply(Matrix::t), pagoda2::basicP2proc, n.cores=1, min.cells.per.gene=0, n.odgenes=2e3, 
+                   get.largevis=FALSE, make.geneknn=FALSE, get.tsne=FALSE, min.transcripts.per.cell=1)
+
+sim_conos <- Conos$new(sim_p2s)
+sim_conos$buildGraph(n.odgenes=1000) # crashes if the value is higher than actual genes present
+sim_conos$embedGraph(method='largeVis')
+sim_samples_con <- setNames(sim_annot$sample_id, sim_annot$cellid)
+sim_condition_con <- setNames(sim_annot$group_id, sim_annot$cellid)
+sim_celltype_con <- setNames(sim_annot$celltype, sim_annot$cellid)
+sim_conos$plotGraph(groups = sim_celltype_con, show.legend=T)
+```
+
+cacoa
+```{r}
+sim_sample_grps <- sim_annot %>% split(sim_annot$sample_id) %>% lapply(function(x){x$group_id %>% unique}) %>% unlist()
+sim_cell_grps <- setNames(sim_annot$celltype, sim_annot$cellid)
+
+cao <- cacoa::Cacoa$new(sim_conos, sample.groups=sim_sample_grps, cell.groups=sim_cell_grps, n.cores=10, 
+                 target.level='B', ref.level='A')
+
+res <- cao$estimateExpressionShiftMagnitudes(min.cells=5, dist="cor", n.subsamples=50)
+dist.per.type <- res$dist.df %$% split(value, Type)
+dist.df <- dist.per.type %>% data.frame
+names(dist.df) <- names(dist.per.type) # stupid appending of characters when casting to df
+dist.df <- dist.df %>% tidyr::pivot_longer(cols=everything(), names_to='celltype', values_to='distance')
+ncell_de_list <- strsplit(dist.df$celltype, '_')
+
+dist.df %<>% mutate(ncell = as.factor(as.numeric(ncell_de_list %>% lapply(function(x){x[[1]]}) %>% unlist)), 
+                    de = ncell_de_list %>% lapply(function(x){x[[2]]}) %>% unlist,)
+dist.df %>% ggplot(aes(x=ncell, y=distance, col=de))+geom_jitter()+ theme(legend.position="top")
+```
+
